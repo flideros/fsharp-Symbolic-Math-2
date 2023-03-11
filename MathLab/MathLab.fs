@@ -20,7 +20,7 @@ type Lab() as lab =
     inherit UserControl()
 
     // Controls
-    let testCanvas = BasicCalculator.Calculator()    
+    let testCanvas = DataLab.DataLab()    
     
     let pastProjects = 
         let sp = StackPanel()   
@@ -42,8 +42,18 @@ type Lab() as lab =
                 w.Show() 
             b.Click.AddHandler(RoutedEventHandler(fun _ _ -> handleClick()))
             b     
+        let dataLab = 
+            let b = Button(Content = "Data Lab")
+            let handleClick () =
+                let w = Window(SizeToContent = SizeToContent.WidthAndHeight)
+                do  w.Content <- DataLab.DataLab()
+                w.Topmost <- true
+                w.Show() 
+            b.Click.AddHandler(RoutedEventHandler(fun _ _ -> handleClick()))
+            b  
         do  sp.Children.Add(basicCalculator) |> ignore
             sp.Children.Add(colorPicker) |> ignore
+            sp.Children.Add(dataLab) |> ignore
         sp
 
     // Tab Control 
