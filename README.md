@@ -8,6 +8,8 @@ The **Math Lab** project is the main entry point to the lab. It is currently bas
 
 The **Basic Calculator** project is a carry over from the previous lab and one of the first WPF controls I have written.
 
+The **Control Library** project is a collection of WPF controls and containers. It includes the **Color Picker** control which can be launched from the past projects tab of the Math Lab.
+
 Feel free to clone this repository to code and test your own code or follow along as I grow this lab. 
 
 Sincerely,
