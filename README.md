@@ -1,6 +1,6 @@
 # Symbolic Math 2
 
-This is the second version of my personal coding lab for coding in f#. The previous lab depended heavily on packages, so in this version, I will try to keep the dependencies to a minimum in this iteration. 
+This is the second version of my personal coding lab for coding in f#. The previous lab depended heavily on packages, so in this version, I will try to keep the dependencies to a minimum. 
 
 The **Math Lab UI** project is a minimal C# implementation to launch the WPF app. 
 
