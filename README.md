@@ -10,6 +10,8 @@ The **Basic Calculator** project is a carry over from the previous lab and one o
 
 The **Control Library** project is a collection of WPF controls and containers. It includes the **Color Picker** control which can be launched from the past projects tab of the Math Lab.
 
+The **Database Lab** project is a utility app for connecting to and querying databases.
+
 Feel free to clone this repository to code and test your own code or follow along as I grow this lab. 
 
 Sincerely,
