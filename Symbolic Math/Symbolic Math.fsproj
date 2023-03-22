@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework> 
+    <RootNamespace>Symbolic_Math</RootNamespace> 
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Constants.fs" />
+    <Compile Include="Objects.fs" />
+    <Compile Include="Operations.fs" />
+    <None Include="Script.fsx" />
+  </ItemGroup>
+</Project>

@@ -13,6 +13,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ControlLibrary", "ControLib
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Database Lab", "Data Base Lab\Database Lab.fsproj", "{362F9170-4DF5-41FE-851B-F5D800DE2C44}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Symbolic Math", "Symbolic Math\Symbolic Math.fsproj", "{39366BD8-6E92-4C67-8492-011DB041CC63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{362F9170-4DF5-41FE-851B-F5D800DE2C44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{362F9170-4DF5-41FE-851B-F5D800DE2C44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{362F9170-4DF5-41FE-851B-F5D800DE2C44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39366BD8-6E92-4C67-8492-011DB041CC63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39366BD8-6E92-4C67-8492-011DB041CC63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39366BD8-6E92-4C67-8492-011DB041CC63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39366BD8-6E92-4C67-8492-011DB041CC63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

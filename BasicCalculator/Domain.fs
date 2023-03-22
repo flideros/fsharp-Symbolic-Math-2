@@ -177,9 +177,11 @@ module CalculatorImplementation =
                 let newState = getComputationState services accumulatorStateData nextOp 
                 newState  // transition to ComputedState or ErrorState
             | MemoryAdd        
-            | MemorySubtract -> ZeroState {pendingOp = pendingOp; memory = memory}
+            | MemorySubtract -> ZeroState {pendingOp = pendingOp; memory = memory} // stay in ZeroState
             | ChangeSign -> AccumulatorState {digits = "-"; pendingOp = pendingOp; memory = memory}
             | Inverse -> ErrorState {error = DivideByZero; memory = memory}
+            | Root
+            | Percent -> ZeroState {pendingOp = pendingOp; memory = memory}// stay in ZeroState
         | Equals -> 
             let nextOp = None
             let newState = getComputationState services accumulatorStateData nextOp 
@@ -623,6 +625,9 @@ module CalculatorServices =
         | Divide when f2 = 0. -> Failure DivideByZero 
         | Divide -> Success (f1 / f2)        
         | ChangeSign  -> Success (f1 * -1.)
+        | MemoryAdd  -> Success (f1)
+        | MemorySubtract  -> Success (f1)
+
 
     let getDisplayFromState divideByZeroMsg :GetDisplayFromState =
         
@@ -653,6 +658,7 @@ module CalculatorServices =
             | Divide -> "/"
             | ChangeSign -> "(change sign)"
             | Inverse -> "(inverse)"
+            | _ -> ""
 
         let displayStringForPendingOp pendingOp =
             maybe {

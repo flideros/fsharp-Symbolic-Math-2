@@ -132,7 +132,6 @@ type ShowData() as this =
     member x.InitGrid(ds : DataSet) =  initGrid(ds)
     member x.InitGridError(strError : String) =  initGridError(strError)
 
-
 type State = { connectionString : string
                provider : Provider
                connection : DbConnection
