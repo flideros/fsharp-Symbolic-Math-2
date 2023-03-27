@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <Compile Include="Constants.fs" />
-    <Compile Include="Objects.fs" />
     <Compile Include="Operations.fs" />
+    <Compile Include="Objects.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
 </Project>

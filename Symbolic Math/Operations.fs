@@ -1,8 +1,24 @@
 ﻿module Operations
 
-open MathObject
+    type operatorPosition =
+        | Infix
+        | Prefix
 
-let add (s:Set) (x1: Expression) (x2: Expression)  = 
-    match x1, x2, s with
-    | Number (Integer x'), Number (Integer y'), Z -> (x' + y') |> Integer |> Number
-    | _ -> (x1, Plus, x2, s) |> BinaryOp 
+    type Addition = string
+    module Plus = 
+        let symbol = "\u002B"
+
+
+(*type Function = 
+    | Lcm
+    | Gcd
+    | Plus          // binary op
+    | UnaryMinus    // Unary op
+    | Minus         // binary op
+    | Times         // binary op
+    | Product       // n-ary op
+    | DividedBy     // binary op
+    | ToThePowerOf  // binary op
+    | Abs
+    | Root
+    | Sum           // n-ary op*)
