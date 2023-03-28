@@ -68,7 +68,6 @@ type Operations =
      additiveInverse:UnaryOp option
      multiplicativeInverse:UnaryOp option}
 
-
 type Axiom = 
     | AssociativeAddition       // (a + b) + c = a + (b + c)
     | AssociativeMultiplication // (a x b) x c = a x (b x c)
@@ -80,5 +79,15 @@ type Axiom =
     | MultiplicativeInverses    // For a not equal to 0, a x a^-1 = 1
     | Distributive              // a x (b + c) = (a x b) + (a x c)      
 
+type AlgebraicStructure = Set * Operations * Axiom list
 
-
+type MathematicalStructure =
+    | Algebraic of AlgebraicStructure
+    | Measure
+    | Topology
+    | Metric //Geometry
+    | Order
+    | Event
+    | Equivalence
+    | Differential
+    | Category                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     

@@ -4,6 +4,7 @@
 
 open Constants
 open MathObject
+open Operations
 
 // Construct math objects.
 let x = Variable "x" |> Symbol 
@@ -22,18 +23,33 @@ let getValue (x: Constant) =
 let pi = (Constant.Pi Constants.Pi.value)
 
 // Construct an operation.
-let plus = Addition (Operations.Addition Operations.Plus.symbol)
+let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol
 let eSymbol = Constants.EulerNumber.symbol
 
 // Example of a function that takes a set and performs an operation over that set.
-let add (s: Set) (x1: Expression) (x2: Expression)  = 
+let add (s: Set) (x1: Expression) (p: Operation) (x2: Expression)  = 
     match x1, x2, s with
     | Number (Integer x'), Number (Integer y'), Z -> (x' + y') |> Integer |> Number
-    | _ -> (x1, plus, x2, s) |> BinaryOp 
+    | _ -> (x1, p, x2, s) |> BinaryOp 
 
-add Z two (add Z one x ) 
-add Z two two
+add Z two plus (add Z one plus x) 
+add Z two plus two
 
+// Create operation service for a mathematical environment.
+let ops = 
+    {addition = Some add
+     subtraction = None
+     multiplication = None
+     division = None
+     additiveInverse = None
+     multiplicativeInverse = None}
+
+// Create axioms for the algebraic structure
+let asssociative = AssociativeAddition
+let commutative = CommutativeAddition
+
+// Create an alebraic structure
+let testAlgebra = (Z, ops, [asssociative;commutative]) 
