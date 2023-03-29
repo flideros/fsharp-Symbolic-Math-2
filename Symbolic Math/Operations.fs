@@ -4,7 +4,6 @@
         | Infix
         | Prefix
         | Postfix
-
     type Arity = 
         | Unary
         | Binary
@@ -18,10 +17,10 @@
         let symbol = "\u2211"
         let opPosition = Prefix
         let arity = Nary
-    type Addition = 
-        | Plus of (string*OperatorPosition*Arity) 
-        | Sum of (string*OperatorPosition*Arity) 
-
+    module AddativeInverse =
+        let symbol = "\u2212"
+        let opPosition = Prefix
+        let arity = Unary    
     module Times = 
         let symbol = "\u2A09"
         let opPosition = Infix
@@ -29,22 +28,40 @@
     module Product = 
         let symbol = "\u220F"
         let opPosition = Prefix
-        let arity = Nary
+        let arity = Nary 
+    module MultiplicativeInverse =
+        let symbol = "\u207B" + "\u00B9"
+        let opPosition = Postfix
+        let arity = Unary
+    module Minus = 
+        let symbol = "\u2212"
+        let opPosition = Infix
+        let arity = Binary
+    module Divide = 
+        let symbol = "\u2215"
+        let opPosition = Infix
+        let arity = Binary
+
+    type Addition = 
+        | Plus of (string * OperatorPosition * Arity) 
+        | Sum of (string * OperatorPosition * Arity) 
+        | Inverse of (string * OperatorPosition * Arity)    
     type Multiplication = 
-        | Times of (string*OperatorPosition*Arity) 
-        | Product of (string*OperatorPosition*Arity) 
+        | Times of (string * OperatorPosition * Arity) 
+        | Product of (string * OperatorPosition * Arity)
+        | Inverse of (string * OperatorPosition * Arity)
+    type Subtraction = 
+        | Minus of (string * OperatorPosition * Arity) 
+    type Division = 
+        | Divide of (string * OperatorPosition * Arity)
+    
+
 
 
 (*type Function = 
     | Lcm
-    | Gcd
-    | Plus          // binary op
-    | UnaryMinus    // Unary op
-    | Minus         // binary op
-    | Times         // binary op
-    | Product       // n-ary op
-    | DividedBy     // binary op
+    | Gcd    
     | ToThePowerOf  // binary op
     | Abs
     | Root
-    | Sum           // n-ary op*)
+ *)

@@ -9,3 +9,5 @@
     module EulerNumber = 
         let value = System.Math.E
         let symbol = "\u0065"
+
+    

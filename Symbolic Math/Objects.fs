@@ -27,6 +27,7 @@ type Constant =
 
 type Operation =
     | Addition of Operations.Addition
+    | Multiplication of Operations.Multiplication
 
 type Symbol = 
     | Constant of Constant

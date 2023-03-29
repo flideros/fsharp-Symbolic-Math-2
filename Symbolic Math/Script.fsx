@@ -51,5 +51,5 @@ let ops =
 let asssociative = AssociativeAddition
 let commutative = CommutativeAddition
 
-// Create an alebraic structure
-let testAlgebra = (Z, ops, [asssociative;commutative]) 
+// Create an mathematical structure
+let testAlgebra = Algebraic (Z, ops, [asssociative;commutative]) 
