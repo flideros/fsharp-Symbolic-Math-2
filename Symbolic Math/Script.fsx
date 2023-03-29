@@ -38,6 +38,9 @@ let add (s: Set) (x1: Expression) (p: Operation) (x2: Expression)  =
 add Z two plus (add Z one plus x) 
 add Z two plus two
 
+// Create an operation error
+let binaryOpError (s: Set) (x1: Expression) (p: Operation) (x2: Expression) = Unknown |> Error |> Symbol
+
 // Create operation service for a mathematical environment.
 let ops = 
     {addition = Some add
@@ -52,4 +55,12 @@ let asssociative = AssociativeAddition
 let commutative = CommutativeAddition
 
 // Create an mathematical structure
-let testAlgebra = Algebraic (Z, ops, [asssociative;commutative]) 
+let testAlgebra = (Z, ops, [asssociative;commutative]) |> Algebraic 
+
+// Use addition operation from a mathematical structure
+let testAdd = 
+    match testAlgebra with
+    | Algebraic (Z,ops,_) when ops.addition.IsSome -> ops.addition.Value Z
+    | _ -> binaryOpError Z
+
+testAdd one plus two
