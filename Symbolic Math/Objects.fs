@@ -24,6 +24,7 @@ type Error =
 type Constant =
     | Pi of Constants.Pi
     | E of Constants.EulerNumber
+    | Identity of Constants.Identity
 
 type Operation =
     | Addition of Operations.Addition

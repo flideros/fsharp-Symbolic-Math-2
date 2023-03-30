@@ -23,6 +23,8 @@
         let arity = Unary    
     module Times = 
         let symbol = "\u2A09"
+        let symbolSmall = "\u00D7"
+        let dotOperator = "\u22C5"
         let opPosition = Infix
         let arity = Binary
     module Product = 

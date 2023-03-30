@@ -18,6 +18,7 @@ let getValue (x: Constant) =
     match x with 
     | Pi p -> Constants.Pi.value
     | E e -> Constants.EulerNumber.value
+    | _ -> 0.0
 
 // Construct a constant.
 let pi = (Constant.Pi Constants.Pi.value)
@@ -63,4 +64,4 @@ let testAdd =
     | Algebraic (Z,ops,_) when ops.addition.IsSome -> ops.addition.Value Z
     | _ -> binaryOpError Z
 
-testAdd one plus two
+testAdd one plus x
