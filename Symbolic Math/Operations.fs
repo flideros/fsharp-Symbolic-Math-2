@@ -1,4 +1,6 @@
-﻿module Operations
+﻿namespace MathObject
+
+module Operations =
 
     type OperatorPosition =
         | Infix

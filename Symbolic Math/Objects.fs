@@ -8,6 +8,11 @@ Data structures of the objects used to make math.
 
 type RationalNumber = {numerator: BigInteger; denominator: BigInteger}
 
+type Infinity =
+    | Negative
+    | Positive
+
+[<StructuralEquality;NoComparison>]
 type NumberType =    
     | Natural of uint64
     | Integer of BigInteger 
@@ -15,6 +20,7 @@ type NumberType =
     | Decimal of decimal
     | Real of float
     | Complex of Complex
+    | Infinity of Infinity
     | Undefined
 
 type Error =

@@ -1,4 +1,6 @@
-﻿module Constants
+﻿namespace MathObject
+
+module Constants =
 (*  *)
     type Pi = float
     module Pi = 

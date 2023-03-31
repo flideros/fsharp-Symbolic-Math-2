@@ -2,8 +2,8 @@
 #load "Operations.fs"
 #load "Objects.fs"
 
-open Constants
 open MathObject
+open Constants
 open Operations
 
 // Construct math objects.
@@ -64,4 +64,4 @@ let testAdd =
     | Algebraic (Z,ops,_) when ops.addition.IsSome -> ops.addition.Value Z
     | _ -> binaryOpError Z
 
-testAdd one plus x
+testAdd one plus (testAdd two plus two)
