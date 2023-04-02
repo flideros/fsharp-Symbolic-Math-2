@@ -37,42 +37,42 @@ module Number =
         | Natural x, Natural y when x > y -> 1
         | Natural x, Natural y when x = y -> 0
         | Natural x, Natural y when x < y -> -1    
-        | Natural x, Infinity Positive -> - 1
+        | Natural x, Infinity Positive -> -1
         | Natural x, Infinity Negative-> 1
-        | Infinity Positive, Natural x -> - 1
-        | Infinity Negative, Natural x-> 1
+        | Infinity Positive, Natural x -> 1
+        | Infinity Negative, Natural x-> -1
         
         | Integer x, Integer y when x > y -> 1
         | Integer x, Integer y when x = y -> 0
         | Integer x, Integer y when x < y -> -1
-        | Integer x, Infinity Positive -> - 1
+        | Integer x, Infinity Positive -> -1
         | Integer x, Infinity Negative-> 1
-        | Infinity Positive, Integer x -> - 1
-        | Infinity Negative, Integer x-> 1
+        | Infinity Positive, Integer x -> 1
+        | Infinity Negative, Integer x-> -1
 
         | Rational x, Rational y when y.numerator * x.denominator > x.numerator * y.denominator -> -1
         | Rational x, Rational y when y.numerator * x.denominator < x.numerator * y.denominator -> 1
         | Rational x, Rational y when y.numerator * x.denominator = x.numerator * y.denominator -> 0
-        | Rational x, Infinity Positive -> - 1
+        | Rational x, Infinity Positive -> -1
         | Rational x, Infinity Negative-> 1
-        | Infinity Positive, Rational x -> - 1
-        | Infinity Negative, Rational x-> 1
+        | Infinity Positive, Rational x -> 1
+        | Infinity Negative, Rational x-> -1
 
         | Decimal x, Decimal y when x > y -> 1
         | Decimal x, Decimal y when x = y -> 0
         | Decimal x, Decimal y when x < y -> -1
-        | Decimal x, Infinity Positive -> - 1
+        | Decimal x, Infinity Positive -> -1
         | Decimal x, Infinity Negative-> 1
-        | Infinity Positive, Decimal x -> - 1
-        | Infinity Negative, Decimal x-> 1
+        | Infinity Positive, Decimal x -> 1
+        | Infinity Negative, Decimal x-> -1
 
         | Real x, Real y when x > y -> 1
         | Real x, Real y when x = y -> 0
         | Real x, Real y when x < y -> -1
-        | Real x, Infinity Positive -> - 1
+        | Real x, Infinity Positive -> -1
         | Real x, Infinity Negative-> 1
-        | Infinity Positive, Real x -> - 1
-        | Infinity Negative, Real x-> 1
+        | Infinity Positive, Real x -> 1
+        | Infinity Negative, Real x-> -1
         
         | Integer x, Rational y when y.numerator > x * y.denominator -> -1
         | Integer x, Rational y when y.numerator < x * y.denominator -> 1
@@ -120,7 +120,6 @@ module Number =
         | 1 -> x
         | -1 -> y
         | _ -> x
-
 
     let isNegative this = 
         match this with

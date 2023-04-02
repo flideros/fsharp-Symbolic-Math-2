@@ -1,10 +1,12 @@
 ﻿#load "Constants.fs"
 #load "Operations.fs"
 #load "Objects.fs"
+#load "Numbers.fs"
 
 open MathObject
 open Constants
 open Operations
+open Number
 
 // Construct math objects.
 let x = Variable "x" |> Symbol 
@@ -65,3 +67,7 @@ let testAdd =
     | _ -> binaryOpError Z
 
 testAdd one plus (testAdd two plus two)
+
+compare (Integer -2I) (Infinity Positive)
+
+max (Infinity Negative) (Integer -2I)
