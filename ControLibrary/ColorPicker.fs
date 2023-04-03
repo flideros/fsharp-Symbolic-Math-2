@@ -240,7 +240,7 @@ type HsvColorPicker(selectedColor:SharedValue<Color>) as colorPicker =
                    SmallChange = 0.01,
                    LargeChange = 0.02,
                    IsDirectionReversed = true,
-                   OverridesDefaultStyle = true,
+                   //OverridesDefaultStyle = true,
                    Value = 1.)
         s
     let opacitySliderGradient_Border =
