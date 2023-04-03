@@ -1,10 +1,7 @@
 ﻿namespace MathObject
-
+// Data structures of the objects used to make math.
 open System.Numerics
-
-(*
-Data structures of the objects used to make math.
-*)
+(**)
 
 type RationalNumber = {numerator: BigInteger; denominator: BigInteger}
 
@@ -40,10 +37,10 @@ type Symbol =
     | Constant of Constant
     | Variable of string
     | Operation of Operation
-    | Relation
-    | Connectives
-    | Quantifiers
-    | Deliminators
+    | Relation //TODO
+    | Connectives //TODO
+    | Quantifiers //TODO
+    | Deliminators //TODO
     | Error of Error    
     | Inconsistent
 
@@ -67,6 +64,7 @@ and Set =
 
 type UnaryOp = Set -> Operation -> Expression -> Expression
 type BinaryOp = Set -> Expression -> Operation -> Expression -> Expression   
+type NaryOp = Set -> Operation -> Expression list -> Expression
 
 type Operations = 
     {addition:BinaryOp option
