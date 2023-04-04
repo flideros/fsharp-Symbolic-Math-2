@@ -1,6 +1,7 @@
 ﻿namespace MathObject
 // Data structures of the objects used to make math.
 open System.Numerics
+open Relations
 (**)
 
 type RationalNumber = {numerator: BigInteger; denominator: BigInteger}
@@ -21,6 +22,7 @@ type NumberType =
     | Undefined
 
 type Error =
+    | RelationUndefined
     | DivideByZero
     | Unknown
 
@@ -37,7 +39,7 @@ type Symbol =
     | Constant of Constant
     | Variable of string
     | Operation of Operation
-    | Relation //TODO
+    | Relation of Relation
     | Connectives //TODO
     | Quantifiers //TODO
     | Deliminators //TODO
