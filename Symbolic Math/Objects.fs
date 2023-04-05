@@ -59,7 +59,6 @@ and Set =
     | Q     // Set of all rational numbers
     | R     // Set of all real numbers
     | C     // Set of all complex numbers
-    | Zpos  // Set of all positive integers
     | Empty // The Empty Set
     | Numbers of seq<NumberType>
     | Expression of seq<Expression>
@@ -77,15 +76,46 @@ type Operations =
      multiplicativeInverse:UnaryOp option}
 
 type Axiom = 
-    | AssociativeAddition       // (a + b) + c = a + (b + c)
-    | AssociativeMultiplication // (a x b) x c = a x (b x c)
-    | CommutativeAddition       // a + b = b + a
-    | CommutativeMultiplication // a x b = b x a
-    | AdditiveIdentity          // a + 0 = a
-    | MultiplicativeIdentity    // a x 1 = a
-    | AdditiveInverses          //a + -a = 0
-    | MultiplicativeInverses    // For a not equal to 0, a x a^-1 = 1
-    | Distributive              // a x (b + c) = (a x b) + (a x c)      
+    /// a + b is in the set of discourse
+    | ClosureUnderAddition
+    /// a x b is in the set of discourse
+    | ClosureUnderMultiplication
+    /// (a + b) + c = a + (b + c)
+    | AssociativeAddition
+    /// (a x b) x c = a x (b x c)
+    | AssociativeMultiplication
+    /// a + b = b + a
+    | CommutativeAddition
+    /// a x b = b x a
+    | CommutativeMultiplication
+    /// a + 0 = a
+    | AdditiveIdentity          
+    /// a x 1 = a
+    | MultiplicativeIdentity
+    /// a + -a = 0
+    | AdditiveInverses
+    /// For a not equal to 0, a x a^-1 = 1
+    | MultiplicativeInverses
+    /// a x (b + c) = (a x b) + (a x c)  
+    | Distributive
+    /// a + b = c + b , a = c
+    | AdditiveCancellation
+    /// a x b = c x b , a = c
+    | MultiplicativeCancellation
+    /// There is an inductive set.
+    | Induction
+    /// a ≮can not be less than a
+    | Irreflexivity
+    /// Exactly one of (a < b, a = b,b < a) holds
+    | Antisymmetry
+    /// x < y and y < z  x < z;
+    | Transitivity
+    /// Any subset has a least element.
+    | WellOrdering
+    /// a < b implies a + c < b + c
+    | AdditiveOrderPreserving
+    /// a < b implies a x c < b + c
+    | MultiplicativeOrderPreserving
 
 type AlgebraicStructure = Set * Operations * Axiom list
 

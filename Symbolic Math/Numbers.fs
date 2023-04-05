@@ -2,9 +2,17 @@
 
 open System.Numerics
 open Relations
-(**)
-// Assume that the natural numbers exist and directly give the rules of arithmetic and order relations for them.
+
 module NaturalNumber =     
+(*
+The system of natural numbers is a set N = {0; 1; 2; 3; ...} together with three binary relations,
+addition, multiplication, order relation and axioms governing their interaction.
+*)    
+    let set = N
+    let axioms =
+        [AssociativeAddition; CommutativeAddition; AdditiveIdentity; AdditiveCancellation;
+         AssociativeMultiplication; CommutativeMultiplication; MultiplicativeIdentity; MultiplicativeCancellation;
+         Distributive; ]
     let compare this that = 
         match this, that with
         | Natural x, Natural y when x > y -> GreaterThan |> Relation |> Symbol
