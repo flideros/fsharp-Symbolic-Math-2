@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Statements.fs" />
     <Compile Include="Constants.fs" />
     <Compile Include="Operations.fs" />
     <Compile Include="Relations.fs" />

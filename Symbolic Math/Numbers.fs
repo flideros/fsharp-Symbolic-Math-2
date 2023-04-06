@@ -1,9 +1,10 @@
 ﻿namespace MathObject
 
 open System.Numerics
+open Statements
 open Relations
 
-module NaturalNumber =     
+module NaturalNumbers =     
 (*
 The system of natural numbers is a set N = {0; 1; 2; 3; ...} together with three binary relations,
 addition, multiplication, order relation and axioms governing their interaction.
@@ -12,15 +13,16 @@ addition, multiplication, order relation and axioms governing their interaction.
     let axioms =
         [AssociativeAddition; CommutativeAddition; AdditiveIdentity; AdditiveCancellation;
          AssociativeMultiplication; CommutativeMultiplication; MultiplicativeIdentity; MultiplicativeCancellation;
-         Distributive; ]
+         Distributive; Induction; Successor; Transitivity; Antisymmetry]
     let compare this that = 
         match this, that with
         | Natural x, Natural y when x > y -> GreaterThan |> Relation |> Symbol
         | Natural x, Natural y when x < y -> LessThan |> Relation |> Symbol
         | Natural x, Natural y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol
+    
 
-module IntegerNumber = 
+module IntegerNumbers = 
     let compare this that = 
         match this, that with
         | Integer x, Integer y when x > y -> GreaterThan |> Relation |> Symbol
@@ -31,7 +33,7 @@ module IntegerNumber =
     let abs x = Integer (abs x)        
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
         
-module RationalNumber =        
+module RationalNumbers =        
     let compare this that = 
         match this, that with
         | Rational x, Rational y ->
@@ -64,7 +66,7 @@ module RationalNumber =
     let zero = {numerator = 0I; denominator = 1I} |> Rational
     let isNegative this = compare this zero = (LessThan |> Relation |> Symbol)    
 
-module DecimalNumber =
+module DecimalNumbers =
     let compare this that = 
         match this, that with
         | Decimal x, Decimal y when x > y -> GreaterThan |> Relation |> Symbol
@@ -76,7 +78,7 @@ module DecimalNumber =
     let ceiling x = Decimal (ceil x)
     let isNegative this = compare this (Decimal 0M) = (LessThan |> Relation |> Symbol)
 
-module RealNumber = 
+module RealNumbers = 
     let compare this that = 
         match this, that with
         | Real x, Real y when x > y -> GreaterThan |> Relation |> Symbol
@@ -88,7 +90,7 @@ module RealNumber =
     let ceiling x = Real (ceil x)
     let isNegative this = compare this (Real 0.0) = (LessThan |> Relation |> Symbol)
 
-module ComplexNumber = 
+module ComplexNumbers = 
     let abs x = Real (Complex.Abs x)
     let isNegative this = 
         match this with        
@@ -129,39 +131,39 @@ module Infinity =
 module Number =    
     let compare this that =
         match this, that with 
-        | Natural x, Natural y -> (NaturalNumber.compare this that) 
-        | Integer x, Integer y -> (IntegerNumber.compare this that) 
-        | Integer x, Rational y -> (RationalNumber.compare this that)
-        | Rational x, Integer y -> (RationalNumber.compare this that)
-        | Rational x, Rational y -> (RationalNumber.compare this that)
-        | Decimal x, Decimal y -> (DecimalNumber.compare this that)
-        | Real x, Real y -> (RealNumber.compare this that)        
+        | Natural x, Natural y -> (NaturalNumbers.compare this that) 
+        | Integer x, Integer y -> (IntegerNumbers.compare this that) 
+        | Integer x, Rational y -> (RationalNumbers.compare this that)
+        | Rational x, Integer y -> (RationalNumbers.compare this that)
+        | Rational x, Rational y -> (RationalNumbers.compare this that)
+        | Decimal x, Decimal y -> (DecimalNumbers.compare this that)
+        | Real x, Real y -> (RealNumbers.compare this that)        
         | Infinity i, _ -> (Infinity.compare this that)
         | _, Infinity i -> (Infinity.compare this that)        
         | _ -> RelationUndefined |> Error |> Symbol
     let abs x = 
         match x with
-        | Integer x -> IntegerNumber.abs x       
-        | Rational x -> RationalNumber.abs x
-        | Decimal x -> DecimalNumber.abs x
-        | Real x -> RealNumber.abs x
-        | Complex x -> ComplexNumber.abs x
+        | Integer x -> IntegerNumbers.abs x       
+        | Rational x -> RationalNumbers.abs x
+        | Decimal x -> DecimalNumbers.abs x
+        | Real x -> RealNumbers.abs x
+        | Complex x -> ComplexNumbers.abs x
         | _ -> Undefined
     let floor x = 
         match x with
         | Natural n -> x
         | Integer i -> x
-        | Rational r -> RationalNumber.floor r
-        | Decimal d -> DecimalNumber.floor d
-        | Real r -> RealNumber.floor r       
+        | Rational r -> RationalNumbers.floor r
+        | Decimal d -> DecimalNumbers.floor d
+        | Real r -> RealNumbers.floor r       
         | _ -> Undefined
     let ceiling x = 
         match x with
         | Natural n -> x
         | Integer i -> x
-        | Rational r -> RationalNumber.ceiling r
-        | Decimal d -> DecimalNumber.ceiling d
-        | Real r -> RealNumber.ceiling r
+        | Rational r -> RationalNumbers.ceiling r
+        | Decimal d -> DecimalNumbers.ceiling d
+        | Real r -> RealNumbers.ceiling r
         | _ -> Undefined
     let min x y =
         match compare x y with
@@ -175,9 +177,9 @@ module Number =
         | _ -> x
     let isNegative this = 
         match this with        
-        | Rational x -> RationalNumber.isNegative this
-        | Integer x -> IntegerNumber.isNegative this
-        | Decimal d -> DecimalNumber.isNegative this
-        | Real x -> RealNumber.isNegative this        
-        | Complex x -> ComplexNumber.isNegative this
+        | Rational x -> RationalNumbers.isNegative this
+        | Integer x -> IntegerNumbers.isNegative this
+        | Decimal d -> DecimalNumbers.isNegative this
+        | Real x -> RealNumbers.isNegative this        
+        | Complex x -> ComplexNumbers.isNegative this
         | _ -> false

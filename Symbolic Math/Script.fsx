@@ -1,9 +1,12 @@
-﻿#load "Constants.fs"
+﻿#load "Statements.fs"
+#load "Constants.fs"
 #load "Operations.fs"
+#load "Relations.fs"
 #load "Objects.fs"
 #load "Numbers.fs"
 
 open MathObject
+open Statements
 open Constants
 open Operations
 open Number

@@ -1,7 +1,9 @@
 ﻿namespace MathObject
 // Data structures of the objects used to make math.
 open System.Numerics
+open Statements
 open Relations
+
 (**)
 
 type RationalNumber = {numerator: BigInteger; denominator: BigInteger}
@@ -54,12 +56,18 @@ type Expression =
     | NaryOp of (Operation * (Expression list) * Set) 
 
 and Set =  
-    | N     // Set of all natural numbers
-    | Z     // Set of all integers
-    | Q     // Set of all rational numbers
-    | R     // Set of all real numbers
-    | C     // Set of all complex numbers
-    | Empty // The Empty Set
+    /// Set of all natural numbers
+    | N     
+    /// Set of all integers
+    | Z     
+    /// Set of all rational numbers
+    | Q     
+    /// Set of all real numbers
+    | R     
+    /// Set of all complex numbers
+    | C     
+    /// The Empty Set
+    | Empty 
     | Numbers of seq<NumberType>
     | Expression of seq<Expression>
 
@@ -74,48 +82,6 @@ type Operations =
      division:BinaryOp option
      additiveInverse:UnaryOp option
      multiplicativeInverse:UnaryOp option}
-
-type Axiom = 
-    /// a + b is in the set of discourse
-    | ClosureUnderAddition
-    /// a x b is in the set of discourse
-    | ClosureUnderMultiplication
-    /// (a + b) + c = a + (b + c)
-    | AssociativeAddition
-    /// (a x b) x c = a x (b x c)
-    | AssociativeMultiplication
-    /// a + b = b + a
-    | CommutativeAddition
-    /// a x b = b x a
-    | CommutativeMultiplication
-    /// a + 0 = a
-    | AdditiveIdentity          
-    /// a x 1 = a
-    | MultiplicativeIdentity
-    /// a + -a = 0
-    | AdditiveInverses
-    /// For a not equal to 0, a x a^-1 = 1
-    | MultiplicativeInverses
-    /// a x (b + c) = (a x b) + (a x c)  
-    | Distributive
-    /// a + b = c + b , a = c
-    | AdditiveCancellation
-    /// a x b = c x b , a = c
-    | MultiplicativeCancellation
-    /// There is an inductive set.
-    | Induction
-    /// a ≮can not be less than a
-    | Irreflexivity
-    /// Exactly one of (a < b, a = b,b < a) holds
-    | Antisymmetry
-    /// x < y and y < z  x < z;
-    | Transitivity
-    /// Any subset has a least element.
-    | WellOrdering
-    /// a < b implies a + c < b + c
-    | AdditiveOrderPreserving
-    /// a < b implies a x c < b + c
-    | MultiplicativeOrderPreserving
 
 type AlgebraicStructure = Set * Operations * Axiom list
 
