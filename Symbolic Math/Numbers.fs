@@ -3,6 +3,7 @@
 open System.Numerics
 open Statements
 open Relations
+open Operations
 
 module NaturalNumbers =     
 (*
@@ -20,7 +21,43 @@ addition, multiplication, order relation and axioms governing their interaction.
         | Natural x, Natural y when x < y -> LessThan |> Relation |> Symbol
         | Natural x, Natural y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol
-    
+    let binaryAdd s e1 op e2 =
+        match s, op with
+        | N, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Natural a), Number (Natural b) -> Natural (a + b) |> Number
+            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions n, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains e1 n) && 
+                (Seq.contains e2 n) && 
+                (Seq.contains (Number (Natural (a + b))) n) -> Natural (a + b) |> Number            
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains e1 n) && 
+                (Seq.contains e2 n) -> 
+                    let m = Seq.length n |> uint64
+                    Natural ((a + b) % m) |> Number            
+            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Addition (Plus _)  -> 
+            match e1, e2 with
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains (Natural a) n) && 
+                (Seq.contains (Natural b) n) && 
+                (Seq.contains (Natural (a + b)) n) -> Natural (a + b) |> Number            
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains (Natural a) n) && 
+                (Seq.contains (Natural b) n) -> 
+                    let m = Seq.length n |> uint64
+                    Natural ((a + b) % m) |> Number            
+            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
 
 module IntegerNumbers = 
     let compare this that = 

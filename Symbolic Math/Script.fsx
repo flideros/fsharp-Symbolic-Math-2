@@ -17,6 +17,12 @@ let y = Variable "y" |> Symbol
 
 let one = Number (Integer 1I)
 let two = Number (Integer 2I)
+let oneN = Number (Natural 1UL)
+let twoN = Number (Natural 2UL)
+let oneHundredN = Number (Natural 100UL)
+
+// sequence of natural numbers
+let n100 = seq { for i in 0UL .. 100UL -> Natural i }
 
 // Get the value of a constant.
 let getValue (x: Constant) = 
@@ -49,7 +55,7 @@ let binaryOpError (s: Set) (x1: Expression) (p: Operation) (x2: Expression) = Un
 
 // Create operation service for a mathematical environment.
 let ops = 
-    {addition = Some add
+    {addition = Some NaturalNumbers.binaryAdd
      subtraction = None
      multiplication = None
      division = None
@@ -61,16 +67,19 @@ let asssociative = AssociativeAddition
 let commutative = CommutativeAddition
 
 // Create an mathematical structure
-let testAlgebra = (Z, ops, [asssociative;commutative]) |> Algebraic 
+let testAlgebra = (Numbers n100, ops, NaturalNumbers.axioms) |> Algebraic 
+let testAlgebra1 = (N, ops, NaturalNumbers.axioms) |> Algebraic
 
 // Use addition operation from a mathematical structure
-let testAdd = 
-    match testAlgebra with
-    | Algebraic (Z,ops,_) when ops.addition.IsSome -> ops.addition.Value Z
-    | _ -> binaryOpError Z
+let testAdd alg = 
+    match alg with
+    | Algebraic (N,ops,_) when ops.addition.IsSome -> ops.addition.Value N
+    | Algebraic (n100,ops,_) when ops.addition.IsSome -> ops.addition.Value n100
+    | _ -> binaryOpError N
 
-testAdd one plus (testAdd two plus two)
+testAdd testAlgebra1 oneN plus (testAdd testAlgebra1 twoN plus oneN) // 4UL
+testAdd testAlgebra1 one plus (testAdd testAlgebra1 twoN plus oneN) // binary op of an integer plus a natural number.
+testAdd testAlgebra1 one plus (testAdd testAlgebra1 two plus one) // Symbol (Error OperationUndefined) since numbers are integers rather than natural numbers
 
-compare (Integer -2I) (Infinity Positive)
-
-max (Infinity Negative) (Integer -2I)
+testAdd testAlgebra oneN plus (testAdd testAlgebra twoN plus oneHundredN) // Returns Number (Natural 2UL) since testAlgebra is using n100 which has a length of 101
+testAdd testAlgebra1 oneN plus (testAdd testAlgebra1 twoN plus oneHundredN) // Returns Number (Natural 103UL) since testAlgebra1 is using N (natural numbers)

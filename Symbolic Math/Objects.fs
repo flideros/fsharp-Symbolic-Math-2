@@ -24,6 +24,7 @@ type NumberType =
     | Undefined
 
 type Error =
+    | OperationUndefined
     | RelationUndefined
     | DivideByZero
     | Unknown
@@ -69,7 +70,7 @@ and Set =
     /// The Empty Set
     | Empty 
     | Numbers of seq<NumberType>
-    | Expression of seq<Expression>
+    | Expressions of seq<Expression>
 
 type UnaryOp = Set -> Operation -> Expression -> Expression
 type BinaryOp = Set -> Expression -> Operation -> Expression -> Expression   

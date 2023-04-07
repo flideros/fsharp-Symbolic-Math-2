@@ -57,5 +57,7 @@ type Axiom =
     | Extensionality
     | Pairing
     | Union
+    | Regularity
     | PowerSet
     | SchemaOfSpecification
+    | SchemaOfReplacement
