@@ -22,7 +22,7 @@ let twoN = Number (Natural 2UL)
 let oneHundredN = Number (Natural 100UL)
 
 // sequence of natural numbers
-let n100 = seq { for i in 0UL .. 100UL -> Natural i }
+let n100 = seq { for i in 0UL ..1UL..100UL -> Natural i }
 
 // Get the value of a constant.
 let getValue (x: Constant) = 
@@ -83,3 +83,6 @@ testAdd testAlgebra1 one plus (testAdd testAlgebra1 two plus one) // Symbol (Err
 
 testAdd testAlgebra oneN plus (testAdd testAlgebra twoN plus oneHundredN) // Returns Number (Natural 2UL) since testAlgebra is using n100 which has a length of 101
 testAdd testAlgebra1 oneN plus (testAdd testAlgebra1 twoN plus oneHundredN) // Returns Number (Natural 103UL) since testAlgebra1 is using N (natural numbers)
+
+
+NaturalNumbers.isLeastResidueSystem (Numbers n100)
