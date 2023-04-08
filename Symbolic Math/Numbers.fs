@@ -63,7 +63,7 @@ addition, multiplication, order relation and axioms governing their interaction.
                 (Seq.contains e1 e) && 
                 (Seq.contains e2 e) &&
                 isLeastResidueSystem (Expressions e) -> 
-                    let m = Seq.length n |> uint64
+                    let m = Seq.length e |> uint64
                     Natural ((a + b) % m) |> Number            
             | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
