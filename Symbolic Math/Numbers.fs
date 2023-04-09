@@ -13,8 +13,7 @@ addition, multiplication, order relation and axioms governing their interaction.
     let set = N
     let leastResidueSystemSet modulus = seq { for i in 0UL .. modulus -> Natural i }
     let leastResidueSystemExpressionSet modulus = seq { for i in 0UL .. modulus -> Natural i |> Number}
-    
-    
+        
     let axioms =
         [AssociativeAddition; CommutativeAddition; AdditiveIdentity; AdditiveCancellation;
          AssociativeMultiplication; CommutativeMultiplication; MultiplicativeIdentity; MultiplicativeCancellation;
@@ -34,16 +33,15 @@ addition, multiplication, order relation and axioms governing their interaction.
     let isLeastResidueSystem s = 
         match s with
         | N -> true
-        | Numbers n -> //false
+        | Numbers n -> 
             let m = Seq.length n - 1 |> uint64
             let comp a b = match compare a b with | Symbol(Relation Equal) -> 0 | _ -> 1
             (n,(leastResidueSystemSet m)) ||> Seq.compareWith comp = 0
-        | Expressions e -> //false
+        | Expressions e -> 
             let m = Seq.length e - 1 |> uint64
             let comp a b = match compareExpressions a b with | Symbol(Relation Equal) -> 0 | _ -> 1
             (e,(leastResidueSystemExpressionSet m)) ||> Seq.compareWith comp = 0
         | _ -> false
-
 
     let binaryAdd s e1 op e2 =
         match s, op with
@@ -84,6 +82,53 @@ addition, multiplication, order relation and axioms governing their interaction.
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
+    let binaryMultiply s e1 op e2 =
+        match s, op with
+        | N, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Natural a), Number (Natural b) -> Natural (a * b) |> Number
+            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains e1 e) && 
+                (Seq.contains e2 e) && 
+                (Seq.contains (Number (Natural (a * b))) e) -> Natural (a * b) |> Number            
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains e1 e) && 
+                (Seq.contains e2 e) &&
+                isLeastResidueSystem (Expressions e) -> 
+                    let m = Seq.length e |> uint64
+                    Natural ((a * b) % m) |> Number            
+            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Multiplication (Times _)  -> 
+            match e1, e2 with
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains (Natural a) n) && 
+                (Seq.contains (Natural b) n) && 
+                (Seq.contains (Natural (a * b)) n) -> Natural (a * b) |> Number            
+            | Number (Natural a), Number (Natural b) when 
+                (Seq.contains (Natural a) n) && 
+                (Seq.contains (Natural b) n) &&
+                isLeastResidueSystem (Numbers n) -> 
+                    let m = Seq.length n |> uint64
+                    Natural ((a * b) % m) |> Number            
+            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+
+    let operationServices =        
+        {addition = Some binaryAdd
+         subtraction = None
+         multiplication = Some binaryMultiply
+         division = None
+         additiveInverse = None
+         multiplicativeInverse = None}
 
 module IntegerNumbers = 
     let compare this that = 

@@ -36,6 +36,7 @@ let pi = (Constant.Pi Constants.Pi.value)
 
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
+let times = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol
@@ -57,7 +58,7 @@ let binaryOpError (s: Set) (x1: Expression) (p: Operation) (x2: Expression) = Un
 let ops = 
     {addition = Some NaturalNumbers.binaryAdd
      subtraction = None
-     multiplication = None
+     multiplication = Some NaturalNumbers.binaryMultiply
      division = None
      additiveInverse = None
      multiplicativeInverse = None}
@@ -84,5 +85,14 @@ testAdd testAlgebra1 one plus (testAdd testAlgebra1 two plus one) // Symbol (Err
 testAdd testAlgebra oneN plus (testAdd testAlgebra twoN plus oneHundredN) // Returns Number (Natural 2UL) since testAlgebra is using n100 which has a length of 101
 testAdd testAlgebra1 oneN plus (testAdd testAlgebra1 twoN plus oneHundredN) // Returns Number (Natural 103UL) since testAlgebra1 is using N (natural numbers)
 
-
+// Check a sequence is Least Residue System
 NaturalNumbers.isLeastResidueSystem (Numbers n100)
+
+let testMult alg = 
+    match alg with
+    | Algebraic (N,ops,_) when ops.multiplication.IsSome -> ops.multiplication.Value N
+    | Algebraic (n100,ops,_) when ops.multiplication.IsSome -> ops.multiplication.Value n100
+    | _ -> binaryOpError N
+
+testMult testAlgebra1 twoN times (testAdd testAlgebra1 twoN plus oneN) // 6UL
+
