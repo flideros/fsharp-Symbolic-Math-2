@@ -131,6 +131,11 @@ addition, multiplication, order relation and axioms governing their interaction.
          multiplicativeInverse = None}
 
 module IntegerNumbers = 
+(*
+Integers
+*)    
+    let set = Z  
+    
     let compare this that = 
         match this, that with
         | Integer x, Integer y when x > y -> GreaterThan |> Relation |> Symbol
@@ -142,6 +147,11 @@ module IntegerNumbers =
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
         
 module RationalNumbers =        
+(*
+Rationals
+*)    
+    let set = Q
+    
     let compare this that = 
         match this, that with
         | Rational x, Rational y ->
@@ -175,6 +185,13 @@ module RationalNumbers =
     let isNegative this = compare this zero = (LessThan |> Relation |> Symbol)    
 
 module DecimalNumbers =
+(*
+Decimals are represaented by the floating decimal point type variable. It uses 
+128 bits for storing and representing data. Therefore, it has more precision 
+(28-29 significant digits) than the float number type.
+*)    
+    let set = Q  
+
     let compare this that = 
         match this, that with
         | Decimal x, Decimal y when x > y -> GreaterThan |> Relation |> Symbol
@@ -186,7 +203,14 @@ module DecimalNumbers =
     let ceiling x = Decimal (ceil x)
     let isNegative this = compare this (Decimal 0M) = (LessThan |> Relation |> Symbol)
 
-module RealNumbers = 
+module RealNumbers =
+(*
+Reals are represaented by the float number type which is a bianry point type. This means
+that numbers are represented in the computer as binary numbers. Therefore, the accuracy is 
+limited to about 15 significant digits
+*)    
+    let set = R  
+
     let compare this that = 
         match this, that with
         | Real x, Real y when x > y -> GreaterThan |> Relation |> Symbol
@@ -199,13 +223,18 @@ module RealNumbers =
     let isNegative this = compare this (Real 0.0) = (LessThan |> Relation |> Symbol)
 
 module ComplexNumbers = 
+(*
+Complex
+*)    
+    let set = C  
+
     let abs x = Real (Complex.Abs x)
     let isNegative this = 
         match this with        
         | Complex x -> x.Real < 0.0
         | _ -> false
 
-module Infinity =
+module Infinities =
 
     let compare this that = 
         match this, that with
@@ -246,8 +275,8 @@ module Number =
         | Rational x, Rational y -> (RationalNumbers.compare this that)
         | Decimal x, Decimal y -> (DecimalNumbers.compare this that)
         | Real x, Real y -> (RealNumbers.compare this that)        
-        | Infinity i, _ -> (Infinity.compare this that)
-        | _, Infinity i -> (Infinity.compare this that)        
+        | Infinity i, _ -> (Infinities.compare this that)
+        | _, Infinity i -> (Infinities.compare this that)        
         | _ -> RelationUndefined |> Error |> Symbol
     let abs x = 
         match x with
