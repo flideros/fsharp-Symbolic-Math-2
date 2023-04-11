@@ -96,3 +96,5 @@ let testMult alg =
 
 testMult testAlgebra1 twoN times (testAdd testAlgebra1 twoN plus oneN) // 6UL
 
+
+IntegerNumbers.axioms

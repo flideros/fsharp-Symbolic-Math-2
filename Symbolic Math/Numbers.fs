@@ -12,8 +12,7 @@ addition, multiplication, order relation and axioms governing their interaction.
 *)    
     let set = N
     let leastResidueSystemSet modulus = seq { for i in 0UL .. modulus -> Natural i }
-    let leastResidueSystemExpressionSet modulus = seq { for i in 0UL .. modulus -> Natural i |> Number}
-        
+    let leastResidueSystemExpressionSet modulus = seq { for i in 0UL .. modulus -> Natural i |> Number}    
     let axioms =
         [AssociativeAddition; CommutativeAddition; AdditiveIdentity; AdditiveCancellation;
          AssociativeMultiplication; CommutativeMultiplication; MultiplicativeIdentity; MultiplicativeCancellation;
@@ -132,10 +131,11 @@ addition, multiplication, order relation and axioms governing their interaction.
 
 module IntegerNumbers = 
 (*
-Integers
+Integers follow from the Natural numbers, but includes the negative numbers and Additive inverse.
 *)    
-    let set = Z  
-    
+    let set = Z      
+    let axioms = AdditiveInverses::NaturalNumbers.axioms
+
     let compare this that = 
         match this, that with
         | Integer x, Integer y when x > y -> GreaterThan |> Relation |> Symbol
@@ -145,7 +145,115 @@ Integers
     let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)
     let abs x = Integer (abs x)        
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
-        
+
+    let binaryAdd s e1 op e2 =
+        match s, op with
+        | Z, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains e1 e) && 
+                (Seq.contains e2 e) && 
+                (Seq.contains (Number (Integer (a + b))) e) -> Integer (a + b) |> Number                       
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Addition (Plus _)  -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains (Integer a) n) && 
+                (Seq.contains (Integer b) n) && 
+                (Seq.contains (Integer (a + b)) n) -> Integer (a + b) |> Number            
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binarySubtract s e1 op e2 =
+        match s, op with
+        | Z, Subtraction (Minus _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) -> Integer (a - b) |> Number
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Subtraction (Minus _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains e1 e) && 
+                (Seq.contains e2 e) && 
+                (Seq.contains (Number (Integer (a - b))) e) -> Integer (a - b) |> Number                       
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Subtraction (Minus _)  -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains (Integer a) n) && 
+                (Seq.contains (Integer b) n) && 
+                (Seq.contains (Integer (a - b)) n) -> Integer (a - b) |> Number            
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryMultiply s e1 op e2 =
+        match s, op with
+        | Z, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) -> Integer (a * b) |> Number
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains e1 e) && 
+                (Seq.contains e2 e) && 
+                (Seq.contains (Number (Integer (a * b))) e) -> Integer (a * b) |> Number            
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Multiplication (Times _)  -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains (Integer a) n) && 
+                (Seq.contains (Integer b) n) && 
+                (Seq.contains (Integer (a * b)) n) -> Integer (a * b) |> Number          
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let unaryAdditiveInverse s op e =
+        match s, op with
+        | Z, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Integer a) -> Integer -a  |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Integer a) when 
+                (Seq.contains e ex) &&                 
+                (Seq.contains (Number (Integer -a)) ex) -> Integer -a |> Number                       
+            | _ -> (op,e,s) |> UnaryOp            
+        | Numbers n, Addition (Addition.Inverse _)  -> 
+            match e with
+            | Number (Integer a) when 
+                (Seq.contains (Integer a) n) &&
+                (Seq.contains (Integer -a) n) -> Integer -a |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
+
+    let operationServices =        
+        {addition = Some binaryAdd
+         subtraction = Some binarySubtract
+         multiplication = Some binaryMultiply
+         division = None
+         additiveInverse = Some unaryAdditiveInverse
+         multiplicativeInverse = None}
+
 module RationalNumbers =        
 (*
 Rationals
