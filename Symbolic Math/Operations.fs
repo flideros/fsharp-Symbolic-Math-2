@@ -4,6 +4,7 @@
         | Infix
         | Prefix
         | Postfix
+        | TopPostfix
     type Arity = 
         | Unary
         | Binary
@@ -43,7 +44,10 @@
         let symbol = "\u2215"
         let opPosition = Infix
         let arity = Binary
-
+    module ToThePowerOf =
+        let symbol = "Pow"
+        let opPosition = TopPostfix
+        let arity = Binary
     type Addition = 
         | Plus of (string * OperatorPosition * Arity) 
         | Sum of (string * OperatorPosition * Arity) 
@@ -56,7 +60,8 @@
         | Minus of (string * OperatorPosition * Arity) 
     type Division = 
         | Divide of (string * OperatorPosition * Arity)
-    
+    type Exponentiation =
+        | ToThePowerOf of (string * OperatorPosition * Arity)
 
 
 

@@ -127,7 +127,8 @@ addition, multiplication, order relation and axioms governing their interaction.
          multiplication = Some binaryMultiply
          division = None
          additiveInverse = None
-         multiplicativeInverse = None}
+         multiplicativeInverse = None
+         toThePowerOf = None}
 
 module IntegerNumbers = 
 (*
@@ -143,7 +144,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Integer x, Integer y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol     
     let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)
-    let abs x = Integer (abs x)        
+    let absoluteValue x =  (abs x) |> Integer  
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
 
     let binaryAdd s e1 op e2 =
@@ -226,6 +227,17 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
+    let binaryPower s e1 op e2 =        
+        match s, op with
+        | Z, Exponentiation (ToThePowerOf _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when b >= 0I -> Integer (a ** int b) |> Number
+            | Number (Integer a), Number (Integer b) when b < 0I -> 
+                Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
     let unaryAdditiveInverse s op e =
         match s, op with
         | Z, Addition (Addition.Inverse _) -> 
@@ -245,20 +257,22 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                 (Seq.contains (Integer -a) n) -> Integer -a |> Number            
             | _ -> (op,e,s) |> UnaryOp
         | _ -> OperationUndefined |> Error |> Symbol
-
+    
     let operationServices =        
         {addition = Some binaryAdd
          subtraction = Some binarySubtract
          multiplication = Some binaryMultiply
          division = None
          additiveInverse = Some unaryAdditiveInverse
-         multiplicativeInverse = None}
+         multiplicativeInverse = None
+         toThePowerOf = Some binaryPower}
 
 module RationalNumbers =        
 (*
 Rationals
 *)    
     let set = Q
+    let axioms = MultiplicativeInverses::IntegerNumbers.axioms
     
     let compare this that = 
         match this, that with
@@ -291,6 +305,50 @@ Rationals
                     | false -> (this.numerator / this.denominator) - 1I |> Integer
     let zero = {numerator = 0I; denominator = 1I} |> Rational
     let isNegative this = compare this zero = (LessThan |> Relation |> Symbol)    
+
+    let binaryAdd s e1 op e2 =
+        match s, op with
+        | Q, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                |> Number
+            | Number (Rational r), Number (Integer i) //-> Rational r |> Number
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = r.numerator + i * r.denominator
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
+                |> Number
+            | Number (Rational r), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains e1 e) && 
+                (Seq.contains e2 e) && 
+                (Seq.contains (Number (Integer (a + b))) e) -> Integer (a + b) |> Number                       
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Addition (Plus _)  -> 
+            match e1, e2 with
+            | Number (Integer a), Number (Integer b) when 
+                (Seq.contains (Integer a) n) && 
+                (Seq.contains (Integer b) n) && 
+                (Seq.contains (Integer (a + b)) n) -> Integer (a + b) |> Number            
+            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
 
 module DecimalNumbers =
 (*
@@ -388,7 +446,7 @@ module Number =
         | _ -> RelationUndefined |> Error |> Symbol
     let abs x = 
         match x with
-        | Integer x -> IntegerNumbers.abs x       
+        | Integer x -> IntegerNumbers.absoluteValue x       
         | Rational x -> RationalNumbers.abs x
         | Decimal x -> DecimalNumbers.abs x
         | Real x -> RealNumbers.abs x

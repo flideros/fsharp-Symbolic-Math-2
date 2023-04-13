@@ -17,9 +17,12 @@ let y = Variable "y" |> Symbol
 
 let one = Number (Integer 1I)
 let two = Number (Integer 2I)
+let twoNeg = Number (Integer -2I)
 let oneN = Number (Natural 1UL)
 let twoN = Number (Natural 2UL)
 let oneHundredN = Number (Natural 100UL)
+let half = {numerator=1I;denominator=2I} |> Rational |> Number
+let third = {numerator=1I;denominator=3I} |> Rational |> Number
 
 // sequence of natural numbers
 let n100 = seq { for i in 0UL ..1UL..100UL -> Natural i }
@@ -37,6 +40,7 @@ let pi = (Constant.Pi Constants.Pi.value)
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
 let times = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
+let pow = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToThePowerOf.opPosition, Binary))
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol
@@ -61,7 +65,8 @@ let ops =
      multiplication = Some NaturalNumbers.binaryMultiply
      division = None
      additiveInverse = None
-     multiplicativeInverse = None}
+     multiplicativeInverse = None
+     toThePowerOf = None}
 
 // Create axioms for the algebraic structure
 let asssociative = AssociativeAddition
@@ -96,5 +101,8 @@ let testMult alg =
 
 testMult testAlgebra1 twoN times (testAdd testAlgebra1 twoN plus oneN) // 6UL
 
+// test ToThePowerOf
+IntegerNumbers.binaryPower Z twoNeg pow twoNeg
 
-IntegerNumbers.axioms
+// test RationalNumbers binaryAdd
+RationalNumbers.binaryAdd Q third plus half

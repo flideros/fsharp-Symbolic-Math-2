@@ -38,6 +38,7 @@ type Operation =
     | Addition of Operations.Addition
     | Multiplication of Operations.Multiplication
     | Subtraction of Operations.Subtraction
+    | Exponentiation of Operations.Exponentiation
 
 type Symbol = 
     | Constant of Constant
@@ -83,7 +84,8 @@ type Operations =
      multiplication:BinaryOp option
      division:BinaryOp option
      additiveInverse:UnaryOp option
-     multiplicativeInverse:UnaryOp option}
+     multiplicativeInverse:UnaryOp option
+     toThePowerOf:BinaryOp option}
 
 type AlgebraicStructure = Set * Operations * Axiom list
 
