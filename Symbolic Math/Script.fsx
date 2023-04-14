@@ -27,7 +27,7 @@ let third = {numerator=1I;denominator=3I} |> Rational |> Number
 // sequence of natural numbers
 let n100 = seq { for i in 0UL ..1UL..100UL -> Natural i }
 let even = seq { for i in 0UL ..2UL..100UL -> Natural i }
-
+let iset = seq { one;two;half;third }
 NaturalNumbers.isLeastResidueSystem (Numbers even) // false
 NaturalNumbers.isLeastResidueSystem (Numbers n100) // true
 
@@ -73,6 +73,15 @@ let ops =
      multiplicativeInverse = None
      toThePowerOf = None}
 
+let rationalOps = 
+    {addition = Some RationalNumbers.binaryAdd
+     subtraction = Some RationalNumbers.binarySubtract
+     multiplication = Some RationalNumbers.binaryMultiply
+     division = None
+     additiveInverse = None
+     multiplicativeInverse = None
+     toThePowerOf = None}
+
 // Create axioms for the algebraic structure
 let asssociative = AssociativeAddition
 let commutative = CommutativeAddition
@@ -81,6 +90,7 @@ let commutative = CommutativeAddition
 let testAlgebra = (Numbers n100, ops, NaturalNumbers.axioms) |> Algebraic 
 let testAlgebra1 = (N, ops, NaturalNumbers.axioms) |> Algebraic
 let testAlgebra2 = (Numbers even, ops, NaturalNumbers.axioms) |> Algebraic
+let testAlgebra3 = (Expressions iset, rationalOps, RationalNumbers.axioms) |> Algebraic
 
 // Use addition operation from a mathematical structure
 let testAdd alg = 
@@ -117,3 +127,9 @@ IntegerNumbers.binaryPower Z twoNeg pow twoNeg
 // test RationalNumbers binaryAdd
 RationalNumbers.binaryAdd Q half plus half
 RationalNumbers.binarySubtract Q third minus half
+RationalNumbers.binaryMultiply Q third times half
+
+// test RationalNumbers binaryAdd on iset
+RationalNumbers.binaryAdd (Expressions iset) half plus half
+RationalNumbers.binarySubtract (Expressions iset) third minus half
+RationalNumbers.binaryMultiply (Expressions iset) half times half

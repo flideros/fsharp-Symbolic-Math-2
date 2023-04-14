@@ -386,7 +386,30 @@ Rationals
                       (Seq.contains e2 e) with
                 | true -> result
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Rational r), _ 
+            | Number (Rational r), Number (Integer i) 
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = r.numerator + i * r.denominator
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                    |> Number
+                match (Seq.contains result e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> result
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), Number (Integer b) -> 
+                match (Seq.contains (Integer (a + b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Integer (a + b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Addition (Plus _)  -> 
@@ -404,6 +427,28 @@ Rationals
                       (Seq.contains (Rational r2) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol            
+            | Number (Rational r), Number (Integer i) //-> Rational r |> Number
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = r.numerator + i * r.denominator
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                match (Seq.contains result n) &&
+                      (Seq.contains (Integer i) n) && 
+                      (Seq.contains (Rational r) n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), Number (Integer b) -> 
+                match (Seq.contains (Integer (a + b)) n) &&
+                      (Seq.contains (Integer a) n) && 
+                      (Seq.contains (Integer b) n) with
+                | true -> Integer (a + b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
@@ -437,6 +482,8 @@ Rationals
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
                 |> Number
             | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
@@ -456,6 +503,42 @@ Rationals
                       (Seq.contains e2 e) with
                 | true -> result
                 | false -> NotInSet |> Error |> Symbol
+            | Number (Rational r), Number (Integer i) ->
+                let nTemp = r.numerator - i * r.denominator
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                    |> Number
+                match (Seq.contains result e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> result
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = i * r.denominator - r.numerator  
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                    |> Number
+                match (Seq.contains result e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> result
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), Number (Integer b) -> 
+                match (Seq.contains (Integer (a - b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Integer (a - b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
@@ -474,6 +557,144 @@ Rationals
                       (Seq.contains (Rational r2) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol            
+            | Number (Rational r), Number (Integer i) ->
+                let nTemp = r.numerator - i * r.denominator
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                match (Seq.contains result n) &&
+                      (Seq.contains (Rational r) n) && 
+                      (Seq.contains (Integer i) n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = i * r.denominator - r.numerator  
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                match (Seq.contains result n) &&
+                      (Seq.contains (Rational r) n) && 
+                      (Seq.contains (Integer i) n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryMultiply s e1 op e2 =
+        match s, op with
+        | Q, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.numerator 
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                |> Number
+            | Number (Rational r), Number (Integer i)
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = r.numerator * i * r.denominator
+                let dTemp = r.denominator * r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
+                |> Number
+            | Number (Integer a), Number (Integer b) -> Integer (a * b) |> Number
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.numerator 
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                    |> Number
+                match (Seq.contains result e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> result
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Rational r), Number (Integer i) 
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = r.numerator * i * r.denominator
+                let dTemp = r.denominator * r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                    |> Number
+                match (Seq.contains result e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> result
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), Number (Integer b) -> 
+                match (Seq.contains (Integer (a * b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Integer (a * b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Multiplication (Times _)  -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.numerator 
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }                        
+                match (Seq.contains result n) &&
+                      (Seq.contains (Rational r1) n) && 
+                      (Seq.contains (Rational r2) n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol            
+            | Number (Rational r), Number (Integer i) 
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = r.numerator * i * r.denominator
+                let dTemp = r.denominator * r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                match (Seq.contains result n) &&
+                      (Seq.contains (Rational r) n) && 
+                      (Seq.contains (Integer i) n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), Number (Integer b) -> 
+                match (Seq.contains (Integer (a * b)) n) &&
+                      (Seq.contains (Integer a) n) && 
+                      (Seq.contains (Integer b) n) with
+                | true -> Integer (a * b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
