@@ -63,12 +63,3 @@
     type Exponentiation =
         | ToThePowerOf of (string * OperatorPosition * Arity)
 
-
-
-(*type Function = 
-    | Lcm
-    | Gcd    
-    | ToThePowerOf  // binary op
-    | Abs
-    | Root
- *)

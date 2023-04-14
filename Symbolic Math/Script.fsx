@@ -26,6 +26,10 @@ let third = {numerator=1I;denominator=3I} |> Rational |> Number
 
 // sequence of natural numbers
 let n100 = seq { for i in 0UL ..1UL..100UL -> Natural i }
+let even = seq { for i in 0UL ..2UL..100UL -> Natural i }
+
+NaturalNumbers.isLeastResidueSystem (Numbers even) // false
+NaturalNumbers.isLeastResidueSystem (Numbers n100) // true
 
 // Get the value of a constant.
 let getValue (x: Constant) = 
@@ -75,6 +79,7 @@ let commutative = CommutativeAddition
 // Create an mathematical structure
 let testAlgebra = (Numbers n100, ops, NaturalNumbers.axioms) |> Algebraic 
 let testAlgebra1 = (N, ops, NaturalNumbers.axioms) |> Algebraic
+let testAlgebra2 = (Numbers even, ops, NaturalNumbers.axioms) |> Algebraic
 
 // Use addition operation from a mathematical structure
 let testAdd alg = 
@@ -89,6 +94,10 @@ testAdd testAlgebra1 one plus (testAdd testAlgebra1 two plus one) // Symbol (Err
 
 testAdd testAlgebra oneN plus (testAdd testAlgebra twoN plus oneHundredN) // Returns Number (Natural 2UL) since testAlgebra is using n100 which has a length of 101
 testAdd testAlgebra1 oneN plus (testAdd testAlgebra1 twoN plus oneHundredN) // Returns Number (Natural 103UL) since testAlgebra1 is using N (natural numbers)
+testAdd testAlgebra2 oneN plus oneN // Symbol (Error NotInSet)
+testAdd testAlgebra2 twoN plus twoN // Number (Natural 4UL)
+
+
 
 // Check a sequence is Least Residue System
 NaturalNumbers.isLeastResidueSystem (Numbers n100)

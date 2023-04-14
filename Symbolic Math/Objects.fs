@@ -24,6 +24,7 @@ type NumberType =
     | Undefined
 
 type Error =
+    | NotInSet
     | OperationUndefined
     | RelationUndefined
     | DivideByZero
