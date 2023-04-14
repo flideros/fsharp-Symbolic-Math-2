@@ -43,6 +43,7 @@ let pi = (Constant.Pi Constants.Pi.value)
 
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
+let minus = Subtraction (Subtraction.Minus (Minus.symbol, Minus.opPosition, Binary))
 let times = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
 let pow = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToThePowerOf.opPosition, Binary))
 
@@ -94,8 +95,8 @@ testAdd testAlgebra1 one plus (testAdd testAlgebra1 two plus one) // Symbol (Err
 
 testAdd testAlgebra oneN plus (testAdd testAlgebra twoN plus oneHundredN) // Returns Number (Natural 2UL) since testAlgebra is using n100 which has a length of 101
 testAdd testAlgebra1 oneN plus (testAdd testAlgebra1 twoN plus oneHundredN) // Returns Number (Natural 103UL) since testAlgebra1 is using N (natural numbers)
-testAdd testAlgebra2 oneN plus oneN // Symbol (Error NotInSet)
-testAdd testAlgebra2 twoN plus twoN // Number (Natural 4UL)
+testAdd testAlgebra2 oneN plus twoN // Returns Symbol (Error NotInSet) since testAlgebra2 is using N (natural numbers)
+testAdd testAlgebra2 twoN plus twoN // Returns Number (Natural 4UL)
 
 
 
@@ -114,4 +115,5 @@ testMult testAlgebra1 twoN times (testAdd testAlgebra1 twoN plus oneN) // 6UL
 IntegerNumbers.binaryPower Z twoNeg pow twoNeg
 
 // test RationalNumbers binaryAdd
-RationalNumbers.binaryAdd Q third plus half
+RationalNumbers.binaryAdd Q half plus half
+RationalNumbers.binarySubtract Q third minus half

@@ -11,12 +11,13 @@ The system of natural numbers is a set N = {0; 1; 2; 3; ...} together with three
 addition, multiplication, order relation and axioms governing their interaction.
 *)    
     let set = N
-    let leastResidueSystemSet modulus = seq { for i in 0UL .. modulus -> Natural i }
-    let leastResidueSystemExpressionSet modulus = seq { for i in 0UL .. modulus -> Natural i |> Number}    
     let axioms =
         [AssociativeAddition; CommutativeAddition; AdditiveIdentity; AdditiveCancellation;
          AssociativeMultiplication; CommutativeMultiplication; MultiplicativeIdentity; MultiplicativeCancellation;
          Distributive; Induction; Successor; Transitivity; Antisymmetry]
+    
+    let leastResidueSystemSet modulus = seq { for i in 0UL .. modulus -> Natural i }
+    let leastResidueSystemExpressionSet modulus = seq { for i in 0UL .. modulus -> Natural i |> Number}    
     let compare this that = 
         match this, that with
         | Natural x, Natural y when x > y -> GreaterThan |> Relation |> Symbol
@@ -47,7 +48,7 @@ addition, multiplication, order relation and axioms governing their interaction.
         | N, Addition (Plus _) -> 
             match e1, e2 with
             | Number (Natural a), Number (Natural b) -> Natural (a + b) |> Number
-            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Natural a), _ 
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Addition (Plus _) -> 
@@ -66,7 +67,7 @@ addition, multiplication, order relation and axioms governing their interaction.
                 isLeastResidueSystem (Expressions e) -> 
                     let m = Seq.length e |> uint64
                     Natural ((a + b) % m) |> Number            
-            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Natural a), _ 
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Addition (Plus _)  -> 
@@ -85,7 +86,7 @@ addition, multiplication, order relation and axioms governing their interaction.
                 isLeastResidueSystem (Numbers n) -> 
                     let m = Seq.length n |> uint64
                     Natural ((a + b) % m) |> Number            
-            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Natural a), _ 
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
@@ -94,7 +95,7 @@ addition, multiplication, order relation and axioms governing their interaction.
         | N, Multiplication (Times _) -> 
             match e1, e2 with
             | Number (Natural a), Number (Natural b) -> Natural (a * b) |> Number
-            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Natural a), _ 
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Multiplication (Times _) -> 
@@ -113,7 +114,7 @@ addition, multiplication, order relation and axioms governing their interaction.
                 isLeastResidueSystem (Expressions e) -> 
                     let m = Seq.length e |> uint64
                     Natural ((a * b) % m) |> Number            
-            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Natural a), _ 
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Multiplication (Times _)  -> 
@@ -132,7 +133,7 @@ addition, multiplication, order relation and axioms governing their interaction.
                 isLeastResidueSystem (Numbers n) -> 
                     let m = Seq.length n |> uint64
                     Natural ((a * b) % m) |> Number            
-            | Number (Natural a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Natural a), _
             | _, Number (Natural a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
@@ -168,7 +169,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Z, Addition (Plus _) -> 
             match e1, e2 with
             | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Addition (Plus _) -> 
@@ -180,7 +181,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                       (Seq.contains e2 e) with
                 | true -> result
                 | false -> NotInSet |> Error |> Symbol                       
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Addition (Plus _)  -> 
@@ -192,7 +193,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                       (Seq.contains (Integer b) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol          
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
@@ -201,7 +202,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Z, Subtraction (Minus _) -> 
             match e1, e2 with
             | Number (Integer a), Number (Integer b) -> Integer (a - b) |> Number
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Subtraction (Minus _) -> 
@@ -213,7 +214,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                       (Seq.contains e2 e) with
                 | true -> result
                 | false -> NotInSet |> Error |> Symbol                       
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Subtraction (Minus _)  -> 
@@ -225,7 +226,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                       (Seq.contains (Integer b) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
@@ -234,7 +235,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Z, Multiplication (Times _) -> 
             match e1, e2 with
             | Number (Integer a), Number (Integer b) -> Integer (a * b) |> Number
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Multiplication (Times _) -> 
@@ -257,7 +258,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                       (Seq.contains (Integer b) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
@@ -268,7 +269,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             | Number (Integer a), Number (Integer b) when b >= 0I -> Integer (a ** int b) |> Number
             | Number (Integer a), Number (Integer b) when b < 0I -> 
                 Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
-            | Number (Integer a), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
@@ -365,7 +366,8 @@ Rationals
                 | true -> Integer (nTemp / hcfTemp)
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
                 |> Number
-            | Number (Rational r), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
+            | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Addition (Plus _) -> 
@@ -384,7 +386,7 @@ Rationals
                       (Seq.contains e2 e) with
                 | true -> result
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Rational r), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Addition (Plus _)  -> 
@@ -402,7 +404,77 @@ Rationals
                       (Seq.contains (Rational r2) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol            
-            | Number (Rational r), _ -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binarySubtract s e1 op e2 =
+        match s, op with
+        | Q, Subtraction (Minus _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.denominator - r2.numerator * r1.denominator
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                |> Number
+            | Number (Rational r), Number (Integer i) -> 
+                let nTemp = r.numerator - i * r.denominator 
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
+                |> Number
+            | Number (Integer i), Number (Rational r) -> 
+                let nTemp = i * r.denominator - r.numerator
+                let dTemp = r.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
+                |> Number
+            | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Subtraction (Minus _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.denominator - r2.numerator * r1.denominator
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+                    |> Number
+                match (Seq.contains result e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> result
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Subtraction (Minus _)  -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> 
+                let nTemp = r1.numerator * r2.denominator - r2.numerator * r1.denominator
+                let dTemp = r1.denominator * r2.denominator
+                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let result = 
+                    match dTemp / hcfTemp = 1I with
+                    | true -> Integer (nTemp / hcfTemp)
+                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }                        
+                match (Seq.contains result n) &&
+                      (Seq.contains (Rational r1) n) && 
+                      (Seq.contains (Rational r2) n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol            
+            | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
