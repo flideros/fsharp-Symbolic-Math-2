@@ -164,6 +164,29 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
     let absoluteValue x =  (abs x) |> Integer  
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
 
+    let unaryAdditiveInverse s op e =
+        match s, op with
+        | Z, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Integer a) -> Integer -a  |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Integer a) when (Seq.contains e ex) -> 
+                let result = Integer -a |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol                                        
+            | _ -> (op,e,s) |> UnaryOp            
+        | Numbers n, Addition (Addition.Inverse _)  -> 
+            match e with
+            | Number (Integer a) when (Seq.contains (Integer a) n) -> 
+                let result = Integer -a 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol             
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
     let binaryAdd s e1 op e2 =
         match s, op with
         | Z, Addition (Plus _) -> 
@@ -198,34 +221,24 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
     let binarySubtract s e1 op e2 =
+        let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
+        let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
         match s, op with
         | Z, Subtraction (Minus _) -> 
             match e1, e2 with
-            | Number (Integer a), Number (Integer b) -> Integer (a - b) |> Number
+            | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Subtraction (Minus _) -> 
             match e1, e2 with
-            | Number (Integer a), Number (Integer b) -> 
-                let result = Integer (a - b) |> Number 
-                match (Seq.contains result e) &&
-                      (Seq.contains e1 e) && 
-                      (Seq.contains e2 e) with
-                | true -> result
-                | false -> NotInSet |> Error |> Symbol                       
+            | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus                     
             | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Subtraction (Minus _)  -> 
             match e1, e2 with
-            | Number (Integer a), Number (Integer b) -> 
-                let result = Integer (a - b)  
-                match (Seq.contains result n) &&
-                      (Seq.contains (Integer a) n) && 
-                      (Seq.contains (Integer b) n) with
-                | true -> result |> Number
-                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), _ 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
@@ -273,30 +286,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
-    let unaryAdditiveInverse s op e =
-        match s, op with
-        | Z, Addition (Addition.Inverse _) -> 
-            match e with
-            | Number (Integer a) -> Integer -a  |> Number            
-            | _ -> (op,e,s) |> UnaryOp
-        | Expressions ex, Addition (Addition.Inverse _) -> 
-            match e with
-            | Number (Integer a) when (Seq.contains e ex) -> 
-                let result = Integer -a |> Number
-                match (Seq.contains result ex) with
-                | true -> result 
-                | false -> NotInSet |> Error |> Symbol                                        
-            | _ -> (op,e,s) |> UnaryOp            
-        | Numbers n, Addition (Addition.Inverse _)  -> 
-            match e with
-            | Number (Integer a) when (Seq.contains (Integer a) n) -> 
-                let result = Integer -a 
-                match (Seq.contains result n) with
-                | true -> result |> Number
-                | false -> NotInSet |> Error |> Symbol             
-            | _ -> (op,e,s) |> UnaryOp
-        | _ -> OperationUndefined |> Error |> Symbol
-    
+        
     let operationServices =        
         {addition = Some binaryAdd
          subtraction = Some binarySubtract
@@ -312,7 +302,8 @@ Rationals
 *)    
     let set = Q
     let axioms = MultiplicativeInverses::IntegerNumbers.axioms
-    
+    let zero = {numerator = 0I; denominator = 1I} |> Rational
+
     let compare this that = 
         match this, that with
         | Rational x, Rational y ->
@@ -322,12 +313,13 @@ Rationals
                 match (x.numerator * y.denominator) = (x.denominator * y.numerator) with
                 | true -> Equal |> Relation |> Symbol
                 | false -> LessThan |> Relation |> Symbol
-        | Integer x, Rational y when y.numerator > x * y.denominator -> LessThan |> Relation |> Symbol
-        | Integer x, Rational y when y.numerator < x * y.denominator -> GreaterThan |> Relation |> Symbol
-        | Integer x, Rational y when y.numerator = x * y.denominator -> Equal |> Relation |> Symbol
-        | Rational x, Integer y when x.numerator > y * x.denominator -> GreaterThan |> Relation |> Symbol
-        | Rational x, Integer y when x.numerator < y * x.denominator -> LessThan |> Relation |> Symbol
-        | Rational x, Integer y when x.numerator = y * x.denominator -> Equal |> Relation |> Symbol
+        | Rational r, Integer i when r.numerator > i * r.denominator -> GreaterThan |> Relation |> Symbol
+        | Integer i, Rational r when r.numerator < i * r.denominator -> GreaterThan |> Relation |> Symbol        
+        | Integer i, Rational r when r.numerator > i * r.denominator -> LessThan |> Relation |> Symbol
+        | Rational r, Integer i when r.numerator < i * r.denominator -> LessThan |> Relation |> Symbol
+        | Integer i, Rational r when r.numerator = i * r.denominator -> Equal |> Relation |> Symbol
+        | Rational r, Integer i when r.numerator = i * r.denominator -> Equal |> Relation |> Symbol
+        | Integer x, Integer y -> IntegerNumbers.compare this that
         | _ -> RelationUndefined |> Error |> Symbol
     let abs x = Rational {numerator = abs x.numerator; denominator = abs x.denominator}        
     let floor this = 
@@ -341,10 +333,43 @@ Rationals
                     | false -> this.numerator / this.denominator |> Integer
         | false -> match snd (BigInteger.DivRem (this.numerator, this.denominator)) <> 0I with
                     | true -> (this.numerator / this.denominator) |> Integer
-                    | false -> (this.numerator / this.denominator) - 1I |> Integer
-    let zero = {numerator = 0I; denominator = 1I} |> Rational
+                    | false -> (this.numerator / this.denominator) - 1I |> Integer    
     let isNegative this = compare this zero = (LessThan |> Relation |> Symbol)    
 
+    let unaryAdditiveInverse s op e =
+        match s, op with
+        | Q, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Rational r) -> Rational {r with numerator = -r.numerator} |> Number
+            | Number (Integer a) -> Integer -a  |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Rational r) when (Seq.contains e ex) -> 
+                let result = Rational {r with numerator = -r.numerator} |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a) when (Seq.contains e ex) -> 
+                let result = Integer -a |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | Numbers n, Addition (Addition.Inverse _)  -> 
+            match e with
+            | Number (Rational r) when (Seq.contains (Rational r) n) -> 
+                let result = Rational {r with numerator = -r.numerator} 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a) when (Seq.contains (Integer a) n) -> 
+                let result = Integer -a 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol    
     let binaryAdd s e1 op e2 =
         match s, op with
         | Q, Addition (Plus _) -> 
@@ -367,6 +392,8 @@ Rationals
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
                 |> Number
             | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
@@ -452,36 +479,17 @@ Rationals
             | Number (Rational r), _ 
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
-        | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol    
     let binarySubtract s e1 op e2 =
+        let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
+        let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
         match s, op with
         | Q, Subtraction (Minus _) -> 
             match e1, e2 with
-            | Number (Rational r1), Number (Rational r2) -> 
-                let nTemp = r1.numerator * r2.denominator - r2.numerator * r1.denominator
-                let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                match dTemp / hcfTemp = 1I with
-                | true -> Integer (nTemp / hcfTemp)
-                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
-                |> Number
-            | Number (Rational r), Number (Integer i) -> 
-                let nTemp = r.numerator - i * r.denominator 
-                let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                match dTemp / hcfTemp = 1I with
-                | true -> Integer (nTemp / hcfTemp)
-                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
-                |> Number
-            | Number (Integer i), Number (Rational r) -> 
-                let nTemp = i * r.denominator - r.numerator
-                let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                match dTemp / hcfTemp = 1I with
-                | true -> Integer (nTemp / hcfTemp)
-                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
-                |> Number
-            | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
+            | Number (Rational r1), Number (Rational r2) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus 
+            | Number (Rational r), Number (Integer i) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Integer i), Number (Rational r) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), _
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
@@ -489,54 +497,10 @@ Rationals
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Subtraction (Minus _) -> 
             match e1, e2 with
-            | Number (Rational r1), Number (Rational r2) -> 
-                let nTemp = r1.numerator * r2.denominator - r2.numerator * r1.denominator
-                let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                let result = 
-                    match dTemp / hcfTemp = 1I with
-                    | true -> Integer (nTemp / hcfTemp)
-                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
-                    |> Number
-                match (Seq.contains result e) &&
-                      (Seq.contains e1 e) && 
-                      (Seq.contains e2 e) with
-                | true -> result
-                | false -> NotInSet |> Error |> Symbol
-            | Number (Rational r), Number (Integer i) ->
-                let nTemp = r.numerator - i * r.denominator
-                let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                let result = 
-                    match dTemp / hcfTemp = 1I with
-                    | true -> Integer (nTemp / hcfTemp)
-                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
-                    |> Number
-                match (Seq.contains result e) &&
-                      (Seq.contains e1 e) && 
-                      (Seq.contains e2 e) with
-                | true -> result
-                | false -> NotInSet |> Error |> Symbol
-            | Number (Integer i), Number (Rational r) -> 
-                let nTemp = i * r.denominator - r.numerator  
-                let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                let result = 
-                    match dTemp / hcfTemp = 1I with
-                    | true -> Integer (nTemp / hcfTemp)
-                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
-                    |> Number
-                match (Seq.contains result e) &&
-                      (Seq.contains e1 e) && 
-                      (Seq.contains e2 e) with
-                | true -> result
-                | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), Number (Integer b) -> 
-                match (Seq.contains (Integer (a - b) |> Number) e) &&
-                      (Seq.contains e1 e) && 
-                      (Seq.contains e2 e) with
-                | true -> Integer (a - b) |> Number
-                | false -> NotInSet |> Error |> Symbol
+            | Number (Rational r1), Number (Rational r2) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Rational r), Number (Integer i) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus              
+            | Number (Integer i), Number (Rational r) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus            
+            | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), _
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
@@ -544,45 +508,10 @@ Rationals
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Subtraction (Minus _)  -> 
             match e1, e2 with
-            | Number (Rational r1), Number (Rational r2) -> 
-                let nTemp = r1.numerator * r2.denominator - r2.numerator * r1.denominator
-                let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                let result = 
-                    match dTemp / hcfTemp = 1I with
-                    | true -> Integer (nTemp / hcfTemp)
-                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }                        
-                match (Seq.contains result n) &&
-                      (Seq.contains (Rational r1) n) && 
-                      (Seq.contains (Rational r2) n) with
-                | true -> result |> Number
-                | false -> NotInSet |> Error |> Symbol            
-            | Number (Rational r), Number (Integer i) ->
-                let nTemp = r.numerator - i * r.denominator
-                let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                let result = 
-                    match dTemp / hcfTemp = 1I with
-                    | true -> Integer (nTemp / hcfTemp)
-                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
-                match (Seq.contains result n) &&
-                      (Seq.contains (Rational r) n) && 
-                      (Seq.contains (Integer i) n) with
-                | true -> result |> Number
-                | false -> NotInSet |> Error |> Symbol
-            | Number (Integer i), Number (Rational r) -> 
-                let nTemp = i * r.denominator - r.numerator  
-                let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
-                let result = 
-                    match dTemp / hcfTemp = 1I with
-                    | true -> Integer (nTemp / hcfTemp)
-                    | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
-                match (Seq.contains result n) &&
-                      (Seq.contains (Rational r) n) && 
-                      (Seq.contains (Integer i) n) with
-                | true -> result |> Number
-                | false -> NotInSet |> Error |> Symbol
+            | Number (Rational r1), Number (Rational r2) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Rational r), Number (Integer i) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Integer i), Number (Rational r) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), _
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 

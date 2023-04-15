@@ -21,13 +21,14 @@ let twoNeg = Number (Integer -2I)
 let oneN = Number (Natural 1UL)
 let twoN = Number (Natural 2UL)
 let oneHundredN = Number (Natural 100UL)
-let half = {numerator=1I;denominator=2I} |> Rational |> Number
-let third = {numerator=1I;denominator=3I} |> Rational |> Number
+let minushalf = {numerator = -1I; denominator = 2I} |> Rational |> Number
+let half = {numerator = 1I; denominator = 2I} |> Rational |> Number
+let third = {numerator = 1I; denominator = 3I} |> Rational |> Number
 
 // sequence of natural numbers
 let n100 = seq { for i in 0UL ..1UL..100UL -> Natural i }
 let even = seq { for i in 0UL ..2UL..100UL -> Natural i }
-let iset = seq { one;two;half;third }
+let iset = seq { minushalf; one; two; half; third }
 NaturalNumbers.isLeastResidueSystem (Numbers even) // false
 NaturalNumbers.isLeastResidueSystem (Numbers n100) // true
 
@@ -46,6 +47,8 @@ let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
 let minus = Subtraction (Subtraction.Minus (Minus.symbol, Minus.opPosition, Binary))
 let times = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
 let pow = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToThePowerOf.opPosition, Binary))
+let invA = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToThePowerOf.opPosition, Binary))
+let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol
@@ -129,7 +132,11 @@ RationalNumbers.binaryAdd Q half plus half
 RationalNumbers.binarySubtract Q third minus half
 RationalNumbers.binaryMultiply Q third times half
 
+RationalNumbers.unaryAdditiveInverse Q addativeInverse  half
+
 // test RationalNumbers binaryAdd on iset
 RationalNumbers.binaryAdd (Expressions iset) half plus half
-RationalNumbers.binarySubtract (Expressions iset) third minus half
+RationalNumbers.binarySubtract (Expressions iset) one minus half
 RationalNumbers.binaryMultiply (Expressions iset) half times half
+
+IntegerNumbers.binarySubtract Z one minus one
