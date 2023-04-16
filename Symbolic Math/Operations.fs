@@ -59,7 +59,7 @@
     type Subtraction = 
         | Minus of (string * OperatorPosition * Arity) 
     type Division = 
-        | Divide of (string * OperatorPosition * Arity)
+        | DivideBy of (string * OperatorPosition * Arity)
     type Exponentiation =
         | ToThePowerOf of (string * OperatorPosition * Arity)
 

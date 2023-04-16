@@ -39,6 +39,7 @@ type Operation =
     | Addition of Operations.Addition
     | Multiplication of Operations.Multiplication
     | Subtraction of Operations.Subtraction
+    | Division of Operations.Division
     | Exponentiation of Operations.Exponentiation
 
 type Symbol = 

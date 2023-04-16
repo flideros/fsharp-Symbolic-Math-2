@@ -369,6 +369,40 @@ Rationals
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol
             | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
+    let unaryMultiplicativeInverse s op e =
+        match s, op with
+        | Q, Multiplication (Multiplication.Inverse _) -> 
+            match e with
+            | Number (Rational r) when r.numerator <> 0I-> Rational {numerator = r.denominator; denominator = r.numerator } |> Number
+            | Number (Integer a) -> Rational {numerator = 1I; denominator = a }  |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Multiplication (Multiplication.Inverse _) -> 
+            match e with
+            | Number (Rational r) when (Seq.contains e ex) -> 
+                let result = Rational {numerator = r.denominator; denominator = r.numerator } |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a) when (Seq.contains e ex) -> 
+                let result = Rational {numerator = 1I; denominator = a } |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | Numbers n, Multiplication (Multiplication.Inverse _)  -> 
+            match e with
+            | Number (Rational r) when (Seq.contains (Rational r) n) -> 
+                let result = Rational {numerator = r.denominator; denominator = r.numerator } 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a) when (Seq.contains (Integer a) n) -> 
+                let result = Rational {numerator = 1I; denominator = a } 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
         | _ -> OperationUndefined |> Error |> Symbol    
     let binaryAdd s e1 op e2 =
         match s, op with
@@ -622,6 +656,44 @@ Rationals
                       (Seq.contains (Integer b) n) with
                 | true -> Integer (a * b) |> Number
                 | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryDivide s e1 op e2 =
+        let multiplicativeInverse = Multiplication (Multiplication.Inverse (MultiplicativeInverse.symbol, MultiplicativeInverse.opPosition, Unary))
+        let multiply = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
+        match s, op with
+        | Q, Division (DivideBy _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply 
+            | Number (Rational r), Number (Integer i) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Integer i), Number (Rational r) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Integer a), Number (Integer b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Division (DivideBy _) -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Rational r), Number (Integer i) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply              
+            | Number (Integer i), Number (Rational r) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply           
+            | Number (Integer a), Number (Integer b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Integer a), _
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Division (DivideBy _)  -> 
+            match e1, e2 with
+            | Number (Rational r1), Number (Rational r2) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Rational r), Number (Integer i) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Integer i), Number (Rational r) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Integer a), Number (Integer b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
             | Number (Integer a), _
             | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | Number (Rational r), _ 
