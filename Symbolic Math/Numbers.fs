@@ -373,32 +373,44 @@ Rationals
     let unaryMultiplicativeInverse s op e =
         match s, op with
         | Q, Multiplication (Multiplication.Inverse _) -> 
-            match e with
-            | Number (Rational r) when r.numerator <> 0I-> Rational {numerator = r.denominator; denominator = r.numerator } |> Number
-            | Number (Integer a) -> Rational {numerator = 1I; denominator = a }  |> Number            
+            match e with            
+            | Number (Rational r) when r.numerator = 0I -> DivideByZero |> Error |> Symbol            
+            | Number (Rational r) when r.numerator = 1I -> Integer r.denominator |> Number
+            | Number (Rational r) -> Rational {numerator = r.denominator; denominator = r.numerator } |> Number
+            | Number (Integer a) when a = 0I -> DivideByZero |> Error |> Symbol
+            | Number (Integer a) when a = 1I -> e
+            | Number (Integer a) -> Rational {numerator = 1I; denominator = a}  |> Number
             | _ -> (op,e,s) |> UnaryOp
         | Expressions ex, Multiplication (Multiplication.Inverse _) -> 
             match e with
-            | Number (Rational r) when (Seq.contains e ex) -> 
-                let result = Rational {numerator = r.denominator; denominator = r.numerator } |> Number
+            | Number (Rational r) when (Seq.contains e ex) && r.numerator = 0I -> DivideByZero |> Error |> Symbol
+            | Number (Rational r) when (Seq.contains e ex) && r.numerator = 1I && (Seq.contains (Integer r.denominator |> Number) ex) -> Integer r.denominator |> Number
+            | Number (Rational r) when (Seq.contains e ex) && r.numerator <> 0I -> 
+                let result = Rational {numerator = r.denominator; denominator = r.numerator} |> Number
                 match (Seq.contains result ex) with
                 | true -> result 
                 | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a) when a = 0I -> DivideByZero |> Error |> Symbol
+            | Number (Integer a) when a = 1I && (Seq.contains e ex)-> e
             | Number (Integer a) when (Seq.contains e ex) -> 
-                let result = Rational {numerator = 1I; denominator = a } |> Number
+                let result = Rational {numerator = 1I; denominator = a} |> Number
                 match (Seq.contains result ex) with
                 | true -> result 
                 | false -> NotInSet |> Error |> Symbol
             | _ -> (op,e,s) |> UnaryOp
         | Numbers n, Multiplication (Multiplication.Inverse _)  -> 
             match e with
+            | Number (Rational r) when (Seq.contains (Rational r) n) && r.numerator = 0I -> DivideByZero |> Error |> Symbol
+            | Number (Rational r) when (Seq.contains (Rational r) n) && r.numerator = 1I && (Seq.contains (Integer r.denominator ) n) -> Integer r.denominator |> Number
             | Number (Rational r) when (Seq.contains (Rational r) n) -> 
-                let result = Rational {numerator = r.denominator; denominator = r.numerator } 
+                let result = Rational {numerator = r.denominator; denominator = r.numerator} 
                 match (Seq.contains result n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol
+            | Number (Integer a) when a = 0I -> DivideByZero |> Error |> Symbol
+            | Number (Integer a) when a = 1I && (Seq.contains (Integer a) n) -> e
             | Number (Integer a) when (Seq.contains (Integer a) n) -> 
-                let result = Rational {numerator = 1I; denominator = a } 
+                let result = Rational {numerator = 1I; denominator = a} 
                 match (Seq.contains result n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol

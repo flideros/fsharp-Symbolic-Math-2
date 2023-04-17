@@ -15,6 +15,7 @@ open Number
 let x = Variable "x" |> Symbol 
 let y = Variable "y" |> Symbol 
 
+let zero = Number (Integer 0I)
 let one = Number (Integer 1I)
 let two = Number (Integer 2I)
 let twoNeg = Number (Integer -2I)
@@ -46,10 +47,11 @@ let pi = (Constant.Pi Constants.Pi.value)
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
 let minus = Subtraction (Subtraction.Minus (Minus.symbol, Minus.opPosition, Binary))
 let times = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
-let divide = Division (Division.Divide (Divide.symbol, Divide.opPosition, Binary))
+let divideBy = Division (Division.DivideBy (Divide.symbol, Divide.opPosition, Binary))
 let pow = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToThePowerOf.opPosition, Binary))
 let invA = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToThePowerOf.opPosition, Binary))
 let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
+let multiplicativeInverse = Multiplication (Multiplication.Inverse (MultiplicativeInverse.symbol, MultiplicativeInverse.opPosition, Unary))
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol
@@ -132,9 +134,10 @@ IntegerNumbers.binaryPower Z twoNeg pow twoNeg
 RationalNumbers.binaryAdd Q half plus half
 RationalNumbers.binarySubtract Q third minus half
 RationalNumbers.binaryMultiply Q third times half
-RationalNumbers.binaryDivide Q third divide half
+RationalNumbers.binaryDivide Q half divideBy two
 
 RationalNumbers.unaryAdditiveInverse Q addativeInverse  half
+RationalNumbers.unaryMultiplicativeInverse Q multiplicativeInverse third
 
 // test RationalNumbers binaryAdd on iset
 RationalNumbers.binaryAdd (Expressions iset) half plus half
