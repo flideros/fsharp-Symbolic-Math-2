@@ -11,6 +11,7 @@
     <Compile Include="Constants.fs" />
     <Compile Include="Operations.fs" />
     <Compile Include="Relations.fs" />
+    <Compile Include="Delimiters.fs" />
     <Compile Include="Objects.fs" />
     <Compile Include="Numbers.fs" />
     <None Include="Script.fsx" />

@@ -428,7 +428,7 @@ Rationals
                 | true -> Integer (nTemp / hcfTemp)
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
                 |> Number
-            | Number (Rational r), Number (Integer i) //-> Rational r |> Number
+            | Number (Rational r), Number (Integer i) 
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator + i * r.denominator
                 let dTemp = r.denominator

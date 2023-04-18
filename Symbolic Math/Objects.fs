@@ -42,6 +42,13 @@ type Operation =
     | Division of Operations.Division
     | Exponentiation of Operations.Exponentiation
 
+type Delimiter = 
+    | AngleBrackets of Delimiters.AngleBrackets
+    | Bars of Delimiters.Bars
+    | Braces of Delimiters.Braces
+    | Brackets of Delimiters.Brackets
+    | Parentheses of Delimiters.Parentheses
+
 type Symbol = 
     | Constant of Constant
     | Variable of string
@@ -49,7 +56,7 @@ type Symbol =
     | Relation of Relation
     | Connectives //TODO
     | Quantifiers //TODO
-    | Deliminators //TODO
+    | Deliminaters //TODO
     | Error of Error    
     | Inconsistent
 
