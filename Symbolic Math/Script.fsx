@@ -1,8 +1,8 @@
 ﻿#load "Statements.fs"
 #load "Constants.fs"
+#load "Delimiters.fs"
 #load "Operations.fs"
 #load "Relations.fs"
-#load "Delimiters.fs"
 #load "Objects.fs"
 #load "Numbers.fs"
 

@@ -160,10 +160,17 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Integer x, Integer y when x < y -> LessThan |> Relation |> Symbol
         | Integer x, Integer y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol     
-    let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)
-    let absoluteValue x =  (abs x) |> Integer  
+    let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)    
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
 
+    let unaryAbsoluteValue s op e =
+        match s, op with
+        | Z, AbsoluteValue (AbsoluteValueOf _) -> 
+            match e with            
+            | Number (Integer a) when a >= 0I -> (Integer a) |> Number 
+            | Number (Integer a) when a < 0I -> (Integer -a) |> Number
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
     let unaryAdditiveInverse s op e =
         match s, op with
         | Z, Addition (Addition.Inverse _) -> 
@@ -321,7 +328,7 @@ Rationals
         | Rational r, Integer i when r.numerator = i * r.denominator -> Equal |> Relation |> Symbol
         | Integer x, Integer y -> IntegerNumbers.compare this that
         | _ -> RelationUndefined |> Error |> Symbol
-    let abs x = Rational {numerator = abs x.numerator; denominator = abs x.denominator}        
+    //let abs x = Rational {numerator = abs x.numerator; denominator = abs x.denominator}        
     let floor this = 
         match this.numerator > 0I with
         | true -> this.numerator / this.denominator |> Integer
@@ -335,6 +342,19 @@ Rationals
                     | true -> (this.numerator / this.denominator) |> Integer
                     | false -> (this.numerator / this.denominator) - 1I |> Integer    
     let isNegative this = compare this zero = (LessThan |> Relation |> Symbol)    
+
+    ///The absolute value function |*| : Q -> Q+ union zero
+    let unaryAbsoluteValue s op e =
+        match s, op with
+        | Q, AbsoluteValue (AbsoluteValueOf _) -> 
+            match e with
+            | Number (Rational r) when compare (Rational r) zero = (GreaterThan |> Relation |> Symbol) || (Rational r) = zero -> 
+                Rational r |> Number
+            | Number (Rational r) when compare (Rational r) zero = (LessThan |> Relation |> Symbol) -> 
+                Rational {numerator = abs r.numerator; denominator = abs r.denominator} |> Number
+            | Number (Integer a) -> IntegerNumbers.unaryAbsoluteValue Z op e            
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
 
     let unaryAdditiveInverse s op e =
         match s, op with
@@ -808,13 +828,14 @@ module Number =
         | _, Infinity i -> (Infinities.compare this that)        
         | _ -> RelationUndefined |> Error |> Symbol
     let abs x = 
+        let absOf = AbsoluteValue (AbsoluteValueOf (Operations.AbsoluteValue.delimiter,Operations.AbsoluteValue.opPosition,Operations.AbsoluteValue.arity))
         match x with
-        | Integer x -> IntegerNumbers.absoluteValue x       
-        | Rational x -> RationalNumbers.abs x
-        | Decimal x -> DecimalNumbers.abs x
-        | Real x -> RealNumbers.abs x
-        | Complex x -> ComplexNumbers.abs x
-        | _ -> Undefined
+        | Integer i -> IntegerNumbers.unaryAbsoluteValue Z absOf (Number (Integer i))       
+        | Rational r -> IntegerNumbers.unaryAbsoluteValue Q absOf (Number (Rational r))
+        | Decimal x -> DecimalNumbers.abs x |> Number
+        | Real x -> RealNumbers.abs x |> Number
+        | Complex x -> ComplexNumbers.abs x |> Number
+        | _ -> Undefined |> Number
     let floor x = 
         match x with
         | Natural n -> x

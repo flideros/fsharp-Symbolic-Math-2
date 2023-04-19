@@ -1,10 +1,11 @@
 ﻿module Operations
-
+    open Delimiters
     type OperatorPosition =
         | Infix
         | Prefix
         | Postfix
         | TopPostfix
+        | Bracket
     type Arity = 
         | Unary
         | Binary
@@ -48,6 +49,13 @@
         let symbol = "Pow"
         let opPosition = TopPostfix
         let arity = Binary
+    module AbsoluteValue =
+        let symbol = "||"
+        let delimiter = Bars.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+    
+    
     type Addition = 
         | Plus of (string * OperatorPosition * Arity) 
         | Sum of (string * OperatorPosition * Arity) 
@@ -62,4 +70,5 @@
         | DivideBy of (string * OperatorPosition * Arity)
     type Exponentiation =
         | ToThePowerOf of (string * OperatorPosition * Arity)
-
+    type AbsoluteValue  = 
+        | AbsoluteValueOf of (DelimiterType * OperatorPosition * Arity)

@@ -41,6 +41,7 @@ type Operation =
     | Subtraction of Operations.Subtraction
     | Division of Operations.Division
     | Exponentiation of Operations.Exponentiation
+    | AbsoluteValue of Operations.AbsoluteValue
 
 type Delimiter = 
     | AngleBrackets of Delimiters.AngleBrackets
@@ -56,7 +57,7 @@ type Symbol =
     | Relation of Relation
     | Connectives //TODO
     | Quantifiers //TODO
-    | Deliminaters //TODO
+    | Delimiters of Delimiter
     | Error of Error    
     | Inconsistent
 
