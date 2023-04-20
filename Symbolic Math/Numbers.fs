@@ -327,8 +327,7 @@ Rationals
         | Integer i, Rational r when r.numerator = i * r.denominator -> Equal |> Relation |> Symbol
         | Rational r, Integer i when r.numerator = i * r.denominator -> Equal |> Relation |> Symbol
         | Integer x, Integer y -> IntegerNumbers.compare this that
-        | _ -> RelationUndefined |> Error |> Symbol
-    //let abs x = Rational {numerator = abs x.numerator; denominator = abs x.denominator}        
+        | _ -> RelationUndefined |> Error |> Symbol        
     let floor this = 
         match this.numerator > 0I with
         | true -> this.numerator / this.denominator |> Integer
@@ -355,7 +354,6 @@ Rationals
             | Number (Integer a) -> IntegerNumbers.unaryAbsoluteValue Z op e            
             | _ -> (op,e,s) |> UnaryOp
         | _ -> OperationUndefined |> Error |> Symbol
-
     let unaryAdditiveInverse s op e =
         match s, op with
         | Q, Addition (Addition.Inverse _) -> 
@@ -732,6 +730,32 @@ Rationals
             | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
+    let binaryPower s e1 op e2 =        
+        match s, op with
+        | Q, Exponentiation (ToThePowerOf _) -> 
+            match e1, e2 with
+            | Number (Rational r), Number (Integer b) when b >= 0I ->
+                Rational {numerator = (r.numerator ** int b) ; denominator = (r.denominator ** int b)} |> Number
+            | Number (Rational r), Number (Integer b) when b < 0I ->
+                Rational {numerator = (r.denominator ** int (abs b)) ; denominator = (r.numerator ** int (abs b))} |> Number
+            | Number (Integer a), Number (Integer b) when b >= 0I -> Integer (a ** int b) |> Number
+            | Number (Integer a), Number (Integer b) when b < 0I -> 
+                Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
+            | Number (Integer a), _ 
+            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ 
+            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+
+    let operationServices =        
+        {addition = Some binaryAdd
+         subtraction = Some binarySubtract
+         multiplication = Some binaryMultiply
+         division = Some binaryDivide
+         additiveInverse = Some unaryAdditiveInverse
+         multiplicativeInverse = Some unaryMultiplicativeInverse
+         toThePowerOf = Some binaryPower}
 
 module DecimalNumbers =
 (*

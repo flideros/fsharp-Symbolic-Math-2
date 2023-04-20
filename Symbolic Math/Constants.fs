@@ -1,5 +1,7 @@
 ﻿module Constants 
 (*  *)
+    open System.Numerics
+
     type Pi = float
     module Pi = 
         let value = System.Math.PI
@@ -14,10 +16,10 @@
     module Identity =
         let symbol = "\u2147"
         // Set_Operation = Identity
-        let real_Addition = "0"
-        let real_Multiplication = "1"
-        let complex_Addition = "0"
-        let complex_Multiplication = "1"
-        let positiveIntegers_LCM = "1"
-        let nonNegativeIntegers_GCD = "0"
+        let real_Addition = 0.0
+        let real_Multiplication = 1.0
+        let complex_Addition = Complex (0,0)
+        let complex_Multiplication = Complex (1,0)
+        let positiveIntegers_LCM = 1I
+        let nonNegativeIntegers_GCD = 0I
         // TODO add more sets and operations
