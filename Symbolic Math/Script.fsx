@@ -146,3 +146,7 @@ RationalNumbers.binarySubtract (Expressions iset) one minus half
 RationalNumbers.binaryMultiply (Expressions iset) half times half
 
 IntegerNumbers.binarySubtract Z one minus one
+
+let ts = seq { for i in 1 .. 3 -> 3M }
+
+Seq.fold (fun acc x -> acc * x) 1M ts

@@ -95,7 +95,8 @@ type Operations =
      division:BinaryOp option
      additiveInverse:UnaryOp option
      multiplicativeInverse:UnaryOp option
-     toThePowerOf:BinaryOp option}
+     toThePowerOf:BinaryOp option
+     absolutValue:UnaryOp option}
 
 type AlgebraicStructure = Set * Operations * Axiom list
 

@@ -145,7 +145,8 @@ addition, multiplication, order relation and axioms governing their interaction.
          division = None
          additiveInverse = None
          multiplicativeInverse = None
-         toThePowerOf = None}
+         toThePowerOf = None
+         absolutValue = None}
 
 module IntegerNumbers = 
 (*
@@ -255,8 +256,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Z, Multiplication (Times _) -> 
             match e1, e2 with
             | Number (Integer a), Number (Integer b) -> Integer (a * b) |> Number
-            | Number (Integer a), _ 
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Multiplication (Times _) -> 
             match e1, e2 with
@@ -278,8 +278,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                       (Seq.contains (Integer b) n) with
                 | true -> result |> Number
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), _ 
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
     let binaryPower s e1 op e2 =        
@@ -287,10 +286,8 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Z, Exponentiation (ToThePowerOf _) -> 
             match e1, e2 with
             | Number (Integer a), Number (Integer b) when b >= 0I -> Integer (a ** int b) |> Number
-            | Number (Integer a), Number (Integer b) when b < 0I -> 
-                Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
-            | Number (Integer a), _ 
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), Number (Integer b) when b < 0I -> Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
         
@@ -301,7 +298,8 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
          division = None
          additiveInverse = Some unaryAdditiveInverse
          multiplicativeInverse = None
-         toThePowerOf = Some binaryPower}
+         toThePowerOf = Some binaryPower
+         absolutValue = Some unaryAbsoluteValue}
 
 module RationalNumbers =        
 (*
@@ -456,10 +454,8 @@ Rationals
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
                 |> Number
             | Number (Integer a), Number (Integer b) -> Integer (a + b) |> Number
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Addition (Plus _) -> 
             match e1, e2 with
@@ -498,10 +494,8 @@ Rationals
                       (Seq.contains e2 e) with
                 | true -> Integer (a + b) |> Number
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Addition (Plus _)  -> 
             match e1, e2 with
@@ -538,10 +532,8 @@ Rationals
                       (Seq.contains (Integer b) n) with
                 | true -> Integer (a + b) |> Number
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol    
     let binarySubtract s e1 op e2 =
@@ -554,10 +546,8 @@ Rationals
             | Number (Rational r), Number (Integer i) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer i), Number (Rational r) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Subtraction (Minus _) -> 
             match e1, e2 with
@@ -565,10 +555,8 @@ Rationals
             | Number (Rational r), Number (Integer i) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus              
             | Number (Integer i), Number (Rational r) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus            
             | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Subtraction (Minus _)  -> 
             match e1, e2 with
@@ -576,10 +564,8 @@ Rationals
             | Number (Rational r), Number (Integer i) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer i), Number (Rational r) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
             | Number (Integer a), Number (Integer b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
     let binaryMultiply s e1 op e2 =
@@ -686,10 +672,8 @@ Rationals
                       (Seq.contains (Integer b) n) with
                 | true -> Integer (a * b) |> Number
                 | false -> NotInSet |> Error |> Symbol
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
     let binaryDivide s e1 op e2 =
@@ -702,10 +686,8 @@ Rationals
             | Number (Rational r), Number (Integer i) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
             | Number (Integer i), Number (Rational r) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
             | Number (Integer a), Number (Integer b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Expressions e, Division (DivideBy _) -> 
             match e1, e2 with
@@ -713,10 +695,8 @@ Rationals
             | Number (Rational r), Number (Integer i) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply              
             | Number (Integer i), Number (Rational r) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply           
             | Number (Integer a), Number (Integer b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | Numbers n, Division (DivideBy _)  -> 
             match e1, e2 with
@@ -724,27 +704,20 @@ Rationals
             | Number (Rational r), Number (Integer i) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
             | Number (Integer i), Number (Rational r) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
             | Number (Integer a), Number (Integer b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
-            | Number (Integer a), _
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
-    let binaryPower s e1 op e2 =        
+    let binaryPower s e1 op e2 =
         match s, op with
         | Q, Exponentiation (ToThePowerOf _) -> 
             match e1, e2 with
-            | Number (Rational r), Number (Integer b) when b >= 0I ->
-                Rational {numerator = (r.numerator ** int b) ; denominator = (r.denominator ** int b)} |> Number
-            | Number (Rational r), Number (Integer b) when b < 0I ->
-                Rational {numerator = (r.denominator ** int (abs b)) ; denominator = (r.numerator ** int (abs b))} |> Number
+            | Number (Rational r), Number (Integer b) when b >= 0I -> Rational {numerator = (r.numerator ** int b) ; denominator = (r.denominator ** int b)} |> Number
+            | Number (Rational r), Number (Integer b) when b < 0I -> Rational {numerator = (r.denominator ** int (abs b)) ; denominator = (r.numerator ** int (abs b))} |> Number
             | Number (Integer a), Number (Integer b) when b >= 0I -> Integer (a ** int b) |> Number
-            | Number (Integer a), Number (Integer b) when b < 0I -> 
-                Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
-            | Number (Integer a), _ 
-            | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
-            | Number (Rational r), _ 
-            | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp            
+            | Number (Integer a), Number (Integer b) when b < 0I -> Rational {numerator = 1I * BigInteger a.Sign; denominator = ((abs a) ** int (abs b))} |> Number
+            | Number (Integer a), _ | _, Number (Integer a) -> (e1,op,e2,s) |> BinaryOp
+            | Number (Rational r), _ | _, Number (Rational r) -> (e1,op,e2,s) |> BinaryOp            
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
 
@@ -755,7 +728,8 @@ Rationals
          division = Some binaryDivide
          additiveInverse = Some unaryAdditiveInverse
          multiplicativeInverse = Some unaryMultiplicativeInverse
-         toThePowerOf = Some binaryPower}
+         toThePowerOf = Some binaryPower
+         absolutValue = Some unaryAbsoluteValue}
 
 module DecimalNumbers =
 (*
@@ -763,7 +737,8 @@ Decimals are represaented by the floating decimal point type variable. It uses
 128 bits for storing and representing data. Therefore, it has more precision 
 (28-29 significant digits) than the float number type.
 *)    
-    let set = Q  
+    let set = Q
+    let axioms = MultiplicativeInverses::IntegerNumbers.axioms
 
     let compare this that = 
         match this, that with
@@ -775,6 +750,184 @@ Decimals are represaented by the floating decimal point type variable. It uses
     let floor x = Decimal (floor x)
     let ceiling x = Decimal (ceil x)
     let isNegative this = compare this (Decimal 0M) = (LessThan |> Relation |> Symbol)
+
+    let unaryAbsoluteValue s op e =
+        match s, op with
+        | Q, AbsoluteValue (AbsoluteValueOf _) -> 
+            match e with            
+            | Number (Decimal a) when a < 0M -> Number (Decimal (-a))
+            | Number (Decimal a) when a >= 0M -> Number (Decimal (a))
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
+    let unaryAdditiveInverse s op e =
+        match s, op with
+        | Q, Addition (Addition.Inverse _) -> 
+            match e with            
+            | Number (Decimal a) -> Decimal -a  |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Decimal a) when (Seq.contains e ex) -> 
+                let result = Decimal -a |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol            
+            | _ -> (op,e,s) |> UnaryOp
+        | Numbers n, Addition (Addition.Inverse _)  -> 
+            match e with            
+            | Number (Decimal a) when (Seq.contains (Decimal a) n) -> 
+                let result = Decimal -a 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
+    let unaryMultiplicativeInverse s op e =
+        match s, op with
+        | Q, Multiplication (Multiplication.Inverse _) -> 
+            match e with            
+            | Number (Decimal a) when a = 0M -> DivideByZero |> Error |> Symbol
+            | Number (Decimal a) when a = 1M -> e
+            | Number (Decimal a) -> Decimal (1M/a) |> Number
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Multiplication (Multiplication.Inverse _) -> 
+            match e with
+            | Number (Decimal a) when a = 0M -> DivideByZero |> Error |> Symbol
+            | Number (Decimal a) when a = 1M && (Seq.contains e ex)-> e
+            | Number (Decimal a) when (Seq.contains e ex) -> 
+                let result = Decimal (1M/a) |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | Numbers n, Multiplication (Multiplication.Inverse _)  -> 
+            match e with
+            | Number (Decimal a) when a = 0M -> DivideByZero |> Error |> Symbol
+            | Number (Decimal a) when a = 1M && (Seq.contains (Decimal a) n) -> e
+            | Number (Decimal a) when (Seq.contains (Decimal a) n) -> 
+                let result = Decimal (1M/a)
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol    
+    let binaryAdd s e1 op e2 =
+        match s, op with
+        | Q, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> Decimal (a + b) |> Number
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> 
+                match (Seq.contains (Decimal (a + b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Decimal (a + b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Addition (Plus _)  -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> 
+                match (Seq.contains (Decimal (a + b)) n) &&
+                      (Seq.contains (Decimal a) n) && 
+                      (Seq.contains (Decimal b) n) with
+                | true -> Decimal (a + b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol    
+    let binarySubtract s e1 op e2 =
+        let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
+        let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
+        match s, op with
+        | Q, Subtraction (Minus _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Subtraction (Minus _) -> 
+            match e1, e2 with            
+            | Number (Decimal a), Number (Decimal b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Subtraction (Minus _)  -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryMultiply s e1 op e2 =
+        match s, op with
+        | Q, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> Decimal (a * b) |> Number
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> 
+                match (Seq.contains (Decimal (a * b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Decimal (a * b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Multiplication (Times _)  -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> 
+                match (Seq.contains (Decimal (a * b)) n) &&
+                      (Seq.contains (Decimal a) n) && 
+                      (Seq.contains (Decimal b) n) with
+                | true -> Decimal (a * b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryDivide s e1 op e2 =
+        let multiplicativeInverse = Multiplication (Multiplication.Inverse (MultiplicativeInverse.symbol, MultiplicativeInverse.opPosition, Unary))
+        let multiply = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
+        match s, op with
+        | Q, Division (DivideBy _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Division (DivideBy _) -> 
+            match e1, e2 with          
+            | Number (Decimal a), Number (Decimal b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Division (DivideBy _)  -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Decimal b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryPower s e1 op e2 =
+        match s, op with
+        | Q, Exponentiation (ToThePowerOf _) -> 
+            match e1, e2 with
+            | Number (Decimal a), Number (Integer b) when b >= 0I -> seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1M |> Decimal |> Number
+            | Number (Decimal a), Number (Integer b) when b < 0I -> 1M / (seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1M) |> Decimal |> Number
+            | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+
+    let operationServices =        
+        {addition = Some binaryAdd
+         subtraction = Some binarySubtract
+         multiplication = Some binaryMultiply
+         division = Some binaryDivide
+         additiveInverse = Some unaryAdditiveInverse
+         multiplicativeInverse = Some unaryMultiplicativeInverse
+         toThePowerOf = Some binaryPower
+         absolutValue = Some unaryAbsoluteValue}
+
+module IrrationalNumbers = ()
 
 module RealNumbers =
 (*
