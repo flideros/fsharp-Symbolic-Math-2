@@ -41,6 +41,7 @@ type Operation =
     | Subtraction of Operations.Subtraction
     | Division of Operations.Division
     | Exponentiation of Operations.Exponentiation
+    | Root of Operations.Root
     | AbsoluteValue of Operations.AbsoluteValue
 
 type Delimiter = 
@@ -75,6 +76,8 @@ and Set =
     | Z     
     /// Set of all rational numbers
     | Q     
+    /// Set of Irrational (algebraic and transcendental) numbers
+    | P    
     /// Set of all real numbers
     | R     
     /// Set of all complex numbers
@@ -96,7 +99,7 @@ type Operations =
      additiveInverse:UnaryOp option
      multiplicativeInverse:UnaryOp option
      toThePowerOf:BinaryOp option
-     absolutValue:UnaryOp option}
+     absoluteValue:UnaryOp option}
 
 type AlgebraicStructure = Set * Operations * Axiom list
 

@@ -78,7 +78,8 @@ let ops =
      division = None
      additiveInverse = None
      multiplicativeInverse = None
-     toThePowerOf = None}
+     toThePowerOf = None
+     absoluteValue = None}
 
 let rationalOps = 
     {addition = Some RationalNumbers.binaryAdd
@@ -87,7 +88,8 @@ let rationalOps =
      division = None
      additiveInverse = None
      multiplicativeInverse = None
-     toThePowerOf = None}
+     toThePowerOf = None
+     absoluteValue = None}
 
 // Create axioms for the algebraic structure
 let asssociative = AssociativeAddition
@@ -147,6 +149,30 @@ RationalNumbers.binaryMultiply (Expressions iset) half times half
 
 IntegerNumbers.binarySubtract Z one minus one
 
+// - Misc. Code Testing -
 let ts = seq { for i in 1 .. 3 -> 3M }
 
 Seq.fold (fun acc x -> acc * x) 1M ts
+
+let seqOfIntegerSquares upTo =     
+    match upTo with
+    | Integer i -> Seq.initInfinite (fun n -> n * n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
+    | _ -> Seq.empty
+
+Seq.iter (fun elem -> printf "%s " elem) ((seqOfIntegerSquares (Integer 35I) |> Seq.map(fun x -> x.ToString() )))
+
+let seqOfPositiveIntegers upTo = 
+    match upTo with
+    | Integer i -> Seq.initInfinite (fun n -> n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
+    | _ -> Seq.empty
+
+Seq.iter (fun elem -> printf "%s " elem) ((seqOfPositiveIntegers (Integer 35I) |> Seq.map(fun x -> x.ToString() )))
+
+let setDiff upTo = 
+    let s1 = Set.ofSeq (seqOfPositiveIntegers upTo |> Seq.choose (fun x -> match x with | Integer i -> Some (int i) | _ -> None))
+    let s2 = Set.ofSeq (seqOfIntegerSquares upTo |> Seq.choose (fun x -> match x with | Integer i -> Some (int i) | _ -> None))
+    Set.difference s1 s2
+
+setDiff (Integer 29I)
+
+Seq.iter (fun elem -> printf "%s " elem) ((setDiff (Integer 29I) |> Seq.map(fun x -> x.ToString() )))

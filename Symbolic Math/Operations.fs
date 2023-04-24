@@ -49,6 +49,10 @@
         let symbol = "Pow"
         let opPosition = TopPostfix
         let arity = Binary
+    module SquareRootOf =
+        let symbol = "\u221A"
+        let opPosition = Prefix
+        let arity = Unary
     module AbsoluteValue =
         let symbol = "||"
         let delimiter = Bars.delimiter
@@ -70,5 +74,7 @@
         | DivideBy of (string * OperatorPosition * Arity)
     type Exponentiation =
         | ToThePowerOf of (string * OperatorPosition * Arity)
+    type Root =
+        | SquareRootOf of (string * OperatorPosition * Arity)
     type AbsoluteValue  = 
         | AbsoluteValueOf of (DelimiterType * OperatorPosition * Arity)

@@ -5,6 +5,72 @@ open Statements
 open Relations
 open Operations
 
+module Patterns =
+    open MathObject
+
+    let rec (|RationalNumberExpression|_|) (u : Expression) =
+        match u with
+        | Number (Integer i) -> Some u //RNE-1 u is an integer
+        | Number (Rational r) -> Some u //RNE-2 u is a fraction
+        | BinaryOp (a,Exponentiation (Operations.ToThePowerOf _),(Number (Integer b)),_) when //RNE-7 u is a power with a base that is an RNE and an exponent that is an integer.
+            (match a with | RationalNumberExpression a -> true | _ -> false) -> Some u 
+        | BinaryOp (a,Addition (Operations.Plus _),b,_) when //RNE-3 u is a unary or binary sum with operands that are RNEs.
+            (match a with | RationalNumberExpression a -> true | _ -> false) &&
+            (match b with | RationalNumberExpression a -> true | _ -> false) -> Some u
+        | BinaryOp (a,Subtraction (Operations.Minus _),b,_) when //RNE-4 u is a unary or binary difference with operands that are RNEs.
+            (match a with | RationalNumberExpression a -> true | _ -> false) &&
+            (match b with | RationalNumberExpression a -> true | _ -> false) -> Some u
+        | BinaryOp (a,Multiplication (Operations.Times _),b,_) when //RNE-5 u is a binary product with operands that are RNEs.
+            (match a with | RationalNumberExpression a -> true | _ -> false) &&
+            (match b with | RationalNumberExpression a -> true | _ -> false) -> Some u
+        | BinaryOp (a,Division (Operations.DivideBy _),b,_) when //RNE-6 u is a quotient with operands that are RNEs.
+            (match a with | RationalNumberExpression a -> true | _ -> false) &&
+            (match b with | RationalNumberExpression a -> true | _ -> false) -> Some u
+        | UnaryOp (Addition (Operations.Addition.Inverse _),a,_) when //RNE-4 u is a unary or binary difference with operands that are RNEs.
+            (match a with | RationalNumberExpression a -> true | _ -> false) -> Some u
+        | UnaryOp (AbsoluteValue (Operations.AbsoluteValueOf _),a,_) when //RNE-3 u is a unary or binary sum with operands that are RNEs.
+            (match a with | RationalNumberExpression a -> true | _ -> false) -> Some u
+        | _-> None
+
+    let rec (|GaussianRationalNumberExpression|_|) (u : Expression) =
+        match u with
+        | Number (Integer i) -> Some u //GRNE-1
+        | Number (Rational r) -> Some u //GRNE-2
+        | Symbol (Constant I) -> Some u //GRNE-3
+        | BinaryOp (a,Exponentiation (Operations.ToThePowerOf _),(Number (Integer b)),_) when //GRNE-8
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u 
+        | BinaryOp (a,Addition (Operations.Plus _),b,_) when //GRNE-4
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) &&
+            (match b with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u
+        | BinaryOp (a,Subtraction (Operations.Minus _),b,_) when //GRNE-5
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) &&
+            (match b with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u
+        | BinaryOp (a,Multiplication (Operations.Times _),b,_) when //GRNE-6
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) &&
+            (match b with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u
+        | BinaryOp (a,Division (Operations.DivideBy _),b,_) when //GRNE-7
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) &&
+            (match b with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u
+        | UnaryOp (Addition (Operations.Addition.Inverse _),a,_) when //GRNE-5
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u
+        | UnaryOp (AbsoluteValue (Operations.AbsoluteValueOf _),a,_) when //GRNE-4
+            (match a with | GaussianRationalNumberExpression a -> true | _ -> false) -> Some u
+        | _-> None
+        
+    let rec (|ExplicitAlgebraicNumber|_|) (u : Expression) =
+        match u with
+        | Number (Integer i) -> Some u //EAN-1
+        | Number (Rational i) -> Some u //EAN-1
+        | BinaryOp(ExplicitAlgebraicNumber a,Exponentiation (Operations.ToThePowerOf _),Number(Integer i),_) -> Some u //EAN-2
+        | BinaryOp(ExplicitAlgebraicNumber a,Exponentiation (Operations.ToThePowerOf _),Number(Rational r),_) -> Some u //EAN-2
+        | NaryOp(Multiplication (Operations.Product _),aList,_) 
+            when List.forall (fun x -> match x with | ExplicitAlgebraicNumber a -> true | _ -> false) aList 
+                -> Some u //EAN-3
+        | NaryOp(Addition (Operations.Sum _),aList,_) 
+            when List.forall (fun x -> match x with | ExplicitAlgebraicNumber a -> true | _ -> false) aList 
+                -> Some u //EAN-3
+        | _ -> None
+
 module NaturalNumbers =     
 (*
 The system of natural numbers is a set N = {0; 1; 2; 3; ...} together with three binary relations,
@@ -146,7 +212,7 @@ addition, multiplication, order relation and axioms governing their interaction.
          additiveInverse = None
          multiplicativeInverse = None
          toThePowerOf = None
-         absolutValue = None}
+         absoluteValue = None}
 
 module IntegerNumbers = 
 (*
@@ -155,6 +221,15 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
     let set = Z      
     let axioms = AdditiveInverses::NaturalNumbers.axioms
 
+    let seqOfIntegerSquares upTo =     
+        match upTo with
+        | Integer i -> Seq.initInfinite (fun n -> n * n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
+        | _ -> Seq.empty
+    let seqOfPositiveIntegers upTo = 
+        match upTo with
+        | Integer i -> Seq.initInfinite (fun n -> n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
+        | _ -> Seq.empty
+    
     let compare this that = 
         match this, that with
         | Integer x, Integer y when x > y -> GreaterThan |> Relation |> Symbol
@@ -163,6 +238,46 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | _ -> RelationUndefined |> Error |> Symbol     
     let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)    
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
+    let isPrimeNaive this =
+        match this with
+        | Number (Integer n) ->
+            match n with
+            | _ when n > 3I && (n % 2I = 0I || n % 3I = 0I) -> false
+            | _ ->
+                let maxDiv = System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I
+                let rec f d i = 
+                    match d > maxDiv with 
+                    | true -> true
+                    | false -> 
+                        match n % d = 0I with
+                        | true -> false
+                        | false -> f (d + i) (6I - i)     
+                f 5I 2I
+        | _ -> false
+    let isPrime this =
+        let cores = bigint (System.Environment.ProcessorCount * 16)
+        match this with            
+        | Number (Integer n) ->
+            let maxDiv = (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I) / 3I
+            let rec test (i : System.Numerics.BigInteger) max = 
+                    let oe = match i.IsEven with | true -> 1I | false-> 2I
+                    let oe' = match i.IsEven with | true -> 2I | false-> 1I
+                    let out1,out2,out3 = n % (oe + (3I * i)),n % (oe' + (3I * (i + 1I))),n % (oe + (3I * (i+2I)))
+                    match out1,out2,out3 with
+                    | _ when i > max -> None
+                    | _ when out1 = 0I || out2 = 0I || out3 = 0I -> Some false
+                    | _ -> test (i + 3I) max                        
+            let out = 
+                match n with
+                | _ when n = 5I || n = 7I || n = 11I -> None
+                | _ when n > 3I && (n % 2I = 0I || n % 3I = 0I || n % 5I = 0I) -> Some false                
+                | _ when n < 5000I -> test 1I maxDiv
+                //| _ -> Async.Choice [async {return test 1I (maxDiv/2I)}; async {return test (maxDiv/2I) (maxDiv)}] |> Async.RunSynchronously 
+                | _ -> Async.Choice [for i in 0I..(cores-1I) -> async {return test ((i*maxDiv/cores)+1I) ((i+1I)*maxDiv/cores)}] |> Async.RunSynchronously 
+            match out with
+            | Some false -> false
+            | _ -> true                
+        | _ -> false
 
     let unaryAbsoluteValue s op e =
         match s, op with
@@ -299,7 +414,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
          additiveInverse = Some unaryAdditiveInverse
          multiplicativeInverse = None
          toThePowerOf = Some binaryPower
-         absolutValue = Some unaryAbsoluteValue}
+         absoluteValue = Some unaryAbsoluteValue}
 
 module RationalNumbers =        
 (*
@@ -729,7 +844,7 @@ Rationals
          additiveInverse = Some unaryAdditiveInverse
          multiplicativeInverse = Some unaryMultiplicativeInverse
          toThePowerOf = Some binaryPower
-         absolutValue = Some unaryAbsoluteValue}
+         absoluteValue = Some unaryAbsoluteValue}
 
 module DecimalNumbers =
 (*
@@ -911,7 +1026,8 @@ Decimals are represaented by the floating decimal point type variable. It uses
         match s, op with
         | Q, Exponentiation (ToThePowerOf _) -> 
             match e1, e2 with
-            | Number (Decimal a), Number (Integer b) when b >= 0I -> seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1M |> Decimal |> Number
+            | Number (Decimal a), Number (Integer b) when b > 0I -> seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1M |> Decimal |> Number
+            | Number (Decimal a), Number (Integer b) when b = 0I -> 1M |> Decimal |> Number
             | Number (Decimal a), Number (Integer b) when b < 0I -> 1M / (seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1M) |> Decimal |> Number
             | Number (Decimal a), _ | _, Number (Decimal a) -> (e1,op,e2,s) |> BinaryOp            
             | _ -> OperationUndefined |> Error |> Symbol
@@ -925,9 +1041,29 @@ Decimals are represaented by the floating decimal point type variable. It uses
          additiveInverse = Some unaryAdditiveInverse
          multiplicativeInverse = Some unaryMultiplicativeInverse
          toThePowerOf = Some binaryPower
-         absolutValue = Some unaryAbsoluteValue}
+         absoluteValue = Some unaryAbsoluteValue}
 
-module IrrationalNumbers = ()
+module IrrationalNumbers = 
+(*
+Both Algebraic and Transcendental numbers
+*)
+    let set = P    
+    
+    let seqOfIrrationalRoots upTo = 
+        let s1 = Set.ofSeq (IntegerNumbers.seqOfPositiveIntegers upTo |> Seq.choose (fun x -> match x with | Integer i -> Some (int i) | _ -> None))
+        let s2 = Set.ofSeq (IntegerNumbers.seqOfIntegerSquares upTo |> Seq.choose (fun x -> match x with | Integer i -> Some (int i) | _ -> None))
+        Set.difference s1 s2 |> Seq.map (fun x -> x |> bigint |> Integer)
+    
+    let isIrrational this =         
+        match this with 
+        | Number (Natural n) -> false
+        | Number (Integer i) -> false
+        | Number (Rational r) -> false
+        | Number (Decimal d) -> false
+        | Symbol (Constant (Pi pi)) when pi = Constants.Pi.value -> true
+        | Symbol (Constant (E e)) when e = Constants.EulerNumber.value -> true        
+        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when Seq.exists (fun x -> x = (Integer i)) (seqOfIrrationalRoots (Integer i))-> true
+        | _ -> false
 
 module RealNumbers =
 (*
