@@ -221,13 +221,13 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
     let set = Z      
     let axioms = AdditiveInverses::NaturalNumbers.axioms
 
-    let seqOfIntegerSquares upTo =     
+    let seqOfIntegerSquares upTo =            
         match upTo with
         | Integer i -> Seq.initInfinite (fun n -> n * n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
         | _ -> Seq.empty
-    let seqOfPositiveIntegers upTo = 
-        match upTo with
-        | Integer i -> Seq.initInfinite (fun n -> n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
+    let seqOfPartitionedPositiveIntegers partition upTo = 
+        match partition, upTo with        
+        | (Integer p), (Integer i) when i > p -> seq{(i - p + 1I) .. i}|> Seq.map (fun x -> x |> Integer)
         | _ -> Seq.empty
     
     let compare this that = 
@@ -1049,10 +1049,10 @@ Both Algebraic and Transcendental numbers
 *)
     let set = P    
     
-    let seqOfIrrationalRoots upTo = 
-        let s1 = Set.ofSeq (IntegerNumbers.seqOfPositiveIntegers upTo |> Seq.choose (fun x -> match x with | Integer i -> Some (int i) | _ -> None))
-        let s2 = Set.ofSeq (IntegerNumbers.seqOfIntegerSquares upTo |> Seq.choose (fun x -> match x with | Integer i -> Some (int i) | _ -> None))
-        Set.difference s1 s2 |> Seq.map (fun x -> x |> bigint |> Integer)
+    let seqOfIrrationalIntegerRoots upTo = 
+        let s1 = (IntegerNumbers.seqOfPartitionedPositiveIntegers (Integer 1000000I) upTo |> Seq.choose (fun x -> match x with | Integer i -> Some ( i) | _ -> None))
+        let s2 = (IntegerNumbers.seqOfIntegerSquares upTo |> Seq.choose (fun x -> match x with | Integer i -> Some ( i) | _ -> None))
+        Seq.except s2 s1 |> Seq.map (fun x -> x |> Integer)
     
     let isIrrational this =         
         match this with 
@@ -1062,7 +1062,7 @@ Both Algebraic and Transcendental numbers
         | Number (Decimal d) -> false
         | Symbol (Constant (Pi pi)) when pi = Constants.Pi.value -> true
         | Symbol (Constant (E e)) when e = Constants.EulerNumber.value -> true        
-        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when Seq.exists (fun x -> x = (Integer i)) (seqOfIrrationalRoots (Integer i))-> true
+        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when Seq.exists (fun x -> x = (Integer i)) (seqOfIrrationalIntegerRoots (Integer i)) -> true
         | _ -> false
 
 module RealNumbers =
