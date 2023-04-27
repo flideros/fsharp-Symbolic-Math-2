@@ -300,7 +300,15 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                 | true -> Integer (out' - 1I)
                 | false -> Integer (out' + 1I)
         | _ -> Undefined
-            
+    /// Returns the integer remainder of an integer division operation.
+    let remainder a b =
+        match a, b with
+        | (Integer x), (Integer y) when y <> 0I -> 
+            match quotient a b with
+            | (Integer q) -> (Integer (x - q * y))
+            | _ -> Undefined
+        | _ -> Undefined
+
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
     let isPrimeNaive this =
         match this with
@@ -346,7 +354,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         let thisValue = match this with | Integer i -> i | _ -> 0I
         let sr = match squareRoot (this) with | Integer i -> i | _ -> 0I
         sr*sr = thisValue
-    
+
     let unaryAbsoluteValue s op e =
         match s, op with
         | Z, AbsoluteValue (AbsoluteValueOf _) -> 
@@ -483,6 +491,31 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
          multiplicativeInverse = None
          toThePowerOf = Some binaryPower
          absoluteValue = Some unaryAbsoluteValue}
+
+    /// Sequence of prime integer numbers.
+    let primes =
+        let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary)) 
+        let rec next x = seq{
+            let test =
+                match x with
+                | Number (Integer x') when x' < 700I -> isPrimeNaive
+                | _ -> isPrime
+            let x' = match x with | Number n -> n | _ -> (Integer 0I)
+            match test x' with
+            | true when x = Number(Integer 2I) ->
+                yield  (Integer 2I)
+                yield! next (Number (Integer 3I))
+            | true -> yield x' 
+                      yield! next (binaryAdd Z x plus (Number(Integer 2I)))
+            | false -> yield! next (binaryAdd Z x plus (Number(Integer 2I)))}
+        next (Number (Integer 2I)) |> Seq.cache
+    let primesUpTo max = 
+        let e x = 
+            match x with 
+            | (Integer i) -> i 
+            | _ -> 1I
+        Seq.takeWhile (fun x -> e x < max) primes
+    let primesUpToCount count = Seq.take count primes
 
 module RationalNumbers =        
 (*
@@ -621,8 +654,8 @@ Rationals
         | Q, Addition (Plus _) -> 
             match e1, e2 with
             | Number (Rational r1), Number (Rational r2) -> 
-                let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator //|> Integer
-                let dTemp = r1.denominator * r2.denominator //|> Integer
+                let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator 
+                let dTemp = r1.denominator * r2.denominator 
                 let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 match dTemp / hcfTemp = 1I with
                 | true -> Integer (nTemp / hcfTemp)

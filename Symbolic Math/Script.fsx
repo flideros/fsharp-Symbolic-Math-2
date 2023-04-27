@@ -150,69 +150,25 @@ RationalNumbers.binaryMultiply (Expressions iset) half times half
 
 IntegerNumbers.binarySubtract Z one minus one
 
-// test the isIrrational function
-
+// isIrrational function
 IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 10406040100000000I),Z))
+
+// Square number test
 IntegerNumbers.isSquare (Integer 10406040100000000I)
 
+// working with prime numbers
+for n in IntegerNumbers.primesUpToCount 100 do printfn "%A" n
+for n in IntegerNumbers.primesUpTo 100I do printfn "%A" n
 
-// test area
-let quotient a b =
-    match a, b with 
-    | Number (Integer x), Number (Integer y) when y <> 0I && x = 0I -> Number (Integer 0I) // added 1/11/17
-    | Number (Integer x), Number (Integer y) when y <> 0I ->
-        let out = x/y
-        let out' = 
-            match (x >= y && x >= 0I) with
-            | true -> out
-            | false -> 
-                match y < 0I || ((bigint.Abs x) - (bigint.Abs (out * y))) = 0I with 
-                | true -> out + 1I
-                | false -> out - 1I
-        match 0I <= (x - out' * y) && (x - out' * y) <= (bigint.Abs y) - 1I with
-        | true -> Number (Integer out')
-        | false -> 
-            match x < 0I with 
-            | true -> Number (Integer (out' - 1I))
-            | false -> Number (Integer (out' + 1I))
-    | _ -> Number Undefined
+// Primality test
+IntegerNumbers.isPrime (Integer 1842506251I)
 
-let remainder a b =
-    match a, b with
-    | Number (Integer x), Number (Integer y) when y <> 0I -> 
-        match quotient a b with
-        | Number (Integer q) -> Number (Integer (x - q*y))
-        | _ -> Number Undefined
-    | _ -> Number Undefined
-
-let primes =
-    let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
-    let rec next x = seq{
-        let test =
-            match x with
-            | Number (Integer x') when x' < 700I ->  IntegerNumbers.isPrimeNaive
-            | _ -> IntegerNumbers.isPrime
-        match test x with
-        | true when x = Number(Integer 2I) ->
-            yield Number(Integer 2I)
-            yield! next (Number(Integer 3I))
-        | true -> yield x 
-                  yield! next (IntegerNumbers.binaryAdd Z x plus (Number(Integer 2I)))
-        | false -> yield! next (IntegerNumbers.binaryAdd Z x plus (Number(Integer 2I)))}
-    next (Number (Integer 2I)) |> Seq.cache
-
-let primesUpTo max = 
-    let e x = 
-        match x with 
-        | Number (Integer i) -> i 
-        | _ -> 1I
-    Seq.takeWhile (fun x -> e x < max) primes
-
+// testing area
 let factorCandidates n' =
     let n = 
         match n' with 
-        | Number(Integer i) when i >= 0I-> i 
-        | Number(Integer i) when i < 0I-> -i 
+        | (Integer i) when i >= 0I-> i 
+        | (Integer i) when i < 0I-> -i 
         | _ -> 0I
     let expand l =                
         let rec comb accLst elemLst =
@@ -225,11 +181,13 @@ let factorCandidates n' =
         |> Seq.distinct
         |> Seq.toList   
     let rawCandidatesN = 
-        let cand = Seq.choose (fun x -> match remainder n' x = Number(Integer 0I) with | true -> Some x | _ -> None) (primesUpTo (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I)) |> Seq.toList
+        let cand = Seq.choose (fun x -> match remainder n' x = (Integer 0I) with | true -> Some x | _ -> None) (primesUpTo (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I)) |> Seq.toList
         expand cand   
-    List.map (fun x -> List.fold (fun x' acc -> match x' with | Number(Integer i) ->  Number(Integer (i*acc)) | _ -> Number(Integer acc) ) (Number(Integer 1I)) x) (rawCandidatesN |> List.map (fun x -> List.map ( fun x' -> match x' with | Number(Integer i) -> i) x))                                      
+    List.map (fun x -> List.fold (fun x' acc -> match x' with | (Integer i) ->  (Integer (i*acc)) | _ -> (Integer acc)) (Integer 1I) x) (rawCandidatesN |> List.map (fun x -> List.choose ( fun x' -> match x' with | (Integer i) -> Some i | _ -> None) x))                                      
     |> Seq.distinct  
     |> Seq.toList
 
-factorCandidates (Number(Integer 1842506251I))
+factorCandidates (Integer 1842506251I)
+
+
 
