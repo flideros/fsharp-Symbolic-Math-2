@@ -220,15 +220,6 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
 *)    
     let set = Z      
     let axioms = AdditiveInverses::NaturalNumbers.axioms
-
-    let seqOfIntegerSquares upTo =            
-        match upTo with
-        | Integer i -> Seq.initInfinite (fun n -> n * n) |> Seq.takeWhile (fun x -> x <= int i) |> Seq.map (fun x -> x |> bigint |> Integer)
-        | _ -> Seq.empty
-    let seqOfPartitionedPositiveIntegers partition upTo = 
-        match partition, upTo with        
-        | (Integer p), (Integer i) when i > p -> seq{(i - p + 1I) .. i}|> Seq.map (fun x -> x |> Integer)
-        | _ -> Seq.empty
     
     let compare this that = 
         match this, that with
@@ -237,6 +228,56 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Integer x, Integer y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol     
     let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)    
+    /// Returns the truncated integer logarithm of a positive integer, base 10. 
+    let log10 a =
+        match a with
+        | Integer i when i > 0I -> 
+            let rec divisions acc num div =
+                match num < div with
+                | true -> acc, num
+                | false -> divisions (acc + 1I) (num / div) div
+            let c1, r1 = divisions 0I i (10I**1000)
+            let c2, r2 = divisions 0I r1 (10I**100)
+            let c3, r3 = divisions 0I r2 (10I**10)
+            let c4, r5 = divisions 0I r3 10I
+            1000I * c1 + 100I * c2 + 10I * c3 + c4 |> Integer
+        | _ -> Undefined
+    /// Returns the truncated integer square root.
+    let squareRoot a =
+        let power10 a =
+            match a with
+            | Integer i when i > 0I -> 
+                let rec expo product pow mult log10 =
+                    match pow with
+                    | x when x < log10 -> product, pow
+                    | _ -> expo (product * mult) (pow - log10) mult log10
+                let p1, r1 = expo 1I i  (10I**1000) 1000I
+                let p2, r2 = expo 1I r1 (10I**100) 100I
+                let p3, r3 = expo 1I r2 (10I**10) 10I
+                let p4, _r4 = expo 1I r3 10I 1I
+                p1 * p2 * p3 * p4
+            | _ -> 0I
+        let guess num =
+            let log = log10 (Integer(num + 1I)) 
+            let halfLog = 
+                match log with 
+                | Integer i when i > 0I -> (i + 1I) >>> 1
+                | _ -> 0I
+            (power10 (Integer halfLog))
+        let rec converge oldGuess =
+            let i = match a with | Integer i -> i | _ -> 0I
+            let newGuess = (i / oldGuess + oldGuess) >>> 1
+            match bigint.Abs (oldGuess - newGuess) with
+            | x when x < 2I -> newGuess
+            | _ -> converge newGuess    
+        match a with 
+        | Integer i when i > 0I ->
+            let root = guess i |> converge 
+            match root * root > i with
+            | true -> root - 1I |> Integer
+            | false -> root |> Integer
+        | _ -> Undefined    
+            
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
     let isPrimeNaive this =
         match this with
@@ -278,7 +319,11 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             | Some false -> false
             | _ -> true                
         | _ -> false
-
+    let isSquare this = 
+        let thisValue = match this with | Integer i -> i | _ -> 0I
+        let sr = match squareRoot (this) with | Integer i -> i | _ -> 0I
+        sr*sr = thisValue
+    
     let unaryAbsoluteValue s op e =
         match s, op with
         | Z, AbsoluteValue (AbsoluteValueOf _) -> 
@@ -1048,12 +1093,7 @@ module IrrationalNumbers =
 Both Algebraic and Transcendental numbers
 *)
     let set = P    
-    
-    let seqOfIrrationalIntegerRoots upTo = 
-        let s1 = (IntegerNumbers.seqOfPartitionedPositiveIntegers (Integer 1000000I) upTo |> Seq.choose (fun x -> match x with | Integer i -> Some ( i) | _ -> None))
-        let s2 = (IntegerNumbers.seqOfIntegerSquares upTo |> Seq.choose (fun x -> match x with | Integer i -> Some ( i) | _ -> None))
-        Seq.except s2 s1 |> Seq.map (fun x -> x |> Integer)
-    
+       
     let isIrrational this =         
         match this with 
         | Number (Natural n) -> false
@@ -1062,7 +1102,7 @@ Both Algebraic and Transcendental numbers
         | Number (Decimal d) -> false
         | Symbol (Constant (Pi pi)) when pi = Constants.Pi.value -> true
         | Symbol (Constant (E e)) when e = Constants.EulerNumber.value -> true        
-        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when Seq.exists (fun x -> x = (Integer i)) (seqOfIrrationalIntegerRoots (Integer i)) -> true
+        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when IntegerNumbers.isSquare (Integer i) = false -> true
         | _ -> false
 
 module RealNumbers =

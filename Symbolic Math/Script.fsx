@@ -152,53 +152,54 @@ IntegerNumbers.binarySubtract Z one minus one
 
 // test the isIrrational function
 
-IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 1842506251I),Z))
+IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 145647867865664556251I),Z))
+IntegerNumbers.isSquare (Integer 9145647867865664556251I)
 
 
 // test area
 let quotient a b =
-            match a, b with 
-            | Number (Integer x), Number (Integer y) when y <> 0I && x = 0I -> Number (Integer 0I) // added 1/11/17
-            | Number (Integer x), Number (Integer y) when y <> 0I ->
-                let out = x/y
-                let out' = 
-                    match (x >= y && x >= 0I) with
-                    | true -> out
-                    | false -> 
-                        match y < 0I || ((bigint.Abs x) - (bigint.Abs (out * y))) = 0I with 
-                        | true -> out + 1I
-                        | false -> out - 1I
-                match 0I <= (x - out' * y) && (x - out' * y) <= (bigint.Abs y) - 1I with
-                | true -> Number (Integer out')
-                | false -> 
-                    match x < 0I with 
-                    | true -> Number (Integer (out' - 1I))
-                    | false -> Number (Integer (out' + 1I))
-            | _ -> Number Undefined
+    match a, b with 
+    | Number (Integer x), Number (Integer y) when y <> 0I && x = 0I -> Number (Integer 0I) // added 1/11/17
+    | Number (Integer x), Number (Integer y) when y <> 0I ->
+        let out = x/y
+        let out' = 
+            match (x >= y && x >= 0I) with
+            | true -> out
+            | false -> 
+                match y < 0I || ((bigint.Abs x) - (bigint.Abs (out * y))) = 0I with 
+                | true -> out + 1I
+                | false -> out - 1I
+        match 0I <= (x - out' * y) && (x - out' * y) <= (bigint.Abs y) - 1I with
+        | true -> Number (Integer out')
+        | false -> 
+            match x < 0I with 
+            | true -> Number (Integer (out' - 1I))
+            | false -> Number (Integer (out' + 1I))
+    | _ -> Number Undefined
 
 let remainder a b =
-            match a, b with
-            | Number (Integer x), Number (Integer y) when y <> 0I -> 
-                match quotient a b with
-                | Number (Integer q) -> Number (Integer (x - q*y))
-                | _ -> Number Undefined
-            | _ -> Number Undefined
+    match a, b with
+    | Number (Integer x), Number (Integer y) when y <> 0I -> 
+        match quotient a b with
+        | Number (Integer q) -> Number (Integer (x - q*y))
+        | _ -> Number Undefined
+    | _ -> Number Undefined
 
 let primes =
-            let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
-            let rec next x = seq{
-                let test =
-                   match x with
-                   | Number (Integer x') when x' < 700I ->  IntegerNumbers.isPrimeNaive
-                   | _ -> IntegerNumbers.isPrime
-                match test x with
-                | true when x = Number(Integer 2I) ->
-                    yield Number(Integer 2I)
-                    yield! next (Number(Integer 3I))
-                | true -> yield x 
-                          yield! next (IntegerNumbers.binaryAdd Z x plus (Number(Integer 2I)))
-                | false -> yield! next (IntegerNumbers.binaryAdd Z x plus (Number(Integer 2I)))}
-            next (Number (Integer 2I)) |> Seq.cache
+    let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
+    let rec next x = seq{
+        let test =
+            match x with
+            | Number (Integer x') when x' < 700I ->  IntegerNumbers.isPrimeNaive
+            | _ -> IntegerNumbers.isPrime
+        match test x with
+        | true when x = Number(Integer 2I) ->
+            yield Number(Integer 2I)
+            yield! next (Number(Integer 3I))
+        | true -> yield x 
+                  yield! next (IntegerNumbers.binaryAdd Z x plus (Number(Integer 2I)))
+        | false -> yield! next (IntegerNumbers.binaryAdd Z x plus (Number(Integer 2I)))}
+    next (Number (Integer 2I)) |> Seq.cache
 
 let primesUpTo max = 
     let e x = 
@@ -206,8 +207,6 @@ let primesUpTo max =
         | Number (Integer i) -> i 
         | _ -> 1I
     Seq.takeWhile (fun x -> e x < max) primes
-
-
 
 let factorCandidates n' =
     let n = 
@@ -233,3 +232,4 @@ let factorCandidates n' =
     |> Seq.toList
 
 factorCandidates (Number(Integer 1842506251I))
+
