@@ -227,7 +227,10 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Integer x, Integer y when x < y -> LessThan |> Relation |> Symbol
         | Integer x, Integer y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol     
-    let highestCommonFactor x y = BigInteger.GreatestCommonDivisor (x, y)    
+    let highestCommonFactor a b = 
+        match a,b with
+        | Integer x, Integer y -> BigInteger.GreatestCommonDivisor (x, y) |> Integer
+        | _ -> Undefined
     /// Returns the truncated integer logarithm of a positive integer, base 10. 
     let log10 a =
         match a with
@@ -276,12 +279,32 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             match root * root > i with
             | true -> root - 1I |> Integer
             | false -> root |> Integer
-        | _ -> Undefined    
+        | _ -> Undefined
+    /// Returns the truncated integer quotient.
+    let quotient a b =
+        match a, b with 
+        | (Integer x), (Integer y) when y <> 0I && x = 0I -> Integer 0I 
+        | (Integer x), (Integer y) when y <> 0I ->
+            let out = x/y
+            let out' = 
+                match (x >= y && x >= 0I) with
+                | true -> out
+                | false -> 
+                    match y < 0I || ((bigint.Abs x) - (bigint.Abs (out * y))) = 0I with 
+                    | true -> out + 1I
+                    | false -> out - 1I
+            match 0I <= (x - out' * y) && (x - out' * y) <= (bigint.Abs y) - 1I with
+            | true -> Integer out'
+            | false -> 
+                match x < 0I with 
+                | true -> Integer (out' - 1I)
+                | false -> Integer (out' + 1I)
+        | _ -> Undefined
             
     let isNegative this = compare this (Integer 0I) = (LessThan |> Relation |> Symbol)
     let isPrimeNaive this =
         match this with
-        | Number (Integer n) ->
+        | Integer n ->
             match n with
             | _ when n > 3I && (n % 2I = 0I || n % 3I = 0I) -> false
             | _ ->
@@ -298,7 +321,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
     let isPrime this =
         let cores = bigint (System.Environment.ProcessorCount * 16)
         match this with            
-        | Number (Integer n) ->
+        | Integer n ->
             let maxDiv = (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I) / 3I
             let rec test (i : System.Numerics.BigInteger) max = 
                     let oe = match i.IsEven with | true -> 1I | false-> 2I
@@ -498,6 +521,7 @@ Rationals
         | false -> match snd (BigInteger.DivRem (this.numerator, this.denominator)) <> 0I with
                     | true -> (this.numerator / this.denominator) |> Integer
                     | false -> (this.numerator / this.denominator) - 1I |> Integer    
+    
     let isNegative this = compare this zero = (LessThan |> Relation |> Symbol)    
 
     ///The absolute value function |*| : Q -> Q+ union zero
@@ -597,9 +621,9 @@ Rationals
         | Q, Addition (Plus _) -> 
             match e1, e2 with
             | Number (Rational r1), Number (Rational r2) -> 
-                let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator
-                let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator //|> Integer
+                let dTemp = r1.denominator * r2.denominator //|> Integer
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 match dTemp / hcfTemp = 1I with
                 | true -> Integer (nTemp / hcfTemp)
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
@@ -608,7 +632,7 @@ Rationals
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator + i * r.denominator
                 let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 match dTemp / hcfTemp = 1I with
                 | true -> Integer (nTemp / hcfTemp)
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
@@ -622,7 +646,7 @@ Rationals
             | Number (Rational r1), Number (Rational r2) -> 
                 let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator
                 let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -637,7 +661,7 @@ Rationals
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator + i * r.denominator
                 let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -662,7 +686,7 @@ Rationals
             | Number (Rational r1), Number (Rational r2) -> 
                 let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator
                 let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -676,7 +700,7 @@ Rationals
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator + i * r.denominator
                 let dTemp = r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -735,7 +759,7 @@ Rationals
             | Number (Rational r1), Number (Rational r2) -> 
                 let nTemp = r1.numerator * r2.numerator 
                 let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 match dTemp / hcfTemp = 1I with
                 | true -> Integer (nTemp / hcfTemp)
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
@@ -744,7 +768,7 @@ Rationals
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator * i * r.denominator
                 let dTemp = r.denominator * r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 match dTemp / hcfTemp = 1I with
                 | true -> Integer (nTemp / hcfTemp)
                 | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
@@ -760,7 +784,7 @@ Rationals
             | Number (Rational r1), Number (Rational r2) -> 
                 let nTemp = r1.numerator * r2.numerator 
                 let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -775,7 +799,7 @@ Rationals
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator * i * r.denominator
                 let dTemp = r.denominator * r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -802,7 +826,7 @@ Rationals
             | Number (Rational r1), Number (Rational r2) -> 
                 let nTemp = r1.numerator * r2.numerator 
                 let dTemp = r1.denominator * r2.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)
@@ -816,7 +840,7 @@ Rationals
             | Number (Integer i), Number (Rational r) -> 
                 let nTemp = r.numerator * i * r.denominator
                 let dTemp = r.denominator * r.denominator
-                let hcfTemp = IntegerNumbers.highestCommonFactor nTemp dTemp
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
                 let result = 
                     match dTemp / hcfTemp = 1I with
                     | true -> Integer (nTemp / hcfTemp)

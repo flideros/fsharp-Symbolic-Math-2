@@ -152,8 +152,8 @@ IntegerNumbers.binarySubtract Z one minus one
 
 // test the isIrrational function
 
-IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 145647867865664556251I),Z))
-IntegerNumbers.isSquare (Integer 9145647867865664556251I)
+IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 10406040100000000I),Z))
+IntegerNumbers.isSquare (Integer 10406040100000000I)
 
 
 // test area
