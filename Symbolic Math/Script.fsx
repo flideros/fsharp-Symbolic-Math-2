@@ -42,7 +42,10 @@ let getValue (x: Constant) =
     | _ -> 0.0
 
 // Construct a constant.
-let pi = (Constant.Pi Constants.Pi.value)
+let pi = (Constant.Pi Constants.Pi.value) |> Symbol.Constant
+let e = Constant.E Constants.EulerNumber.value |> Symbol.Constant
+
+IrrationalNumbers.compare (Symbol pi) (Symbol e)
 
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
@@ -56,8 +59,11 @@ let multiplicativeInverse = Multiplication (Multiplication.Inverse (Multiplicati
 let root = Root (Root.SquareRootOf (SquareRootOf.symbol, SquareRootOf.opPosition, Unary))
 
 // Get symbol string for a constant.
-let piSymbol = Constants.Pi.symbol
+let piSymbol = Constants.Pi.symbol 
 let eSymbol = Constants.EulerNumber.symbol
+
+
+
 
 // Example of a function that takes a set and performs an operation over that set.
 let add (s: Set) (x1: Expression) (p: Operation) (x2: Expression)  = 
@@ -151,17 +157,17 @@ RationalNumbers.binaryMultiply (Expressions iset) half times half
 IntegerNumbers.binarySubtract Z one minus one
 
 // isIrrational function
-IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 10406040100000000I),Z))
+IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 1040604010000000011I),Z))
 
 // Square number test
-IntegerNumbers.isSquare (Integer 10406040100000000I)
+IntegerNumbers.isSquare (Integer 1040604010000000011I)
 
 // working with prime numbers
 for n in IntegerNumbers.primesUpToCount 100 do printfn "%A" n
 for n in IntegerNumbers.primesUpTo 100I do printfn "%A" n
 
 // Primality test
-IntegerNumbers.isPrime (Integer 1842506251I)
+IntegerNumbers.isPrime (Integer 1040604010000000011I)
 
 // testing area
 let factorCandidates n' =
@@ -181,13 +187,13 @@ let factorCandidates n' =
         |> Seq.distinct
         |> Seq.toList   
     let rawCandidatesN = 
-        let cand = Seq.choose (fun x -> match remainder n' x = (Integer 0I) with | true -> Some x | _ -> None) (primesUpTo (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I)) |> Seq.toList
+        let cand = Seq.choose (fun x -> match IntegerNumbers.remainder n' x = (Integer 0I) with | true -> Some x | _ -> None) (IntegerNumbers.primesUpTo (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I)) |> Seq.toList
         expand cand   
     List.map (fun x -> List.fold (fun x' acc -> match x' with | (Integer i) ->  (Integer (i*acc)) | _ -> (Integer acc)) (Integer 1I) x) (rawCandidatesN |> List.map (fun x -> List.choose ( fun x' -> match x' with | (Integer i) -> Some i | _ -> None) x))                                      
     |> Seq.distinct  
     |> Seq.toList
 
-factorCandidates (Integer 1842506251I)
+factorCandidates (Integer 24410406040100I)
 
-
+let t = float 24410406040100I
 

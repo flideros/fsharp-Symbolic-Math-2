@@ -227,6 +227,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
         | Integer x, Integer y when x < y -> LessThan |> Relation |> Symbol
         | Integer x, Integer y when x = y -> Equal |> Relation |> Symbol
         | _ -> RelationUndefined |> Error |> Symbol     
+    /// Product of the smallest power of each common prime factor of two integers.
     let highestCommonFactor a b = 
         match a,b with
         | Integer x, Integer y -> BigInteger.GreatestCommonDivisor (x, y) |> Integer
@@ -242,7 +243,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             let c1, r1 = divisions 0I i (10I**1000)
             let c2, r2 = divisions 0I r1 (10I**100)
             let c3, r3 = divisions 0I r2 (10I**10)
-            let c4, r5 = divisions 0I r3 10I
+            let c4, _r4 = divisions 0I r3 10I
             1000I * c1 + 100I * c2 + 10I * c3 + c4 |> Integer
         | _ -> Undefined
     /// Returns the truncated integer square root.
@@ -300,7 +301,7 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
                 | true -> Integer (out' - 1I)
                 | false -> Integer (out' + 1I)
         | _ -> Undefined
-    /// Returns the integer remainder of an integer division operation.
+    /// Returns the integer remainder of an integer quotient operation.
     let remainder a b =
         match a, b with
         | (Integer x), (Integer y) when y <> 0I -> 
@@ -351,8 +352,9 @@ Integers follow from the Natural numbers, but includes the negative numbers and 
             | _ -> true                
         | _ -> false
     let isSquare this = 
-        let thisValue = match this with | Integer i -> i | _ -> 0I
-        let sr = match squareRoot (this) with | Integer i -> i | _ -> 0I
+        let thisValue = match this with | Integer i -> i | Undefined | _ -> 1I
+        let sr = match squareRoot (this) with | Integer i -> i | Undefined | _ -> 0I
+        // Return false or anything besides an integer square since 0*0 <> 1.
         sr*sr = thisValue
 
     let unaryAbsoluteValue s op e =
@@ -1147,10 +1149,12 @@ Decimals are represaented by the floating decimal point type variable. It uses
 
 module IrrationalNumbers = 
 (*
-Both Algebraic and Transcendental numbers
+Both Algebraic and Transcendental numbers. An irrational number cannot be expressed 
+as a ratio of integers. The decimal expansion of an irrational number is neither 
+terminating nor recurring. 
 *)
-    let set = P    
-       
+    let set = P
+
     let isIrrational this =         
         match this with 
         | Number (Natural n) -> false
@@ -1159,8 +1163,31 @@ Both Algebraic and Transcendental numbers
         | Number (Decimal d) -> false
         | Symbol (Constant (Pi pi)) when pi = Constants.Pi.value -> true
         | Symbol (Constant (E e)) when e = Constants.EulerNumber.value -> true        
-        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when IntegerNumbers.isSquare (Integer i) = false -> true
+        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when IntegerNumbers.isSquare (Integer i) = false && i > 0I-> true
         | _ -> false
+
+    let compare this that = 
+        let getValue x = 
+            match x with 
+            | Number (Natural n) -> float n
+            | Number (Integer i) -> float i
+            | Number (Rational r) -> float r.numerator / float r.denominator
+            | Number (Decimal d) -> float d
+            | Number (Real r) -> r
+            | Symbol (Constant (Pi p)) -> Constants.Pi.value
+            | Symbol (Constant (E e)) -> Constants.EulerNumber.value
+            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) 
+                when i > 0I-> float i |> System.Math.Sqrt
+            | _ -> 0.0
+        match this, that with
+        | x, y when (getValue x) > (getValue y) -> GreaterThan |> Relation |> Symbol
+        | x, y when (getValue x) = (getValue y) -> Equal |> Relation |> Symbol
+        | x, y when (getValue x) < (getValue y) -> LessThan |> Relation |> Symbol        
+        | _ -> RelationUndefined |> Error |> Symbol
+    
+    
+
+
 
 module RealNumbers =
 (*
