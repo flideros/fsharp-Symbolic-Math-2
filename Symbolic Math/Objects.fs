@@ -76,9 +76,7 @@ and Set =
     /// Set of all integers
     | Z     
     /// Set of all rational numbers
-    | Q     
-    /// Set of Irrational (algebraic and transcendental) numbers
-    | P    
+    | Q
     /// Set of all real numbers
     | R     
     /// Set of all complex numbers

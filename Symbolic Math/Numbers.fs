@@ -1147,15 +1147,23 @@ Decimals are represaented by the floating decimal point type variable. It uses
          toThePowerOf = Some binaryPower
          absoluteValue = Some unaryAbsoluteValue}
 
-module IrrationalNumbers = 
+module RealNumbers =
 (*
-Both Algebraic and Transcendental numbers. An irrational number cannot be expressed 
-as a ratio of integers. The decimal expansion of an irrational number is neither 
-terminating nor recurring. 
-*)
-    let set = P
+Reals are represaented by the float number type which is a bianry point type. This means
+that numbers are represented in the computer as binary numbers. Therefore, the accuracy is 
+limited to about 15 significant digits.
+*)    
+    let set = R  
+    let axioms = RationalNumbers.axioms
 
     let compare this that = 
+        match this, that with
+        | Real x, Real y when x > y -> GreaterThan |> Relation |> Symbol
+        | Real x, Real y when x = y -> Equal |> Relation |> Symbol
+        | Real x, Real y when x < y -> LessThan |> Relation |> Symbol
+        
+        | _ -> RelationUndefined |> Error |> Symbol
+    let compareNumbers this that = 
         let getValue x = 
             match x with 
             | Number (Natural n) -> float n
@@ -1174,6 +1182,11 @@ terminating nor recurring.
         | x, y when (getValue x) = (getValue y) -> Equal |> Relation |> Symbol
         | x, y when (getValue x) < (getValue y) -> LessThan |> Relation |> Symbol        
         | _ -> RelationUndefined |> Error |> Symbol
+    let abs x = Real (abs x)
+    let floor x = Real (floor x)
+    let ceiling x = Real (ceil x)
+    let isNegative this = compare this (Real 0.0) = (LessThan |> Relation |> Symbol)
+    /// An irrational number cannot be expressed as a ratio of integers. The decimal expansion of an irrational number is neither terminating nor recurring. 
     let rec isIrrational this =         
         match this with 
         | Number (Natural n) -> false
@@ -1195,27 +1208,7 @@ terminating nor recurring.
             isIrrational a = true &&
             isIrrational b = false -> true
         | _ -> false
-
-module RealNumbers =
-(*
-Reals are represaented by the float number type which is a bianry point type. This means
-that numbers are represented in the computer as binary numbers. Therefore, the accuracy is 
-limited to about 15 significant digits.
-*)    
-    let set = R  
-    let axioms = RationalNumbers.axioms
-
-    let compare this that = 
-        match this, that with
-        | Real x, Real y when x > y -> GreaterThan |> Relation |> Symbol
-        | Real x, Real y when x = y -> Equal |> Relation |> Symbol
-        | Real x, Real y when x < y -> LessThan |> Relation |> Symbol
-        
-        | _ -> RelationUndefined |> Error |> Symbol
-    let abs x = Real (abs x)
-    let floor x = Real (floor x)
-    let ceiling x = Real (ceil x)
-    let isNegative this = compare this (Real 0.0) = (LessThan |> Relation |> Symbol)
+    
     let getRealValue x = 
             match x with 
             | Number (Natural n) -> float n
