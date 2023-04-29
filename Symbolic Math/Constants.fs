@@ -10,8 +10,13 @@
     type EulerNumber = float
     module EulerNumber = 
         let value = System.Math.E
-        let symbol = "\u0065"
+        let symbol = "\u0065" 
 
+    type GoldenRatio = float
+    module GoldenRatio =    
+        let value = (1. + (System.Math.Sqrt 5))/2.
+        let symbol = "\u03C6" 
+    
     type Identity = string
     module Identity =
         let symbol = "\u2147"

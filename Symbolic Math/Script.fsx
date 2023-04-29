@@ -45,7 +45,7 @@ let getValue (x: Constant) =
 let pi = (Constant.Pi Constants.Pi.value) |> Symbol.Constant
 let e = Constant.E Constants.EulerNumber.value |> Symbol.Constant
 
-IrrationalNumbers.compare (Symbol pi) (Symbol e)
+IrrationalNumbers.compare (Symbol e) (Symbol pi)
 
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
@@ -158,6 +158,8 @@ IntegerNumbers.binarySubtract Z one minus one
 
 // isIrrational function
 IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 1040604010000000011I),Z))
+
+IrrationalNumbers.compare  (UnaryOp (root,Number (Integer 10I),Z)) (Symbol pi)
 
 // Square number test
 IntegerNumbers.isSquare (Integer 1040604010000000011I)

@@ -1155,7 +1155,26 @@ terminating nor recurring.
 *)
     let set = P
 
-    let isIrrational this =         
+    let compare this that = 
+        let getValue x = 
+            match x with 
+            | Number (Natural n) -> float n
+            | Number (Integer i) -> float i
+            | Number (Rational r) -> float r.numerator / float r.denominator
+            | Number (Decimal d) -> float d
+            | Number (Real r) -> r 
+            | Symbol (Constant (Pi p)) -> Constants.Pi.value
+            | Symbol (Constant (E e)) -> Constants.EulerNumber.value
+            | Symbol (Constant (GoldenRatio e)) -> Constants.GoldenRatio.value
+            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) 
+                when i > 0I-> float i |> System.Math.Sqrt
+            | _ -> nan
+        match this, that with
+        | x, y when (getValue x) > (getValue y) -> GreaterThan |> Relation |> Symbol
+        | x, y when (getValue x) = (getValue y) -> Equal |> Relation |> Symbol
+        | x, y when (getValue x) < (getValue y) -> LessThan |> Relation |> Symbol        
+        | _ -> RelationUndefined |> Error |> Symbol
+    let rec isIrrational this =         
         match this with 
         | Number (Natural n) -> false
         | Number (Integer i) -> false
@@ -1164,49 +1183,229 @@ terminating nor recurring.
         | Symbol (Constant (Pi pi)) when pi = Constants.Pi.value -> true
         | Symbol (Constant (E e)) when e = Constants.EulerNumber.value -> true        
         | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when IntegerNumbers.isSquare (Integer i) = false && i > 0I-> true
+        | UnaryOp (Root(SquareRootOf _),Symbol (Constant (Pi pi)),s) -> true
+        | UnaryOp (Root(SquareRootOf _),Symbol (Constant (E e)),s) -> true
+        | UnaryOp (Root(SquareRootOf _),Symbol (Constant (GoldenRatio g)),s) -> true
+        | BinaryOp (a, Addition (Plus _),b,s) 
+        | BinaryOp (b, Addition (Plus _),a,s) when 
+            isIrrational a = true &&
+            isIrrational b = false -> true
+        | BinaryOp (a, Multiplication (Times _),b,s) 
+        | BinaryOp (b, Multiplication (Times _),a,s) when 
+            isIrrational a = true &&
+            isIrrational b = false -> true
         | _ -> false
-
-    let compare this that = 
-        let getValue x = 
-            match x with 
-            | Number (Natural n) -> float n
-            | Number (Integer i) -> float i
-            | Number (Rational r) -> float r.numerator / float r.denominator
-            | Number (Decimal d) -> float d
-            | Number (Real r) -> r
-            | Symbol (Constant (Pi p)) -> Constants.Pi.value
-            | Symbol (Constant (E e)) -> Constants.EulerNumber.value
-            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) 
-                when i > 0I-> float i |> System.Math.Sqrt
-            | _ -> 0.0
-        match this, that with
-        | x, y when (getValue x) > (getValue y) -> GreaterThan |> Relation |> Symbol
-        | x, y when (getValue x) = (getValue y) -> Equal |> Relation |> Symbol
-        | x, y when (getValue x) < (getValue y) -> LessThan |> Relation |> Symbol        
-        | _ -> RelationUndefined |> Error |> Symbol
-    
-    
-
-
 
 module RealNumbers =
 (*
 Reals are represaented by the float number type which is a bianry point type. This means
 that numbers are represented in the computer as binary numbers. Therefore, the accuracy is 
-limited to about 15 significant digits
+limited to about 15 significant digits.
 *)    
     let set = R  
+    let axioms = RationalNumbers.axioms
 
     let compare this that = 
         match this, that with
         | Real x, Real y when x > y -> GreaterThan |> Relation |> Symbol
         | Real x, Real y when x = y -> Equal |> Relation |> Symbol
         | Real x, Real y when x < y -> LessThan |> Relation |> Symbol
+        
         | _ -> RelationUndefined |> Error |> Symbol
     let abs x = Real (abs x)
     let floor x = Real (floor x)
     let ceiling x = Real (ceil x)
     let isNegative this = compare this (Real 0.0) = (LessThan |> Relation |> Symbol)
+    let getRealValue x = 
+            match x with 
+            | Number (Natural n) -> float n
+            | Number (Integer i) -> float i
+            | Number (Rational r) -> float r.numerator / float r.denominator
+            | Number (Decimal d) -> float d
+            | Number (Real r) -> r 
+            | Symbol (Constant (Pi p)) -> Constants.Pi.value
+            | Symbol (Constant (E e)) -> Constants.EulerNumber.value
+            | Symbol (Constant (GoldenRatio e)) -> Constants.GoldenRatio.value
+            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) 
+                when i > 0I-> float i |> System.Math.Sqrt
+            | _ -> nan
+
+    let unaryAbsoluteValue s op e =
+        match s, op with
+        | R, AbsoluteValue (AbsoluteValueOf _) -> 
+            match e with            
+            | Number (Real a) when a < 0. -> Number (Real (-a))
+            | Number (Real a) when a >= 0. -> Number (Real (a))
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
+    let unaryAdditiveInverse s op e =
+        match s, op with
+        | R, Addition (Addition.Inverse _) -> 
+            match e with            
+            | Number (Real a) -> Real -a  |> Number            
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Addition (Addition.Inverse _) -> 
+            match e with
+            | Number (Real a) when (Seq.contains e ex) -> 
+                let result = Real -a |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol            
+            | _ -> (op,e,s) |> UnaryOp
+        | Numbers n, Addition (Addition.Inverse _)  -> 
+            match e with            
+            | Number (Real a) when (Seq.contains (Real a) n) -> 
+                let result = Real -a 
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol
+    let unaryMultiplicativeInverse s op e =
+        match s, op with
+        | R, Multiplication (Multiplication.Inverse _) -> 
+            match e with            
+            | Number (Real a) when a = 0. -> DivideByZero |> Error |> Symbol
+            | Number (Real a) when a = 1. -> e
+            | Number (Real a) -> Real (1./a) |> Number
+            | _ -> (op,e,s) |> UnaryOp
+        | Expressions ex, Multiplication (Multiplication.Inverse _) -> 
+            match e with
+            | Number (Real a) when a = 0. -> DivideByZero |> Error |> Symbol
+            | Number (Real a) when a = 1. && (Seq.contains e ex)-> e
+            | Number (Real a) when (Seq.contains e ex) -> 
+                let result = Real (1./a) |> Number
+                match (Seq.contains result ex) with
+                | true -> result 
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | Numbers n, Multiplication (Multiplication.Inverse _)  -> 
+            match e with
+            | Number (Real a) when a = 0. -> DivideByZero |> Error |> Symbol
+            | Number (Real a) when a = 1. && (Seq.contains (Real a) n) -> e
+            | Number (Real a) when (Seq.contains (Real a) n) -> 
+                let result = Real (1./a)
+                match (Seq.contains result n) with
+                | true -> result |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | _ -> (op,e,s) |> UnaryOp
+        | _ -> OperationUndefined |> Error |> Symbol    
+    let binaryAdd s e1 op e2 =
+        match s, op with
+        | R, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> Real (a + b) |> Number
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Addition (Plus _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> 
+                match (Seq.contains (Real (a + b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Real (a + b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Addition (Plus _)  -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> 
+                match (Seq.contains (Real (a + b)) n) &&
+                      (Seq.contains (Real a) n) && 
+                      (Seq.contains (Real b) n) with
+                | true -> Real (a + b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol    
+    let binarySubtract s e1 op e2 =
+        let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
+        let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
+        match s, op with
+        | R, Subtraction (Minus _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Subtraction (Minus _) -> 
+            match e1, e2 with            
+            | Number (Real a), Number (Real b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Subtraction (Minus _)  -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> (unaryAdditiveInverse s addativeInverse e2) |> binaryAdd s e1 plus
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryMultiply s e1 op e2 =
+        match s, op with
+        | R, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> Real (a * b) |> Number
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Multiplication (Times _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> 
+                match (Seq.contains (Real (a * b) |> Number) e) &&
+                      (Seq.contains e1 e) && 
+                      (Seq.contains e2 e) with
+                | true -> Real (a * b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Multiplication (Times _)  -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> 
+                match (Seq.contains (Real (a * b)) n) &&
+                      (Seq.contains (Real a) n) && 
+                      (Seq.contains (Real b) n) with
+                | true -> Real (a * b) |> Number
+                | false -> NotInSet |> Error |> Symbol
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryDivide s e1 op e2 =
+        let multiplicativeInverse = Multiplication (Multiplication.Inverse (MultiplicativeInverse.symbol, MultiplicativeInverse.opPosition, Unary))
+        let multiply = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
+        match s, op with
+        | R, Division (DivideBy _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Expressions e, Division (DivideBy _) -> 
+            match e1, e2 with          
+            | Number (Real a), Number (Real b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp
+            | _ -> OperationUndefined |> Error |> Symbol
+        | Numbers n, Division (DivideBy _)  -> 
+            match e1, e2 with
+            | Number (Real a), Number (Real b) -> (unaryMultiplicativeInverse s multiplicativeInverse e2) |> binaryMultiply s e1 multiply
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+    let binaryPower s e1 op e2 =
+        match s, op with
+        | R, Exponentiation (ToThePowerOf _) -> 
+            match e1, e2 with
+            | Number (Real a), Number (Integer b) when b > 0I -> seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1. |> Real |> Number
+            | Number (Real a), Number (Integer b) when b = 0I -> 1. |> Real |> Number
+            | Number (Real a), Number (Integer b) when b < 0I -> 1. / (seq { for i in 1 .. int b -> a } |> Seq.fold (fun acc x -> acc * x) 1.) |> Real |> Number
+            | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
+            | _ -> OperationUndefined |> Error |> Symbol
+        | _ -> OperationUndefined |> Error |> Symbol
+
+    let operationServices =        
+        {addition = Some binaryAdd
+         subtraction = Some binarySubtract
+         multiplication = Some binaryMultiply
+         division = Some binaryDivide
+         additiveInverse = Some unaryAdditiveInverse
+         multiplicativeInverse = Some unaryMultiplicativeInverse
+         toThePowerOf = Some binaryPower
+         absoluteValue = Some unaryAbsoluteValue}
 
 module ComplexNumbers = 
 (*

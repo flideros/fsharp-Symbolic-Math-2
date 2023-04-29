@@ -33,6 +33,7 @@ type Error =
 type Constant =
     | Pi of Constants.Pi
     | E of Constants.EulerNumber
+    | GoldenRatio of Constants.GoldenRatio
     | Identity of Constants.Identity
 
 type Operation =
