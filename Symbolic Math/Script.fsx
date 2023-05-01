@@ -45,7 +45,7 @@ let getValue (x: Constant) =
 let pi = (Constant.Pi Constants.Pi.value) |> Symbol.Constant
 let e = Constant.E Constants.EulerNumber.value |> Symbol.Constant
 
-IrrationalNumbers.compare (Symbol e) (Symbol pi)
+RealNumbers.compareNumbers (Symbol e) (Symbol pi)
 
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
@@ -61,9 +61,6 @@ let root = Root (Root.SquareRootOf (SquareRootOf.symbol, SquareRootOf.opPosition
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol 
 let eSymbol = Constants.EulerNumber.symbol
-
-
-
 
 // Example of a function that takes a set and performs an operation over that set.
 let add (s: Set) (x1: Expression) (p: Operation) (x2: Expression)  = 
@@ -157,9 +154,9 @@ RationalNumbers.binaryMultiply (Expressions iset) half times half
 IntegerNumbers.binarySubtract Z one minus one
 
 // isIrrational function
-IrrationalNumbers.isIrrational (UnaryOp (root,Number (Integer 1040604010000000011I),Z))
+RealNumbers.isIrrational (UnaryOp (root,Number (Integer 1040604010000000011I),Z))
 
-IrrationalNumbers.compare  (UnaryOp (root,Number (Integer 10I),Z)) (Symbol pi)
+RealNumbers.compareNumbers  (UnaryOp (root,Number (Integer 10I),Z)) (Symbol pi)
 
 // Square number test
 IntegerNumbers.isSquare (Integer 1040604010000000011I)
@@ -171,31 +168,13 @@ for n in IntegerNumbers.primesUpTo 100I do printfn "%A" n
 // Primality test
 IntegerNumbers.isPrime (Integer 1040604010000000011I)
 
-// testing area
-let factorCandidates n' =
-    let n = 
-        match n' with 
-        | (Integer i) when i >= 0I-> i 
-        | (Integer i) when i < 0I-> -i 
-        | _ -> 0I
-    let expand l =                
-        let rec comb accLst elemLst =
-            match elemLst with
-            | h::t ->
-                let next = [h]::List.map (fun el -> h::el) accLst @ accLst
-                comb next t
-            | _ -> accLst
-        comb [] l 
-        |> Seq.distinct
-        |> Seq.toList   
-    let rawCandidatesN = 
-        let cand = Seq.choose (fun x -> match IntegerNumbers.remainder n' x = (Integer 0I) with | true -> Some x | _ -> None) (IntegerNumbers.primesUpTo (System.Numerics.BigInteger(System.Math.Sqrt(float n)) + 1I)) |> Seq.toList
-        expand cand   
-    List.map (fun x -> List.fold (fun x' acc -> match x' with | (Integer i) ->  (Integer (i*acc)) | _ -> (Integer acc)) (Integer 1I) x) (rawCandidatesN |> List.map (fun x -> List.choose ( fun x' -> match x' with | (Integer i) -> Some i | _ -> None) x))                                      
-    |> Seq.distinct  
-    |> Seq.toList
+// RealNumber evaluateExpression function
+let testExp1 = BinaryOp (Number (Integer 1I), plus, Number (Decimal 2.02M), R)
+let testExp2 = BinaryOp ((BinaryOp (Number (Integer 1I), plus, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
+let testExp3 = BinaryOp ((BinaryOp (Number (Integer 1I), times, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
 
-factorCandidates (Integer 24410406040100I)
+RealNumbers.evaluateExpression testExp3
 
-let t = float 24410406040100I
+let g = nan
+g.ToString() 
 

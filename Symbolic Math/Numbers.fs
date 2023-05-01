@@ -1149,7 +1149,7 @@ Decimals are represaented by the floating decimal point type variable. It uses
 
 module RealNumbers =
 (*
-Reals are represaented by the float number type which is a bianry point type. This means
+Reals are represented by the float number type which is a bianry point type. This means
 that numbers are represented in the computer as binary numbers. Therefore, the accuracy is 
 limited to about 15 significant digits.
 *)    
@@ -1185,8 +1185,10 @@ limited to about 15 significant digits.
     let abs x = Real (abs x)
     let floor x = Real (floor x)
     let ceiling x = Real (ceil x)
+    
     let isNegative this = compare this (Real 0.0) = (LessThan |> Relation |> Symbol)
-    /// An irrational number cannot be expressed as a ratio of integers. The decimal expansion of an irrational number is neither terminating nor recurring. 
+    /// An irrational number cannot be expressed as a ratio of integers. 
+    /// The decimal expansion of an irrational number is neither terminating nor recurring. 
     let rec isIrrational this =         
         match this with 
         | Number (Natural n) -> false
@@ -1213,16 +1215,46 @@ limited to about 15 significant digits.
             match x with 
             | Number (Natural n) -> float n
             | Number (Integer i) -> float i
-            | Number (Rational r) -> float r.numerator / float r.denominator
+            | Number (Rational r) when r.denominator <> 0I -> float r.numerator / float r.denominator
             | Number (Decimal d) -> float d
             | Number (Real r) -> r 
             | Symbol (Constant (Pi p)) -> Constants.Pi.value
             | Symbol (Constant (E e)) -> Constants.EulerNumber.value
             | Symbol (Constant (GoldenRatio e)) -> Constants.GoldenRatio.value
-            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) 
+            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s)
                 when i > 0I-> float i |> System.Math.Sqrt
+            | BinaryOp (Number (Real r1), Addition (Plus _), Number (Real r2), s) -> r1 + r2
             | _ -> nan
+    let evaluateExpression e =         
+        let rec eval a =
+            let tryValue = getRealValue a
+            match a with
+            | Number n when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
+            | Symbol (Constant c) when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
+            | UnaryOp (Root(SquareRootOf x),exp,s) -> 
+                let result = (UnaryOp (Root(SquareRootOf x),eval exp,s)) |> getRealValue
+                match result.ToString() = "NaN" with 
+                | true -> a
+                | false -> result |> Real |> Number
+            | BinaryOp (e1, Addition (Plus p), e2, s) -> 
+                let result = (BinaryOp (eval e1, Addition (Plus p), eval e2, s)) |> getRealValue 
+                match result.ToString() = "NaN" with 
+                | true -> a
+                | false -> result |> Real |> Number
+            | _ -> e
+        eval e
 
+(*      
+    let simplifyRealExpression x = 
+        let rec simplify a' =
+            match a' with 
+            
+            | NaryOp(Sum,a) -> simplifyRealSum (NaryOp(Sum,(List.map simplify a)))            
+            | NaryOp(Product,a) -> simplifyRealProduct (NaryOp(Product,(List.map simplify a)))
+            | BinaryOp(a,ToThePowerOf,b) -> simplifyRealPower (BinaryOp(simplify a,ToThePowerOf,simplify b))
+            | UnaryOp(Factorial,a) -> simplifyFactorial (simplify a) 
+        simplify x
+*)
     let unaryAbsoluteValue s op e =
         match s, op with
         | R, AbsoluteValue (AbsoluteValueOf _) -> 
