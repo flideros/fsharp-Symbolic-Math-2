@@ -59,7 +59,6 @@
         let opPosition = Bracket
         let arity = Unary
     
-    
     type Addition = 
         | Plus of (string * OperatorPosition * Arity) 
         | Sum of (string * OperatorPosition * Arity) 
@@ -78,3 +77,43 @@
         | SquareRootOf of (string * OperatorPosition * Arity)
     type AbsoluteValue  = 
         | AbsoluteValueOf of (DelimiterType * OperatorPosition * Arity)
+
+(* Trig functions *)
+    module Sine =
+        let symbol = "sin"
+        let delimiter = SineFunction.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+    module Cosine =
+        let symbol = "cos"
+        let delimiter = CosineFunction.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+    module Tangent =
+        let symbol = "tan"
+        let delimiter = TangentFunction.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+    module ArcSine =
+        let symbol = "asin"
+        let delimiter = SineFunction.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+    module ArcCosine =
+        let symbol = "acos"
+        let delimiter = CosineFunction.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+    module ArcTangent =
+        let symbol = "atan"
+        let delimiter = TangentFunction.delimiter
+        let opPosition = Bracket
+        let arity = Unary
+
+    type TrigonometricFunction  = 
+        | Sine of (DelimiterType * OperatorPosition * Arity)
+        | Cosine of (DelimiterType * OperatorPosition * Arity)
+        | Tangent of (DelimiterType * OperatorPosition * Arity)
+        | ArcSine of (DelimiterType * OperatorPosition * Arity)
+        | ArcCosine of (DelimiterType * OperatorPosition * Arity)
+        | ArcTangent of (DelimiterType * OperatorPosition * Arity)

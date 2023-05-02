@@ -21,3 +21,15 @@
     type Parentheses = DelimiterType
     module Parentheses =
         let delimiter = {start="(";close=")"}
+    module SineFunction =
+        let delimiter = {start="sin(";close=")"}
+    module CosineFunction =
+        let delimiter = {start="cos(";close=")"}
+    module TangentFunction =
+        let delimiter = {start="tan(";close=")"}
+    module ArcineFunction =
+        let delimiter = {start="asin(";close=")"}
+    module ArcCosineFunction =
+        let delimiter = {start="acos(";close=")"}
+    module ArcTangentFunction =
+        let delimiter = {start="atan(";close=")"}

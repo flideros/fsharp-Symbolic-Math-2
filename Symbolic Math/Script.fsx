@@ -171,7 +171,7 @@ IntegerNumbers.isPrime (Integer 1040604010000000011I)
 // RealNumber evaluateExpression function
 let testExp1 = BinaryOp (Number (Integer 1I), plus, Number (Decimal 2.02M), R)
 let testExp2 = BinaryOp ((BinaryOp (Number (Integer 1I), plus, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
-let testExp3 = BinaryOp ((BinaryOp (Number (Integer 1I), times, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
+let testExp3 = BinaryOp ((BinaryOp (Number (Integer 5I), times, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
 
 RealNumbers.evaluateExpression testExp3
 

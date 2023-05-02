@@ -1211,50 +1211,6 @@ limited to about 15 significant digits.
             isIrrational b = false -> true
         | _ -> false
     
-    let getRealValue x = 
-            match x with 
-            | Number (Natural n) -> float n
-            | Number (Integer i) -> float i
-            | Number (Rational r) when r.denominator <> 0I -> float r.numerator / float r.denominator
-            | Number (Decimal d) -> float d
-            | Number (Real r) -> r 
-            | Symbol (Constant (Pi p)) -> Constants.Pi.value
-            | Symbol (Constant (E e)) -> Constants.EulerNumber.value
-            | Symbol (Constant (GoldenRatio e)) -> Constants.GoldenRatio.value
-            | UnaryOp (Root(SquareRootOf _),Number (Integer i),s)
-                when i > 0I-> float i |> System.Math.Sqrt
-            | BinaryOp (Number (Real r1), Addition (Plus _), Number (Real r2), s) -> r1 + r2
-            | _ -> nan
-    let evaluateExpression e =         
-        let rec eval a =
-            let tryValue = getRealValue a
-            match a with
-            | Number n when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
-            | Symbol (Constant c) when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
-            | UnaryOp (Root(SquareRootOf x),exp,s) -> 
-                let result = (UnaryOp (Root(SquareRootOf x),eval exp,s)) |> getRealValue
-                match result.ToString() = "NaN" with 
-                | true -> a
-                | false -> result |> Real |> Number
-            | BinaryOp (e1, Addition (Plus p), e2, s) -> 
-                let result = (BinaryOp (eval e1, Addition (Plus p), eval e2, s)) |> getRealValue 
-                match result.ToString() = "NaN" with 
-                | true -> a
-                | false -> result |> Real |> Number
-            | _ -> e
-        eval e
-
-(*      
-    let simplifyRealExpression x = 
-        let rec simplify a' =
-            match a' with 
-            
-            | NaryOp(Sum,a) -> simplifyRealSum (NaryOp(Sum,(List.map simplify a)))            
-            | NaryOp(Product,a) -> simplifyRealProduct (NaryOp(Product,(List.map simplify a)))
-            | BinaryOp(a,ToThePowerOf,b) -> simplifyRealPower (BinaryOp(simplify a,ToThePowerOf,simplify b))
-            | UnaryOp(Factorial,a) -> simplifyFactorial (simplify a) 
-        simplify x
-*)
     let unaryAbsoluteValue s op e =
         match s, op with
         | R, AbsoluteValue (AbsoluteValueOf _) -> 
@@ -1421,6 +1377,55 @@ limited to about 15 significant digits.
             | Number (Real a), _ | _, Number (Real a) -> (e1,op,e2,s) |> BinaryOp            
             | _ -> OperationUndefined |> Error |> Symbol
         | _ -> OperationUndefined |> Error |> Symbol
+
+    let getRealValue x = 
+        match x with 
+        | Number (Natural n) -> float n
+        | Number (Integer i) -> float i
+        | Number (Rational r) when r.denominator <> 0I -> float r.numerator / float r.denominator
+        | Number (Decimal d) -> float d
+        | Number (Real r) -> r 
+            
+        | Symbol (Constant (Pi p)) -> Constants.Pi.value
+        | Symbol (Constant (E e)) -> Constants.EulerNumber.value
+        | Symbol (Constant (GoldenRatio e)) -> Constants.GoldenRatio.value
+            
+        | UnaryOp (Addition (Addition.Inverse _), Number (Real r),s) -> -r
+        | UnaryOp (Multiplication (Multiplication.Inverse _), Number (Real r),s) when r <> 0.-> 1. / r
+        | UnaryOp (Root(SquareRootOf _),Number (Integer i),s) when i > 0I-> float i |> System.Math.Sqrt
+        | UnaryOp (Root(SquareRootOf _),Number (Real r),s) when r > 0.-> r |> System.Math.Sqrt
+        | UnaryOp (TrigFunction(Sine _),Number (Real r),s) -> r |> System.Math.Sin
+        | UnaryOp (TrigFunction(Cosine _),Number (Real r),s) -> r |> System.Math.Cos
+        | UnaryOp (TrigFunction(Tangent _),Number (Real r),s) -> r |> System.Math.Tan
+        | UnaryOp (TrigFunction(ArcSine _),Number (Real r),s) -> r |> System.Math.Asin
+        | UnaryOp (TrigFunction(ArcCosine _),Number (Real r),s) -> r |> System.Math.Acos
+        | UnaryOp (TrigFunction(ArcTangent _),Number (Real r),s) -> r |> System.Math.Atan
+        | UnaryOp (AbsoluteValue(AbsoluteValueOf _),Number (Real r),s) -> r |> System.Math.Abs
+                        
+        | BinaryOp (Number (Real r1), Exponentiation(ToThePowerOf _),Number (Real r2),s) -> r1 ** r2            
+        | BinaryOp (Number (Real r1), Addition (Plus _), Number (Real r2), s) -> r1 + r2
+        | BinaryOp (Number (Real r1), Subtraction (Minus _), Number (Real r2), s) -> r1 - r2
+        | BinaryOp (Number (Real r1), Multiplication (Times _), Number (Real r2), s) -> r1 * r2
+        | BinaryOp (Number (Real r1), Division (DivideBy _), Number (Real r2), s) when r2 <> 0. -> r1 / r2
+        | _ -> nan
+    let evaluateExpression e =         
+        let rec eval a =
+            let tryValue = getRealValue a
+            match a with
+            | Number n when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
+            | Symbol (Constant c) when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
+            | UnaryOp (op,exp,s) -> 
+                let result = (UnaryOp (op,eval exp,s)) |> getRealValue
+                match result.ToString() = "NaN" with 
+                | true -> a
+                | false -> result |> Real |> Number
+            | BinaryOp (e1, op, e2, s) -> 
+                let result = (BinaryOp (eval e1, op, eval e2, s)) |> getRealValue 
+                match result.ToString() = "NaN" with 
+                | true -> a
+                | false -> result |> Real |> Number
+            | _ -> e
+        eval e
 
     let operationServices =        
         {addition = Some binaryAdd

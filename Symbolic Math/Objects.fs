@@ -44,6 +44,7 @@ type Operation =
     | Exponentiation of Operations.Exponentiation
     | Root of Operations.Root
     | AbsoluteValue of Operations.AbsoluteValue
+    | TrigFunction of Operations.TrigonometricFunction
 
 type Delimiter = 
     | AngleBrackets of Delimiters.AngleBrackets
