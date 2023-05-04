@@ -1407,13 +1407,31 @@ limited to about 15 significant digits.
         | BinaryOp (Number (Real r1), Subtraction (Minus _), Number (Real r2), s) -> r1 - r2
         | BinaryOp (Number (Real r1), Multiplication (Times _), Number (Real r2), s) -> r1 * r2
         | BinaryOp (Number (Real r1), Division (DivideBy _), Number (Real r2), s) when r2 <> 0. -> r1 / r2
+        
+        | NaryOp (Addition (Addition.Sum _), eList, s) ->             
+            let containsNonRealNumbers = List.contains true (List.map (fun x -> match x with | Number (Real r) -> false | _ -> true) eList)            
+            let containsNaN = List.contains "Number (Real nan)" (List.map (fun x -> x.ToString()) eList)
+            match containsNonRealNumbers = false, containsNaN with 
+            | true, false -> List.fold (fun acc x -> match x with | Number (Real r) -> acc + r | _ -> acc) 0 eList
+            | true, true 
+            | false, _ -> nan
+        | NaryOp (Multiplication (Multiplication.Product _), eList, s) ->             
+            let containsNonRealNumbers = List.contains true (List.map (fun x -> match x with | Number (Real r) -> false | _ -> true) eList)            
+            let containsNaN = List.contains "Number (Real nan)" (List.map (fun x -> x.ToString()) eList)
+            match containsNonRealNumbers = false, containsNaN with 
+            | true, false -> List.fold (fun acc x -> match x with | Number (Real r) -> acc * r | _ -> acc) 1. eList
+            | true, true 
+            | false, _ -> nan
+
         | _ -> nan
-    let evaluateExpression e =         
+    let evaluateRealExpression e =         
         let rec eval a =
             let tryValue = getRealValue a
             match a with
             | Number n when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
+            | Number n -> a
             | Symbol (Constant c) when tryValue.ToString() <> "NaN" -> tryValue |> Real |> Number
+            | Symbol s -> a
             | UnaryOp (op,exp,s) -> 
                 let result = (UnaryOp (op,eval exp,s)) |> getRealValue
                 match result.ToString() = "NaN" with 
@@ -1424,7 +1442,12 @@ limited to about 15 significant digits.
                 match result.ToString() = "NaN" with 
                 | true -> a
                 | false -> result |> Real |> Number
-            | _ -> e
+            | NaryOp (op,expList,s) -> 
+                let listEval = List.map (fun x -> eval x) expList
+                let result = (NaryOp (op,listEval,s)) |> getRealValue                
+                match result.ToString() = "NaN" with 
+                | true -> a
+                | false -> result |> Real |> Number
         eval e
 
     let operationServices =        

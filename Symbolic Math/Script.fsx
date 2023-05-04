@@ -49,6 +49,8 @@ RealNumbers.compareNumbers (Symbol e) (Symbol pi)
 
 // Construct an operation.
 let plus = Addition (Addition.Plus (Plus.symbol, Plus.opPosition, Binary))
+let sum = Addition (Addition.Sum (Sum.symbol, Sum.opPosition, Nary))
+let product = Multiplication (Multiplication.Product (Product.symbol, Product.opPosition, Nary))
 let minus = Subtraction (Subtraction.Minus (Minus.symbol, Minus.opPosition, Binary))
 let times = Multiplication (Multiplication.Times (Times.symbol, Times.opPosition, Binary))
 let divideBy = Division (Division.DivideBy (Divide.symbol, Divide.opPosition, Binary))
@@ -168,13 +170,27 @@ for n in IntegerNumbers.primesUpTo 100I do printfn "%A" n
 // Primality test
 IntegerNumbers.isPrime (Integer 1040604010000000011I)
 
-// RealNumber evaluateExpression function
+// RealNumber evaluateRealExpression function
 let testExp1 = BinaryOp (Number (Integer 1I), plus, Number (Decimal 2.02M), R)
 let testExp2 = BinaryOp ((BinaryOp (Number (Integer 1I), plus, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
 let testExp3 = BinaryOp ((BinaryOp (Number (Integer 5I), times, Number (Decimal 2.02M), R)), plus, Number (Decimal 2.02M), R)
 
-RealNumbers.evaluateExpression testExp3
+RealNumbers.evaluateRealExpression testExp3
 
-let g = nan
+let g = Number(Real nan)
 g.ToString() 
+
+let testNaryOp1 = NaryOp (sum,[Number(Decimal 2.02M);Number(Decimal 7.32M);Number(Decimal 6.52M)],R)
+let testNaryOp2 = NaryOp (sum,[Number(Real 2.02);Number(Real 4.02);Number(Real 3.32)],R)
+RealNumbers.evaluateRealExpression testNaryOp1 // Number (Real 15.86)
+RealNumbers.evaluateRealExpression testNaryOp2 // Number (Real 9.36)
+RealNumbers.getRealValue testNaryOp1 // nan since its a list of Decimals. The function evaluateRealExpression recurses the atoms through this function first.
+RealNumbers.getRealValue testNaryOp2 // Number (Real 9.36)
+
+let testNaryOp3 = NaryOp (product,[Number(Decimal 2.02M);Number(Decimal 7.32M);Number(Decimal 6.52M)],R)
+let testNaryOp4 = NaryOp (product,[Number(Real 2.02);Number(Real 4.02);Number(Real 3.32)],R)
+RealNumbers.evaluateRealExpression testNaryOp3 // Number (Real 96.407328)
+RealNumbers.evaluateRealExpression testNaryOp4 // Number (Real 26.959728)
+RealNumbers.getRealValue testNaryOp3 // nan since its a list of Decimals. The function evaluateRealExpression recurses the atoms through this function first.
+RealNumbers.getRealValue testNaryOp4 // Number (Real 26.959728)
 
