@@ -194,3 +194,6 @@ RealNumbers.evaluateRealExpression testNaryOp4 // Number (Real 26.959728)
 RealNumbers.getRealValue testNaryOp3 // nan since its a list of Decimals. The function evaluateRealExpression recurses the atoms through this function first.
 RealNumbers.getRealValue testNaryOp4 // Number (Real 26.959728)
 
+
+let testNaryOp5 = NaryOp (product,[Number(Real 2.02);Number(Real 4.02);NaryOp (sum,[Number(Decimal 2.02M);Number(Decimal 7.32M);Number(Decimal 6.52M)],R)],R)
+RealNumbers.evaluateRealExpression testNaryOp5 // Number (Real 128.789544)

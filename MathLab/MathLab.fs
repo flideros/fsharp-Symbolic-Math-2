@@ -20,7 +20,7 @@ type Lab() as lab =
     inherit UserControl()
 
     // Controls
-    let testCanvas = DataLab.DataLab()    
+    let testCanvas = Math.Presentation.TypeSetting.TestCanvas()    
     
     let pastProjects = 
         let sp = StackPanel()   

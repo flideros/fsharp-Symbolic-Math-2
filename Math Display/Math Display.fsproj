@@ -5,14 +5,15 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{f7736ffb-7b18-4cf5-b9ff-2d06f8354074}</ProjectGuid>
+    <ProjectGuid>4507d1fd-e756-4e6c-bf74-914fef35621f</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BasicCalculator</RootNamespace>
-    <AssemblyName>MathLab</AssemblyName>
+    <RootNamespace>Math_Display</RootNamespace>
+    <AssemblyName>Math_Display</AssemblyName>
     <UseStandardResourceNames>true</UseStandardResourceNames>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>MathLab</Name>
+    <WarningsAsErrors>3239;$(WarningsAsErrors)</WarningsAsErrors>
+    <Name>Math Display</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -42,9 +43,29 @@
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Utilities.fs" />
-    <Compile Include="MathLab.fs" />
+    <Compile Include="MathML.fs" />
+    <Compile Include="MathematicalAlphanumericSymbols.fs" />
+    <Compile Include="MathematicalStandardizedVariants.fs" />
+    <Compile Include="OperatorDictionary.fs" />
+    <Compile Include="MathPositioningConstants.fs" />
+    <Compile Include="Text.fs" />
+    <Compile Include="TypeSetting.fs" />
+    <None Include="Script.fsx" />
+    <Resource Include="STIX2Math.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="STIX2Text-Bold.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="STIX2Text-BoldItalic.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="STIX2Text-Italic.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="STIX2Text-Regular.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -58,34 +79,21 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.ValueTuple">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
-    <Reference Include="UIAutomationProvider" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BasicCalculator\BasicCalculator.fsproj">
-      <Name>BasicCalculator</Name>
-      <Project>{80918dbd-cfca-4d94-b1a0-0941828708cd}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\ControLibrary\ControlLibrary.fsproj">
       <Name>ControlLibrary</Name>
       <Project>{36d2be06-a4c4-449e-aabf-921975ee0fc2}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Data Base Lab\Database Lab.fsproj">
-      <Name>Database Lab</Name>
-      <Project>{362f9170-4df5-41fe-851b-f5d800de2c44}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Math Display\Math Display.fsproj">
-      <Name>Math Display</Name>
-      <Project>{4507d1fd-e756-4e6c-bf74-914fef35621f}</Project>
+    <ProjectReference Include="..\Symbolic Math\Symbolic Math.fsproj">
+      <Name>Symbolic Math</Name>
+      <Project>{03e8055f-412d-498f-9cd1-c712257fad32}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
