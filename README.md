@@ -4,6 +4,8 @@ This is the second version of my personal coding lab for coding in f#. The previ
 
 The **Symbolic Math** project is a work in progress. It will be a math engine for future WPF math controls. I will lean on my previos work for inspiration, but this library will designed from the ground up. 
 
+The **Math Display** project is a work in progress. This project is a carry-over from my previous repository. The testing control is set to the test canvas. Run the project to see the WPF control(s) under development.
+
 The **Math Lab UI** project is a minimal C# implementation to launch the WPF app. 
 
 The **Math Lab** project is the main entry point to the lab. It is currently based on a tab control so the lab can host any arbitrary WPF content. All other F# controls I develop will use this project to launch from.
