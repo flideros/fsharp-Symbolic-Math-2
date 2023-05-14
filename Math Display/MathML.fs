@@ -108,8 +108,8 @@ type MathMLAttribute =
     | CdGroup of Uri
     | CharAlign of _CharAlign
     | CharSpacing of Length
-    | Class of string //Associates the element with a set of style classes for use with [XSLT] and [CSS21].
-    | Close of string //Specifies the closing delimiter.
+    | Class of string // Associates the element with a set of style classes for use with [XSLT] and [CSS21].
+    | Close of string // Specifies the closing delimiter.
     | ColumnAlign of _ColumnAlign
     | ColumnLines of _ColumnLines
     | ColumnSpacing of Length
@@ -202,49 +202,87 @@ type CharacterCode =
     | UnicodeArray of CharacterCode array
 
 type TokenElement = 
-    | Mi       /// identifier
-    | Mn       /// number
-    | Mo       /// operator, fence, or separator
-    | Mtext    /// text
-    | Mspace   /// space
-    | Ms       /// string literal
-    | Mglyph   /// non-standard symbol as image
+    /// identifier
+    | Mi       
+    /// number
+    | Mn       
+    /// operator, fence, or separator
+    | Mo       
+    /// text
+    | Mtext    
+    /// space
+    | Mspace   
+    /// string literal
+    | Ms       
+    /// non-standard symbol as image
+    | Mglyph   
 type GeneralLayoutElement = 
-    | Mrow     /// group any number of sub-expressions horizontally
-    | Mfrac    /// form a fraction from two sub-expressions
-    | Msqrt    /// form a square root (radical without an index)
-    | Mroot    /// form a radical with specified index
-    | Mstyle   /// style change
-    | Merror   /// enclose a syntax error message from a preprocessor
-    | Mpadded  /// adjust space around content
-    | Mphantom /// make content invisible but preserve its size
-    | Mfenced  /// surround content with a pair of fences
-    | Menclose /// enclose content with a stretching symbol such as a long division sign.
+    /// group any number of sub-expressions horizontally
+    | Mrow     
+    /// form a fraction from two sub-expressions
+    | Mfrac    
+    /// form a square root (radical without an index)
+    | Msqrt    
+    /// form a radical with specified index
+    | Mroot    
+    /// style change
+    | Mstyle   
+    /// enclose a syntax error message from a preprocessor
+    | Merror   
+    /// adjust space around content
+    | Mpadded  
+    /// make content invisible but preserve its size
+    | Mphantom 
+    /// surround content with a pair of fences
+    | Mfenced  
+    /// enclose content with a stretching symbol such as a long division sign.
+    | Menclose 
 type ScriptElement = 
-    | Msub         /// attach a subscript to a base
-    | Msup         /// attach a superscript to a base
-    | Msubsup      /// attach a subscript-superscript pair to a base
-    | Munde        /// attach an underscript to a base
-    | Mover        /// attach an overscript to a base
-    | Munderover   /// attach an underscript-overscript pair to a base
-    | Mmultiscripts /// attach prescripts and tensor indices to a base
+    /// attach a subscript to a base
+    | Msub         
+    /// attach a superscript to a base
+    | Msup         
+    /// attach a subscript-superscript pair to a base
+    | Msubsup      
+    /// attach an underscript to a base
+    | Munde        
+    /// attach an overscript to a base
+    | Mover        
+    /// attach an underscript-overscript pair to a base
+    | Munderover   
+    /// attach prescripts and tensor indices to a base
+    | Mmultiscripts 
 type TableElement = 
-    | Mtable      /// table or matrix
-    | Mlabeledtr  /// row in a table or matrix with a label or equation number
-    | Mtr         /// row in a table or matrix
-    | Mtd         /// one entry in a table or matrix
-    | Maligngroup /// alignment marker
-    | Malignmark  /// alignment marker
+    /// table or matrix
+    | Mtable      
+    /// row in a table or matrix with a label or equation number
+    | Mlabeledtr  
+    /// row in a table or matrix
+    | Mtr         
+    /// one entry in a table or matrix
+    | Mtd         
+    /// alignment marker
+    | Maligngroup 
+    /// alignment marker
+    | Malignmark  
 type MathLayoutElement = 
-    | Mstack    /// columns of aligned characters
-    | Mlongdiv  /// similar to msgroup, with the addition of a divisor and result
-    | Msgroup   /// a group of rows in an mstack that are shifted by similar amounts
-    | Msrow     ///	a row in an mstack
-    | Mscarries /// row in an mstack that whose contents represent carries or borrows
-    | Mscarry   /// one entry in an mscarries
-    | Msline    /// horizontal line inside of mstack
+    /// columns of aligned characters
+    | Mstack    
+    /// similar to msgroup, with the addition of a divisor and result
+    | Mlongdiv  
+    /// a group of rows in an mstack that are shifted by similar amounts
+    | Msgroup   
+    ///	a row in an mstack
+    | Msrow     
+    /// row in an mstack that whose contents represent carries or borrows
+    | Mscarries 
+    /// one entry in an mscarries
+    | Mscarry   
+    /// horizontal line inside of mstack
+    | Msline    
 type EnliveningExpressionElement = 
-    | Maction   /// bind actions to a sub-expression
+    /// bind actions to a sub-expression
+    | Maction   
 
 
 type MathMLElement = 
@@ -275,7 +313,7 @@ type Element =
       symbol : string;
       arguments: Element list;
       operator: Operator option
-      }
+     }
 
 module Operator =
 
@@ -337,8 +375,8 @@ module Element =
          + "\"").ToString().Replace("\"\"", "\"")
         |> addOrRemoveSpace
     
-    let rec recurseElement eToken eRow eSuperscript eSubscript eSuperSubscript eFraction  el : 'r =
-        let recurse = recurseElement eToken eRow eSuperscript eSubscript eSuperSubscript eFraction 
+    let rec recurseElement eToken eRow eSuperscript eSubscript eSuperSubscript eOverscript eUnderscript eUnderOverscript eFraction  el : 'r =
+        let recurse = recurseElement eToken eRow eSuperscript eSubscript eSuperSubscript eOverscript eUnderscript eUnderOverscript eFraction 
         match el.element with 
         | Math -> eRow (List.map (fun x -> recurse x) el.arguments)
         | Token _ -> eToken el
@@ -347,7 +385,10 @@ module Element =
         | Script Msup -> eSuperscript (recurse el.arguments.[0],recurse el.arguments.[1],el.attributes)
         | Script Msub -> eSubscript (recurse el.arguments.[0],recurse el.arguments.[1],el.attributes)
         | Script Msubsup -> eSuperSubscript (recurse el.arguments.[0],recurse el.arguments.[1],recurse el.arguments.[2],el.attributes)
-        
+        | Script Mover -> eOverscript (recurse el.arguments.[0],recurse el.arguments.[1],el.attributes)
+        | Script Munde -> eUnderscript (recurse el.arguments.[0],recurse el.arguments.[1],el.attributes)
+        | Script Munderover -> eUnderOverscript (recurse el.arguments.[0],recurse el.arguments.[1],recurse el.arguments.[2],el.attributes)
+
     let build (elem : MathMLElement) (attr : MathMLAttribute list) (arguments : Element list) (symbol : string) (operator : Operator option) =                 
         let openTag attrString = 
             match elem with
@@ -518,21 +559,21 @@ module Element =
         | Token Mn ->
             let defaultAttributes =  
                 [//2.1.6 Attributes Shared by all MathML Elements 
-                    Id "none"; 
-                    Xref "none"; 
-                    Class "none"; 
-                    Style "none"; 
-                    Href "none";
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                    //3.1.10 Mathematics style attributes common to presentation elements 
-                    MathColor System.Windows.Media.Brushes.Black; 
-                    MathBackground System.Windows.Media.Brushes.Transparent; 
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent; 
 
-                    //3.2.2 Mathematics style attributes common to token elements 
-                    MathVariant Normal;
-                    MathSize (EM 1.0<em>);
-                    Dir Ltr;                                     
-                    ]
+                //3.2.2 Mathematics style attributes common to token elements 
+                MathVariant Normal;
+                MathSize (EM 1.0<em>);
+                Dir Ltr;                                     
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -606,22 +647,22 @@ module Element =
         
         | Token Mtext ->
             let defaultAttributes =  
-                                    [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent; 
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent; 
 
-                                     //3.2.2 Mathematics style attributes common to token elements 
-                                     MathVariant Normal;
-                                     MathSize (EM 1.0<em>);
-                                     Dir Ltr;  
-                                     ]
+                //3.2.2 Mathematics style attributes common to token elements 
+                MathVariant Normal;
+                MathSize (EM 1.0<em>);
+                Dir Ltr;  
+                ]
                                      
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -634,37 +675,37 @@ module Element =
         
         | Token Mspace ->
             let defaultAttributes =  
-                                    [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent; 
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent; 
 
-                                     //3.2.2 Mathematics style attributes common to token elements 
-                                     MathVariant Normal;
-                                     MathSize (EM 1.0<em>);
-                                     Dir Ltr;
+                //3.2.2 Mathematics style attributes common to token elements 
+                MathVariant Normal;
+                MathSize (EM 1.0<em>);
+                Dir Ltr;
                                      
-                                     //3.2.7.2 Attributes 
-                                     Width (EM 0.0<em>);
-                                     Height (EX 0.0<ex>);
-                                     Depth (EX 0.0<ex>);
-                                     LineBreak _LineBreak.Auto
+                //3.2.7.2 Attributes 
+                Width (EM 0.0<em>);
+                Height (EX 0.0<ex>);
+                Depth (EX 0.0<ex>);
+                LineBreak _LineBreak.Auto
                                      
-                                     //3.2.5.2.3 Indentation attributes 
-                                     IndentAlign _IndentAlign.Auto;
-                                     IndentAlignFirst _IndentAlignFirst.IndentAlign;
-                                     IndentAlignLast _IndentAlignLast.IndentAlign;
-                                     IndentShift (Numb 0.0);
-                                     IndentShiftFirst (KeyWord "indentshift");
-                                     IndentShiftLast (KeyWord "indentshift");
-                                     IndentTarget "none";                                     
-                                     ]
+                //3.2.5.2.3 Indentation attributes 
+                IndentAlign _IndentAlign.Auto;
+                IndentAlignFirst _IndentAlignFirst.IndentAlign;
+                IndentAlignLast _IndentAlignLast.IndentAlign;
+                IndentShift (Numb 0.0);
+                IndentShiftFirst (KeyWord "indentshift");
+                IndentShiftLast (KeyWord "indentshift");
+                IndentTarget "none";                                     
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -677,26 +718,26 @@ module Element =
         
         | Token Ms ->
             let defaultAttributes =  
-                                    [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                    Id "none"; 
+                    Xref "none"; 
+                    Class "none"; 
+                    Style "none"; 
+                    Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent; 
+                    //3.1.10 Mathematics style attributes common to presentation elements 
+                    MathColor System.Windows.Media.Brushes.Black; 
+                    MathBackground System.Windows.Media.Brushes.Transparent; 
 
-                                     //3.2.2 Mathematics style attributes common to token elements 
-                                     MathVariant Normal;
-                                     MathSize (EM 1.0<em>);
-                                     Dir Ltr;
+                    //3.2.2 Mathematics style attributes common to token elements 
+                    MathVariant Normal;
+                    MathSize (EM 1.0<em>);
+                    Dir Ltr;
                                      
-                                     //3.2.8.2 Attributes 
-                                     RQuote "&quot;";
-                                     LQuote "&quot;";
-                                     ]
+                    //3.2.8.2 Attributes 
+                    RQuote "&quot;";
+                    LQuote "&quot;";
+                    ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -709,24 +750,24 @@ module Element =
         
         | Token Mglyph ->
             let defaultAttributes =  
-                                    [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                    Id "none"; 
+                    Xref "none"; 
+                    Class "none"; 
+                    Style "none"; 
+                    Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent; 
+                    //3.1.10 Mathematics style attributes common to presentation elements 
+                    MathColor System.Windows.Media.Brushes.Black; 
+                    MathBackground System.Windows.Media.Brushes.Transparent; 
 
-                                     //3.2.1.2.2 Attributes 
-                                     Src "required"
-                                     Width (KeyWord "fromimage");
-                                     Height (KeyWord "fromimage");                                     
-                                     VAlign (EX 0.0<ex>);
-                                     Alt "required"
-                                     ]
+                    //3.2.1.2.2 Attributes 
+                    Src "required"
+                    Width (KeyWord "fromimage");
+                    Height (KeyWord "fromimage");                                     
+                    VAlign (EX 0.0<ex>);
+                    Alt "required"
+                    ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -740,18 +781,18 @@ module Element =
         | GeneralLayout Mrow ->
             let defaultAttributes = 
                 [//2.1.6 Attributes Shared by all MathML Elements 
-                    Id "none"; 
-                    Xref "none"; 
-                    Class "none"; 
-                    Style "none"; 
-                    Href "none";
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                    //3.1.10 Mathematics style attributes common to presentation elements 
-                    MathColor System.Windows.Media.Brushes.Black; 
-                    MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                    //3.3.1.2 Attributes
-                    Dir Ltr
+                //3.3.1.2 Attributes
+                Dir Ltr
                 ]
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -791,17 +832,18 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Msqrt ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
-                                     ]
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -813,17 +855,18 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Mroot ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
-                                     ]
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -835,99 +878,100 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Mstyle ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                    Id "none"; 
+                    Xref "none"; 
+                    Class "none"; 
+                    Style "none"; 
+                    Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                    //3.1.10 Mathematics style attributes common to presentation elements 
+                    MathColor System.Windows.Media.Brushes.Black; 
+                    MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.3.4.2 Attributes 
-                                     ScriptLevel ('+',0u)
-                                     DisplayStyle false ///When display="block", displaystyle is initialized to "true" when display="inline", displaystyle is initialized to "false"
-                                     ScriptSizeMultiplier 0.71
-                                     ScriptMinSize (PT 8.0<pt>)
-                                     InfixLineBreakStyle Before;
-                                     DecimalPoint '.'
+                    //3.3.4.2 Attributes 
+                    ScriptLevel ('+',0u)
+                    DisplayStyle false ///When display="block", displaystyle is initialized to "true" when display="inline", displaystyle is initialized to "false"
+                    ScriptSizeMultiplier 0.71
+                    ScriptMinSize (PT 8.0<pt>)
+                    InfixLineBreakStyle Before;
+                    DecimalPoint '.'
 
-                                     //The rest after I compared this to the MathML schema
-                                     Accent false;
-                                     AccentUnder false;
-                                     Align _Align.Center;
-                                     AlignmentScope true;
-                                     Bevelled false;
-                                     CharAlign _CharAlign.Center;
-                                     CharSpacing (KeyWord _CharSpacing.Medium);
-                                     Close ")";
-                                     ColumnAlign _ColumnAlign.Center;
-                                     ColumnLines _ColumnLines.None;
-                                     ColumnSpacing (EM 0.8<em>);
-                                     ColumnSpan 1u;
-                                     ColumnWidth (KeyWord _ColumnWidth.Auto);
-                                     Crossout _Crossout.None;
-                                     DenomAlign _DenomAlign.Center;
-                                     Depth (EX 0.0<ex>);
-                                     Edge _Edge.Left;
-                                     EqualColumns false;
-                                     EqualRows false;
-                                     Fence false;
-                                     Form _Form.Infix;
-                                     Frame _Frame.None;
-                                     FrameSpacing (EM 0.4<em>,EX 0.5<ex>);
-                                     GroupAlign _GroupAlign.Left;
-                                     Height (KeyWord "fromimage");
-                                     IndentAlign _IndentAlign.Auto;
-                                     IndentAlignFirst _IndentAlignFirst.IndentAlign;
-                                     IndentAlignLast _IndentAlignLast.IndentAlign;
-                                     IndentShift (Numb 0.0);
-                                     IndentShiftFirst (KeyWord "indentshift");
-                                     IndentShiftLast (KeyWord "indentshift");
-                                     IndentTarget "none";
-                                     LargeOp false;
-                                     LeftOverhang (Numb 0.0);
-                                     Length 0u; //<msline/> Specifies the the number of columns that should be spanned by the line.
-                                     LineBreak _LineBreak.Auto;
-                                     LineBreakMultChar "02062";//&InvisibleTimes;
-                                     LineBreakStyle _LineBreakStyle.Before;
-                                     LineLeading (Pct 100.0<pct>);
-                                     LineThickness (KeyWord "medium"); //"thin" | "medium" | "thick"
-                                     Location N;
-                                     LongDivStyle LeftTop;
-                                     LQuote "&quot;";
-                                     LSpace (NamedLength ThickMathSpace);
-                                     MaxSize (KeyWord "infinity");
-                                     MinLabelSpacing (EM 0.8<em>);
-                                     MinSize (Pct 100.0<pct>);
-                                     MovableLimits false;
-                                     MsLineThickness (KeyWord "medium");
-                                     Notation LongDiv;
-                                     NumAlign _NumAlign.Center;
-                                     Open ")";
-                                     Position 0;
-                                     RightOverhang (Numb 0.0);
-                                     RowAlign _RowAlign.Baseline;
-                                     RowLines _RowLines.None;
-                                     RowSpacing (EX 1.0<ex>);
-                                     RowSpan 1u;
-                                     RQuote "&quot;";
-                                     RSpace (NamedLength ThickMathSpace);
-                                     Selection 1u;
-                                     Separator false;
-                                     Separators ",";
-                                     Shift 0;
-                                     Side _Side.Right;
-                                     StackAlign _StackAlign.DecimalPoint;
-                                     Stretchy false;
-                                     SubScriptShift (KeyWord "automatic");
-                                     SuperScriptShift (KeyWord "automatic");
-                                     Symmetric false;
-                                     VAlign (EX 0.0<ex>);
-                                     Width (KeyWord "automatic");
-                                     ]
+                    //The rest after I compared this to the MathML schema
+                    Accent false;
+                    AccentUnder false;
+                    Align _Align.Center;
+                    AlignmentScope true;
+                    Bevelled false;
+                    CharAlign _CharAlign.Center;
+                    CharSpacing (KeyWord _CharSpacing.Medium);
+                    Close ")";
+                    ColumnAlign _ColumnAlign.Center;
+                    ColumnLines _ColumnLines.None;
+                    ColumnSpacing (EM 0.8<em>);
+                    ColumnSpan 1u;
+                    ColumnWidth (KeyWord _ColumnWidth.Auto);
+                    Crossout _Crossout.None;
+                    DenomAlign _DenomAlign.Center;
+                    Depth (EX 0.0<ex>);
+                    Edge _Edge.Left;
+                    EqualColumns false;
+                    EqualRows false;
+                    Fence false;
+                    Form _Form.Infix;
+                    Frame _Frame.None;
+                    FrameSpacing (EM 0.4<em>,EX 0.5<ex>);
+                    GroupAlign _GroupAlign.Left;
+                    Height (KeyWord "fromimage");
+                    IndentAlign _IndentAlign.Auto;
+                    IndentAlignFirst _IndentAlignFirst.IndentAlign;
+                    IndentAlignLast _IndentAlignLast.IndentAlign;
+                    IndentShift (Numb 0.0);
+                    IndentShiftFirst (KeyWord "indentshift");
+                    IndentShiftLast (KeyWord "indentshift");
+                    IndentTarget "none";
+                    LargeOp false;
+                    LeftOverhang (Numb 0.0);
+                    Length 0u; //<msline/> Specifies the the number of columns that should be spanned by the line.
+                    LineBreak _LineBreak.Auto;
+                    LineBreakMultChar "02062";//&InvisibleTimes;
+                    LineBreakStyle _LineBreakStyle.Before;
+                    LineLeading (Pct 100.0<pct>);
+                    LineThickness (KeyWord "medium"); //"thin" | "medium" | "thick"
+                    Location N;
+                    LongDivStyle LeftTop;
+                    LQuote "&quot;";
+                    LSpace (NamedLength ThickMathSpace);
+                    MaxSize (KeyWord "infinity");
+                    MinLabelSpacing (EM 0.8<em>);
+                    MinSize (Pct 100.0<pct>);
+                    MovableLimits false;
+                    MsLineThickness (KeyWord "medium");
+                    Notation LongDiv;
+                    NumAlign _NumAlign.Center;
+                    Open ")";
+                    Position 0;
+                    RightOverhang (Numb 0.0);
+                    RowAlign _RowAlign.Baseline;
+                    RowLines _RowLines.None;
+                    RowSpacing (EX 1.0<ex>);
+                    RowSpan 1u;
+                    RQuote "&quot;";
+                    RSpace (NamedLength ThickMathSpace);
+                    Selection 1u;
+                    Separator false;
+                    Separators ",";
+                    Shift 0;
+                    Side _Side.Right;
+                    StackAlign _StackAlign.DecimalPoint;
+                    Stretchy false;
+                    SubScriptShift (KeyWord "automatic");
+                    SuperScriptShift (KeyWord "automatic");
+                    Symmetric false;
+                    VAlign (EX 0.0<ex>);
+                    Width (KeyWord "automatic");
+                    ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -964,24 +1008,25 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Mpadded ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                    Id "none"; 
+                    Xref "none"; 
+                    Class "none"; 
+                    Style "none"; 
+                    Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                    //3.1.10 Mathematics style attributes common to presentation elements 
+                    MathColor System.Windows.Media.Brushes.Black; 
+                    MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.3.6.2 Attributes
-                                     Depth (KeyWord "same as content");                                   
-                                     Height (KeyWord "same as content");
-                                     Width (KeyWord "same as content");
-                                     LSpace (EM 0.8<em>);
-                                     VOffset (EM 0.8<em>);
-                                     ]
+                    //3.3.6.2 Attributes
+                    Depth (KeyWord "same as content");                                   
+                    Height (KeyWord "same as content");
+                    Width (KeyWord "same as content");
+                    LSpace (EM 0.8<em>);
+                    VOffset (EM 0.8<em>);
+                    ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -993,17 +1038,18 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Mphantom ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
-                                     ]
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1015,22 +1061,23 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Mfenced ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.3.8.2 Attributes
-                                     Open ")";
-                                     Close ")";
-                                     Separators ",";
-                                     ]
+                //3.3.8.2 Attributes
+                Open ")";
+                Close ")";
+                Separators ",";
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1042,20 +1089,21 @@ module Element =
               operator = Option.None}
         
         | GeneralLayout Menclose ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.3.9.2 Attributes
-                                     Notation LongDiv;
-                                     ]
+                //3.3.9.2 Attributes
+                Notation LongDiv;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1067,20 +1115,21 @@ module Element =
               operator = Option.None}
         
         | Script Msub ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.4.1.2 Attributes 
-                                     SubScriptShift (KeyWord "automatic");
-                                     ]
+                //3.4.1.2 Attributes 
+                SubScriptShift (KeyWord "automatic");
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1092,19 +1141,20 @@ module Element =
               operator = Option.None}
         
         | Script Msup ->
-            let defaultAttributes = //2.1.6 Attributes Shared by all MathML Elements
-                [Id "none"; 
-                 Xref "none"; 
-                 Class "none"; 
-                 Style "none"; 
-                 Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                 //3.1.10 Mathematics style attributes common to presentation elements 
-                 MathColor System.Windows.Media.Brushes.Black; 
-                 MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                 //3.4.2.2 Attributes 
-                 SuperScriptShift (KeyWord "automatic");
+                //3.4.2.2 Attributes 
+                SuperScriptShift (KeyWord "automatic");
                 ]
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             match arguments.Length = 2 with
@@ -1126,21 +1176,22 @@ module Element =
                   operator = Option.None}
         
         | Script Msubsup ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.4.3.2 Attributes 
-                                     SubScriptShift (KeyWord "automatic");
-                                     SuperScriptShift (KeyWord "automatic");
-                                     ]
+                //3.4.3.2 Attributes 
+                SubScriptShift (KeyWord "automatic");
+                SuperScriptShift (KeyWord "automatic");
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1152,21 +1203,22 @@ module Element =
               operator = Option.None}
         
         | Script Munde ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.4.4.2 Attributes
-                                     AccentUnder false; //automatic
-                                     Align _Align.Center;
-                                     ]
+                //3.4.4.2 Attributes
+                AccentUnder false; //automatic
+                Align _Align.Center;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1178,21 +1230,22 @@ module Element =
               operator = Option.None}
         
         | Script Mover ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.4.5.2 Attributes
-                                     Accent false; //automatic
-                                     Align _Align.Center;
-                                     ]
+                //3.4.5.2 Attributes
+                Accent false; //automatic
+                Align _Align.Center;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1204,22 +1257,23 @@ module Element =
               operator = Option.None}
         
         | Script Munderover ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.4.6.2 Attributes
-                                     Accent false; //automatic
-                                     AccentUnder false; //automatic
-                                     Align _Align.Center;
-                                     ]
+                //3.4.6.2 Attributes
+                Accent false; //automatic
+                AccentUnder false; //automatic
+                Align _Align.Center;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1231,21 +1285,22 @@ module Element =
               operator = Option.None}
         
         | Script Mmultiscripts ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.4.7.2 Attributes 
-                                     SubScriptShift (KeyWord "automatic");
-                                     SuperScriptShift (KeyWord "automatic");
-                                     ]
+                //3.4.7.2 Attributes 
+                SubScriptShift (KeyWord "automatic");
+                SuperScriptShift (KeyWord "automatic");
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1257,37 +1312,38 @@ module Element =
               operator = Option.None}
         
         | Table Mtable ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.5.1.2 Attributes
-                                     Align _Align.Axis;
-                                     AlignmentScope true;                                     
-                                     ColumnAlign _ColumnAlign.Center;
-                                     ColumnLines _ColumnLines.None;
-                                     ColumnSpacing (EM 0.8<em>);
-                                     ColumnWidth (KeyWord _ColumnWidth.Auto);
-                                     DisplayStyle false
-                                     EqualColumns false;
-                                     EqualRows false;                                     
-                                     Frame _Frame.None;
-                                     FrameSpacing (EM 0.4<em>,EX 0.5<ex>);
-                                     GroupAlign _GroupAlign.Left;                                     
-                                     MinLabelSpacing (EM 0.8<em>);                                   
-                                     RowAlign _RowAlign.Baseline;
-                                     RowLines _RowLines.None;
-                                     RowSpacing (EX 1.0<ex>);
-                                     Side _Side.Right;                                     
-                                     Width (KeyWord "automatic");
-                                     ]
+                //3.5.1.2 Attributes
+                Align _Align.Axis;
+                AlignmentScope true;                                     
+                ColumnAlign _ColumnAlign.Center;
+                ColumnLines _ColumnLines.None;
+                ColumnSpacing (EM 0.8<em>);
+                ColumnWidth (KeyWord _ColumnWidth.Auto);
+                DisplayStyle false
+                EqualColumns false;
+                EqualRows false;                                     
+                Frame _Frame.None;
+                FrameSpacing (EM 0.4<em>,EX 0.5<ex>);
+                GroupAlign _GroupAlign.Left;                                     
+                MinLabelSpacing (EM 0.8<em>);                                   
+                RowAlign _RowAlign.Baseline;
+                RowLines _RowLines.None;
+                RowSpacing (EX 1.0<ex>);
+                Side _Side.Right;                                     
+                Width (KeyWord "automatic");
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1299,22 +1355,23 @@ module Element =
               operator = Option.None}
         
         | Table Mlabeledtr ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.5.3.2 Attributes
-                                     RowAlign _RowAlign.Baseline; //inherited
-                                     ColumnAlign _ColumnAlign.Center; //inherited
-                                     GroupAlign _GroupAlign.Left; //inherited
-                                     ]
+                //3.5.3.2 Attributes
+                RowAlign _RowAlign.Baseline; //inherited
+                ColumnAlign _ColumnAlign.Center; //inherited
+                GroupAlign _GroupAlign.Left; //inherited
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1326,22 +1383,23 @@ module Element =
               operator = Option.None}
         
         | Table Mtr ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.5.2.2 Attributes
-                                     RowAlign _RowAlign.Baseline; //inherited
-                                     ColumnAlign _ColumnAlign.Center; //inherited
-                                     GroupAlign _GroupAlign.Left; //inherited
-                                     ]
+                //3.5.2.2 Attributes
+                RowAlign _RowAlign.Baseline; //inherited
+                ColumnAlign _ColumnAlign.Center; //inherited
+                GroupAlign _GroupAlign.Left; //inherited
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1353,24 +1411,25 @@ module Element =
               operator = Option.None}
         
         | Table Mtd ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.5.4.2 Attributes
-                                     RowSpan 1u;
-                                     ColumnSpan 1u;
-                                     RowAlign _RowAlign.Baseline; //inherited
-                                     ColumnAlign _ColumnAlign.Center; //inherited
-                                     GroupAlign _GroupAlign.Left; //inherited
-                                     ]
+                //3.5.4.2 Attributes
+                RowSpan 1u;
+                ColumnSpan 1u;
+                RowAlign _RowAlign.Baseline; //inherited
+                ColumnAlign _ColumnAlign.Center; //inherited
+                GroupAlign _GroupAlign.Left; //inherited
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1382,20 +1441,21 @@ module Element =
               operator = Option.None}
         
         | Table Maligngroup ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.5.5.6 <maligngroup/> Attributes 
-                                     GroupAlign _GroupAlign.Left; //inherited
-                                     ]
+                //3.5.5.6 <maligngroup/> Attributes 
+                GroupAlign _GroupAlign.Left; //inherited
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1407,20 +1467,21 @@ module Element =
               operator = Option.None}
         
         | Table Malignmark ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.5.5.5 <malignmark/> Attributes 
-                                     Edge _Edge.Left;
-                                     ]
+                //3.5.5.5 <malignmark/> Attributes 
+                Edge _Edge.Left;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1432,23 +1493,24 @@ module Element =
               operator = Option.None}
         
         | MathLayout Mstack ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.1.2 Attributes
-                                     Align _Align.Baseline;
-                                     StackAlign _StackAlign.DecimalPoint;
-                                     CharAlign _CharAlign.Right;
-                                     CharSpacing (KeyWord _CharSpacing.Medium);
-                                     ]
+                //3.6.1.2 Attributes
+                Align _Align.Baseline;
+                StackAlign _StackAlign.DecimalPoint;
+                CharAlign _CharAlign.Right;
+                CharSpacing (KeyWord _CharSpacing.Medium);
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1460,20 +1522,21 @@ module Element =
               operator = Option.None}
         
         | MathLayout Mlongdiv ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.2.2 Attributes 
-                                     LongDivStyle LeftTop;
-                                     ]
+                //3.6.2.2 Attributes 
+                LongDivStyle LeftTop;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1485,21 +1548,22 @@ module Element =
               operator = Option.None}
         
         | MathLayout Msgroup ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.3.2 Attributes
-                                     Position 0;
-                                     Shift 0;
-                                     ]
+                //3.6.3.2 Attributes
+                Position 0;
+                Shift 0;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1511,20 +1575,21 @@ module Element =
               operator = Option.None}
         
         | MathLayout Msrow ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.4.2 Attributes 
-                                     Position 0;
-                                     ]
+                //3.6.4.2 Attributes 
+                Position 0;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1536,23 +1601,24 @@ module Element =
               operator = Option.None}
         
         | MathLayout Mscarries ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.5.2 Attributes
-                                     Position 0;
-                                     Location N;
-                                     Crossout _Crossout.None;
-                                     ScriptSizeMultiplier 0.6 //inherited
-                                     ]
+                //3.6.5.2 Attributes
+                Position 0;
+                Location N;
+                Crossout _Crossout.None;
+                ScriptSizeMultiplier 0.6 //inherited
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1564,21 +1630,22 @@ module Element =
               operator = Option.None}
         
         | MathLayout Mscarry ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.6.2 Attributes
-                                     Location N; //inherited
-                                     Crossout _Crossout.None; //inherited
-                                     ]
+                //3.6.6.2 Attributes
+                Location N; //inherited
+                Crossout _Crossout.None; //inherited
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1590,24 +1657,25 @@ module Element =
               operator = Option.None}
         
         | MathLayout Msline ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.6.7.2 Attributes
-                                     Position 0;
-                                     Length 0u; //<msline/> Specifies the the number of columns that should be spanned by the line.
-                                     LeftOverhang (Numb 0.0);
-                                     RightOverhang (Numb 0.0);
-                                     MsLineThickness (KeyWord "medium");
-                                     ]
+                //3.6.7.2 Attributes
+                Position 0;
+                Length 0u; //<msline/> Specifies the the number of columns that should be spanned by the line.
+                LeftOverhang (Numb 0.0);
+                RightOverhang (Numb 0.0);
+                MsLineThickness (KeyWord "medium");
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 
@@ -1619,21 +1687,22 @@ module Element =
               operator = Option.None}
         
         | Enlivening Maction ->
-            let defaultAttributes = [//2.1.6 Attributes Shared by all MathML Elements 
-                                     Id "none"; 
-                                     Xref "none"; 
-                                     Class "none"; 
-                                     Style "none"; 
-                                     Href "none";
+            let defaultAttributes = 
+                [//2.1.6 Attributes Shared by all MathML Elements 
+                Id "none"; 
+                Xref "none"; 
+                Class "none"; 
+                Style "none"; 
+                Href "none";
                                      
-                                     //3.1.10 Mathematics style attributes common to presentation elements 
-                                     MathColor System.Windows.Media.Brushes.Black; 
-                                     MathBackground System.Windows.Media.Brushes.Transparent;
+                //3.1.10 Mathematics style attributes common to presentation elements 
+                MathColor System.Windows.Media.Brushes.Black; 
+                MathBackground System.Windows.Media.Brushes.Transparent;
 
-                                     //3.7.1.1 Attributes
-                                     ActionType (Other "none")
-                                     Selection 1u;
-                                     ]
+                //3.7.1.1 Attributes
+                ActionType (Other "none")
+                Selection 1u;
+                ]
 
             let aString = (List.fold (fun acc x -> acc + x) "" (List.map (fun x -> getAttrString x) (scrubAttributes attr defaultAttributes)))
             { element = elem; 

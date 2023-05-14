@@ -630,11 +630,237 @@ module TypeSetting =
          rowHeight = height;
          leftBearing = leftBearing;
          rightBearing = rightBearing;
-         leftElement = Script Msub;
-         rightElement = Script Msub;
+         leftElement = Script Msubsup;
+         rightElement = Script Msubsup;
          overHangAfter = 0.         
          }|> GlyphRow
     
+    let makeOverScriptFromTypeObjects 
+        (target:TypeObject) 
+        (script:TypeObject) 
+         overscriptShiftUp =        
+        
+        let g = Grid()
+
+        let targetGrid =
+            match target with
+            | GlyphRow gr -> gr.grid
+            | Glyph gl -> 
+                let grid = Grid()
+                let gb = makeGlyphBox gl {x=0.;y=0.}
+                do grid.Children.Add(gb) |> ignore
+                grid
+        let targetRBearing =
+            match target with
+            | GlyphRow gr -> gr.rightBearing
+            | Glyph gl -> gl.rightBearing
+        let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
+        
+        let mathAxisCorrectionHeight = 
+                (MathPositioningConstants.stackTopShiftUp - MathPositioningConstants.stackGapMin) * //axisHeight * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
+        
+        let scriptGrid =             
+            let position = 
+                let x = targetRBearing * textSizeScaleFactor
+                let y = (mathAxisCorrectionHeight - overscriptShiftUp) * textSizeScaleFactor 
+                {x = x; y = y}
+            
+            match script with
+            | GlyphRow gr -> 
+                let g = gr.grid
+                do g.Loaded.AddHandler(
+                    RoutedEventHandler(
+                        fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+            | Glyph gl -> 
+                let g = Grid()
+                let gb = makeGlyphBox gl position
+                do  g.Children.Add(gb) |> ignore
+                    g.Loaded.AddHandler(
+                        RoutedEventHandler(
+                            fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+        
+        let leftBearing = targetLBearing
+        let rightBearing = MathPositioningConstants.spaceAfterScript
+        let width = (getWidthFromTypeObject target) + (getWidthFromTypeObject script)
+        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight - overscriptShiftUp) * textSizeScaleFactor)
+        
+        do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
+        
+        {grid = g;
+         rowWidth = width;
+         rowHeight = height;
+         leftBearing = leftBearing;
+         rightBearing = rightBearing;
+         leftElement = Script Mover;
+         rightElement = Script Mover;
+         overHangAfter = 0.         
+         }|> GlyphRow
+    
+    let makeUnderScriptFromTypeObjects 
+        (target:TypeObject) 
+        (script:TypeObject) 
+         underscriptShiftDown =        
+    
+        let g = Grid()
+
+        let targetGrid =
+            match target with
+            | GlyphRow gr -> gr.grid
+            | Glyph gl -> 
+                let grid = Grid()
+                let gb = makeGlyphBox gl {x=0.;y=0.}
+                do grid.Children.Add(gb) |> ignore
+                grid
+        let targetRBearing =
+            match target with
+            | GlyphRow gr -> gr.rightBearing
+            | Glyph gl -> gl.rightBearing 
+        let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
+        
+        let mathAxisCorrectionHeight = 
+                (MathPositioningConstants.accentBaseHeight + MathPositioningConstants.stackGapMin) * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
+    
+        let scriptGrid =             
+            let position = 
+                let x = targetRBearing * textSizeScaleFactor
+                let y = (mathAxisCorrectionHeight + underscriptShiftDown ) * textSizeScaleFactor 
+                {x = x; y = y}        
+            match script with
+            | GlyphRow gr -> 
+                let g = gr.grid
+                do g.Loaded.AddHandler(
+                    RoutedEventHandler(
+                        fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+            | Glyph gl -> 
+                let g = Grid()
+                let gb = makeGlyphBox gl position
+                do  g.Children.Add(gb) |> ignore
+                    g.Loaded.AddHandler(
+                        RoutedEventHandler(
+                            fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+    
+        let leftBearing = targetLBearing
+        let rightBearing = MathPositioningConstants.spaceAfterScript  
+        let width = (getWidthFromTypeObject target) + (getWidthFromTypeObject script)
+        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight + underscriptShiftDown) * textSizeScaleFactor)
+    
+        do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
+    
+        {grid = g;
+         rowWidth = width;
+         rowHeight = height;
+         leftBearing = leftBearing;
+         rightBearing = rightBearing;
+         leftElement = Script Munde;
+         rightElement = Script Munde;
+         overHangAfter = 0.         
+         }|> GlyphRow
+
+    let makeUnderOverScriptFromTypeObjects 
+        (target:TypeObject) 
+        (overScript:TypeObject)
+         overscriptShiftUp
+        (underScript:TypeObject)
+         underscriptShiftDown  =        
+    
+        let g = Grid()
+
+        let targetGrid =
+            match target with
+            | GlyphRow gr -> gr.grid
+            | Glyph gl -> 
+                let grid = Grid()
+                let gb = makeGlyphBox gl {x=0.;y=0.}
+                do grid.Children.Add(gb) |> ignore
+                grid
+        let targetRBearing =
+            match target with
+            | GlyphRow gr -> gr.rightBearing
+            | Glyph gl -> gl.rightBearing 
+        let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
+
+        let overMathAxisCorrectionHeight = 
+                (MathPositioningConstants.stackTopShiftUp - MathPositioningConstants.stackGapMin) * //axisHeight * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
+        let underMathAxisCorrectionHeight = 
+                (MathPositioningConstants.accentBaseHeight + MathPositioningConstants.stackGapMin) * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
+        
+        let overScriptGrid =             
+            let position = 
+                let x = targetRBearing * textSizeScaleFactor
+                let y = (overMathAxisCorrectionHeight - overscriptShiftUp) * textSizeScaleFactor 
+                {x = x; y = y}
+            
+            match overScript with
+            | GlyphRow gr -> 
+                let g = gr.grid
+                do g.Loaded.AddHandler(
+                    RoutedEventHandler(
+                        fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+            | Glyph gl -> 
+                let g = Grid()
+                let gb = makeGlyphBox gl position
+                do  g.Children.Add(gb) |> ignore
+                    g.Loaded.AddHandler(
+                        RoutedEventHandler(
+                            fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+        let underScriptGrid =             
+            let position = 
+                let x = targetRBearing * textSizeScaleFactor
+                let y = (underMathAxisCorrectionHeight + underscriptShiftDown) * textSizeScaleFactor 
+                {x = x; y = y}
+    
+            match underScript with
+            | GlyphRow gr -> 
+                let g = gr.grid
+                do g.Loaded.AddHandler(
+                    RoutedEventHandler(
+                        fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+            | Glyph gl -> 
+                let g = Grid()
+                let gb = makeGlyphBox gl position
+                do  g.Children.Add(gb) |> ignore
+                    g.Loaded.AddHandler(
+                        RoutedEventHandler(
+                            fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
+                g
+    
+        let leftBearing = targetLBearing
+        let rightBearing = MathPositioningConstants.spaceAfterScript  
+        let width = 
+            let widerScript = 
+                match (getWidthFromTypeObject overScript) > (getWidthFromTypeObject underScript) with
+                | true -> (getWidthFromTypeObject underScript)
+                | false -> (getWidthFromTypeObject underScript)
+            (getWidthFromTypeObject target) + widerScript
+        let height = (getHeightFromTypeObject target) + ((underMathAxisCorrectionHeight + underscriptShiftDown) * textSizeScaleFactor) + ((overMathAxisCorrectionHeight + overscriptShiftUp) * textSizeScaleFactor)
+    
+        do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; overScriptGrid; underScriptGrid]
+    
+        {grid = g;
+         rowWidth = width;
+         rowHeight = height;
+         leftBearing = leftBearing;
+         rightBearing = rightBearing;
+         leftElement = Script Munderover;
+         rightElement = Script Munderover;
+         overHangAfter = 0.         
+         }|> GlyphRow    
+
     let makeFractionFromTypeObjects 
         (numerator:TypeObject) 
         (denominator:TypeObject)     
@@ -865,7 +1091,82 @@ module TypeSetting =
                 | _ -> 0.
             let subscriptShiftDown = MathPositioningConstants.subscriptShiftDown + manualSubscriptShift
             makeSuperSubScriptFromTypeObjects target superScript superscriptShiftUp subScript subscriptShiftDown
- 
+
+        let typeset_Overscript ((target:TypeObject),(script:TypeObject), attributes) =             
+            let manualOverscriptShift =
+                match List.tryFind (fun x -> 
+                    match x with
+                    | SuperScriptShift _ -> true 
+                    | _ -> false) attributes with
+                | Some (SuperScriptShift (Numb n)) -> n
+                | _ -> 0.
+            let display = 
+                match List.tryFind (fun x -> 
+                    match x with
+                    | Display _ -> true 
+                    | _ -> false) math.attributes with
+                | Some (Display n) -> n
+                | _ -> Inline
+            let overScriptShift = 
+                match List.tryFind (fun x -> 
+                    match x with
+                    | SuperScriptShift _ -> true 
+                    | _ -> false) attributes with
+                | Some (SuperScriptShift (KeyWord s)) when s.ToString() = "script" -> Inline
+                | _ -> display            
+            let superscriptShiftUp = 
+                match overScriptShift with
+                | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualOverscriptShift
+                | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift
+            makeOverScriptFromTypeObjects target script superscriptShiftUp
+        
+        let typeset_Underscript ((target:TypeObject),(script:TypeObject), attributes) =             
+            let manualUnderscriptShift =
+                match List.tryFind (fun x -> 
+                        match x with
+                        | SubScriptShift _ -> true 
+                        | _ -> false) attributes with
+                | Some (SubScriptShift (Numb n)) -> n
+                | _ -> 0.
+            let underscriptShiftDown = MathPositioningConstants.stackBottomDisplayStyleShiftDown + manualUnderscriptShift
+            makeUnderScriptFromTypeObjects target script underscriptShiftDown
+  
+        let typeset_UnderOverscript ((target:TypeObject),(overScript:TypeObject),(underScript:TypeObject), attributes) =             
+            let manualOverscriptShift =
+                match List.tryFind (fun x -> 
+                        match x with
+                        | SuperScriptShift _ -> true 
+                        | _ -> false) attributes with
+                | Some (SuperScriptShift (Numb n)) -> n
+                | _ -> 0.
+            let display = 
+                match List.tryFind (fun x -> 
+                    match x with
+                    | Display _ -> true 
+                    | _ -> false) math.attributes with
+                | Some (Display n) -> n
+                | _ -> Inline
+            let overScriptShift = 
+                match List.tryFind (fun x -> 
+                    match x with
+                    | SuperScriptShift _ -> true 
+                    | _ -> false) attributes with
+                | Some (SuperScriptShift (KeyWord s)) when s.ToString() = "script" -> Inline
+                | _ -> display            
+            let overscriptShiftUp = 
+                match overScriptShift with
+                | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualOverscriptShift
+                | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift            
+            let manualUnderscriptShift =
+                match List.tryFind (fun x -> 
+                        match x with
+                        | SubScriptShift _ -> true 
+                        | _ -> false) attributes with
+                | Some (SubScriptShift (Numb n)) -> n
+                | _ -> 0.
+            let underscriptShiftDown = MathPositioningConstants.stackBottomDisplayStyleShiftDown + manualUnderscriptShift
+            makeUnderOverScriptFromTypeObjects target overScript overscriptShiftUp underScript underscriptShiftDown
+
         let typeset_Fraction ((numerator:TypeObject),(denominator:TypeObject), attributes) = 
             let lineThickness = 
                 match List.tryFind (fun x -> 
@@ -914,6 +1215,9 @@ module TypeSetting =
                                typeset_Superscript 
                                typeset_Subscript
                                typeset_SuperSubscript
+                               typeset_Overscript 
+                               typeset_Underscript
+                               typeset_UnderOverscript
                                typeset_Fraction el
 
     let typesetMath (el:Element) = ()
@@ -936,12 +1240,14 @@ module TypeSetting =
         let typesetElement el = typesetElement textMath el
 
         let t0 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.cubeRootPrefix))
-        let t1 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.mathematicalLeftFlattenedParenthesisPrefix))
-        let t2 = (Element.build (Token Mn) [] [] "9" Option.None)
-        let t3 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.plusSignInfix))//fractionSlashInfix))//
-        let t4 = (Element.build (Token Mi) [] [] "x" Option.None)
-        let t5 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.doubleStruckItalicSmallDPrefix))
-        
+        let t1 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.nArySummationPrefix))
+        let t2 = (Element.build (Token Mn) [] [] "2" Option.None)
+        let t3 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.plusSignInfix))//almostEqualOrEqualToInfix))//
+        let t4 = (Element.build (Token Mi) [] [] "a" Option.None)
+        let t5 = (Element.build (Token Mo) [] [] "" (Some OperatorDictionary.equalsSignEqualsInfix))
+        let t6 = (Element.build (Token Mi) [] [] "b" Option.None)
+        let t7 = (Element.build (Token Mi) [] [] "c" Option.None)
+
         let s0=  (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "" (Some OperatorDictionary.cubeRootPrefix)) 
         let s1 = (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "" (Some OperatorDictionary.mathematicalLeftFlattenedParenthesisPrefix))
         let s2 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "2" Option.None)
@@ -951,9 +1257,9 @@ module TypeSetting =
 
         let ss0=  (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.cubeRootPrefix)) 
         let ss1 = (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.mathematicalLeftFlattenedParenthesisPrefix))
-        let ss2 = (Element.build (Token Mi) [MathSize (EM 0.55<em>)] [] "x" Option.None)
+        let ss2 = (Element.build (Token Mi) [MathSize (EM 0.55<em>)] [] "n" Option.None)
         let ss3 = (Element.build (Token Mo) [MathSize (EM 0.55<em>); MathColor Brushes.BlueViolet] [] "" (Some OperatorDictionary.plusSignPrefix))
-        let ss4 = (Element.build (Token Mn) [MathSize (EM 0.55<em>)] [] "52" Option.None)
+        let ss4 = (Element.build (Token Mn) [MathSize (EM 0.55<em>)] [] "3" Option.None)
         let ss5 = (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.mathematicalRightFlattenedParenthesisPostfix))
          
         let r0 = (Element.build (GeneralLayout Mrow) [] [t2;t3;t4] "" Option.None)
@@ -976,10 +1282,24 @@ module TypeSetting =
         let msubsup0 = (Element.build (Script Msubsup) [(*SubScriptShift(Numb 100.)*)] [t4;s2;s2] "" Option.None)
         let su = typesetElement (Element.build (Math) [Display (*Inline*)Block] [msub0] "" Option.None)
         
-        let frow = (Element.build (GeneralLayout Mrow) [] [msubsup0;t3;msubmsup0;t3;f0;t3;f1] "" Option.None)
+        let msup0 = (Element.build (Script Msup) [] [t4;s2] "" Option.None)        
+        let msup1 = (Element.build (Script Msup) [] [t6;s2] "" Option.None)
+        let msup2 = (Element.build (Script Msup) [] [t7;s2] "" Option.None)
+        let sup = typesetElement (Element.build (Math) [Display (*Inline*)Block] [msub0] "" Option.None)
+        
+        
+        let orow = (Element.build (GeneralLayout Mrow) [] [ss3;ss4] "" Option.None)
+        let urow = (Element.build (GeneralLayout Mrow) [] [ss3;ss2] "" Option.None)
+        let munder = (Element.build (Script Munde) [] [t1;orow] "" Option.None)
+        let mover = (Element.build (Script Mover) [] [t1;orow] "" Option.None)
+        let munderover = (Element.build (Script Munderover) [] [t1;urow;orow] "" Option.None)
+        let uo = typesetElement (Element.build (Math) [Display (*Inline*)Block] [munderover] "" Option.None)
+
+
+        let frow = (Element.build (GeneralLayout Mrow) [] [munderover;msup0;t3;msup1;t5;msup2] "" Option.None)
         let f = typesetElement (Element.build (GeneralLayout Mrow) [] [frow] "" Option.None)
 
-        let line3 = getGridFromTypeObject f
+        let line3 = getGridFromTypeObject f//uo//
        
         let textBlock =                    
             let tb = TextBlock()
