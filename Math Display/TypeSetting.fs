@@ -431,17 +431,11 @@ module TypeSetting =
             match target with
             | GlyphRow gr -> gr.rightBearing
             | Glyph gl -> gl.rightBearing + gl.rSpace   
-        let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
-
-        let mathAxisCorrectionHeight = 
-                MathPositioningConstants.axisHeight * 
-                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
-                 (1. + textSizeScaleFactor))
-        
+        let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)          
         let scriptGrid =             
             let position = 
                 let x = (getWidthFromTypeObject target - targetRBearing) * textSizeScaleFactor
-                let y = (mathAxisCorrectionHeight - superscriptShiftUp) * textSizeScaleFactor 
+                let y = (-superscriptShiftUp) * textSizeScaleFactor 
                 {x = x; y = y}
             
             match script with
@@ -458,12 +452,11 @@ module TypeSetting =
                     g.Loaded.AddHandler(
                         RoutedEventHandler(
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
-                g
-        
+                g        
         let leftBearing = targetLBearing
         let rightBearing = MathPositioningConstants.spaceAfterScript
         let width = (getWidthFromTypeObject target) + (getWidthFromTypeObject script)
-        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight - superscriptShiftUp) * textSizeScaleFactor)
+        let height = (getHeightFromTypeObject target) + ((-superscriptShiftUp) * textSizeScaleFactor)
         
         do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
         
@@ -497,16 +490,10 @@ module TypeSetting =
             | GlyphRow gr -> gr.rightBearing
             | Glyph gl -> gl.rightBearing + gl.rSpace
         let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
-
-        let mathAxisCorrectionHeight = 
-                MathPositioningConstants.axisHeight * 
-                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
-                 (1. + textSizeScaleFactor))
-    
         let scriptGrid =             
             let position = 
                 let x = (getWidthFromTypeObject target - targetRBearing) * textSizeScaleFactor
-                let y = (mathAxisCorrectionHeight + subscriptShiftDown) * textSizeScaleFactor 
+                let y = subscriptShiftDown * textSizeScaleFactor 
                 {x = x; y = y}
         
             match script with
@@ -523,12 +510,11 @@ module TypeSetting =
                     g.Loaded.AddHandler(
                         RoutedEventHandler(
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
-                g
-    
+                g    
         let leftBearing = targetLBearing
         let rightBearing = MathPositioningConstants.spaceAfterScript  
         let width = (getWidthFromTypeObject target) + (getWidthFromTypeObject script)
-        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight + subscriptShiftDown) * textSizeScaleFactor)
+        let height = (getHeightFromTypeObject target) + (subscriptShiftDown * textSizeScaleFactor)
     
         do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
     
@@ -564,16 +550,10 @@ module TypeSetting =
             | GlyphRow gr -> gr.rightBearing
             | Glyph gl -> gl.rightBearing + gl.rSpace
         let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
-
-        let mathAxisCorrectionHeight = 
-                MathPositioningConstants.axisHeight * 
-                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
-                 (1. + textSizeScaleFactor))
-     
         let superScriptGrid =             
             let position = 
                 let x = (getWidthFromTypeObject target - targetRBearing) * textSizeScaleFactor
-                let y = (mathAxisCorrectionHeight - superscriptShiftUp) * textSizeScaleFactor 
+                let y = (-superscriptShiftUp) * textSizeScaleFactor 
                 {x = x; y = y}
             
             match superScript with
@@ -594,7 +574,7 @@ module TypeSetting =
         let subScriptGrid =             
             let position = 
                 let x = (getWidthFromTypeObject target - targetRBearing) * textSizeScaleFactor
-                let y = (mathAxisCorrectionHeight + subscriptShiftDown) * textSizeScaleFactor 
+                let y = subscriptShiftDown * textSizeScaleFactor 
                 {x = x; y = y}
     
             match subScript with
@@ -621,7 +601,7 @@ module TypeSetting =
                 | true -> (getWidthFromTypeObject subScript)
                 | false -> (getWidthFromTypeObject subScript)
             (getWidthFromTypeObject target) + widerScript
-        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight + subscriptShiftDown) * textSizeScaleFactor)
+        let height = (getHeightFromTypeObject target) + (subscriptShiftDown * textSizeScaleFactor)
     
         do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; superScriptGrid; subScriptGrid]
     
@@ -649,11 +629,7 @@ module TypeSetting =
                 let grid = Grid()
                 let gb = makeGlyphBox gl {x=0.;y=0.}
                 do grid.Children.Add(gb) |> ignore
-                grid
-        let targetRBearing =
-            match target with
-            | GlyphRow gr -> gr.rightBearing 
-            | Glyph gl -> gl.rightBearing
+                grid        
         let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
         let targetWidth =
             match target with
@@ -662,17 +638,11 @@ module TypeSetting =
         let scriptWidth =
             match script with
             | GlyphRow gr -> gr.rowWidth
-            | Glyph gl -> gl.width
-
-        let mathAxisCorrectionHeight = 
-                (MathPositioningConstants.stackTopShiftUp - MathPositioningConstants.stackGapMin) * //axisHeight * 
-                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
-                 (1. + textSizeScaleFactor))
-        
+            | Glyph gl -> gl.width        
         let scriptGrid =             
             let position = 
                 let x = (targetWidth * textSizeScaleFactor) - (scriptWidth * textSizeScaleFactor) 
-                let y = (mathAxisCorrectionHeight - overscriptShiftUp) * textSizeScaleFactor 
+                let y = (-overscriptShiftUp) * textSizeScaleFactor 
                 {x = x; y = y}
             
             match script with
@@ -689,12 +659,11 @@ module TypeSetting =
                     g.Loaded.AddHandler(
                         RoutedEventHandler(
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
-                g
-        
+                g        
         let leftBearing = targetLBearing
         let rightBearing = MathPositioningConstants.spaceAfterScript
         let width = (getWidthFromTypeObject target)
-        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight - overscriptShiftUp) * textSizeScaleFactor)
+        let height = (getHeightFromTypeObject target) + ((-overscriptShiftUp) * textSizeScaleFactor)
         
         do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
         
@@ -722,11 +691,7 @@ module TypeSetting =
                 let grid = Grid()
                 let gb = makeGlyphBox gl {x=0.;y=0.}
                 do grid.Children.Add(gb) |> ignore
-                grid
-        let targetRBearing =
-            match target with
-            | GlyphRow gr -> gr.rightBearing
-            | Glyph gl -> gl.rightBearing 
+                grid        
         let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
         let targetWidth =
             match target with
@@ -736,16 +701,10 @@ module TypeSetting =
             match script with
             | GlyphRow gr -> gr.rowWidth
             | Glyph gl -> gl.width
-
-        let mathAxisCorrectionHeight = 
-                (MathPositioningConstants.accentBaseHeight + MathPositioningConstants.stackGapMin) * 
-                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
-                 (1. + textSizeScaleFactor))
-    
         let scriptGrid =             
             let position = 
                 let x = (targetWidth * textSizeScaleFactor) - (scriptWidth * textSizeScaleFactor)
-                let y = (mathAxisCorrectionHeight + underscriptShiftDown ) * textSizeScaleFactor 
+                let y = underscriptShiftDown * textSizeScaleFactor 
                 {x = x; y = y}        
             match script with
             | GlyphRow gr -> 
@@ -761,12 +720,11 @@ module TypeSetting =
                     g.Loaded.AddHandler(
                         RoutedEventHandler(
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
-                g
-    
+                g    
         let leftBearing = targetLBearing
         let rightBearing = MathPositioningConstants.spaceAfterScript  
         let width = (getWidthFromTypeObject target)
-        let height = (getHeightFromTypeObject target) + ((mathAxisCorrectionHeight + underscriptShiftDown) * textSizeScaleFactor)
+        let height = (getHeightFromTypeObject target) + (underscriptShiftDown * textSizeScaleFactor)
     
         do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
     
@@ -796,11 +754,7 @@ module TypeSetting =
                 let grid = Grid()
                 let gb = makeGlyphBox gl {x=0.;y=0.}
                 do grid.Children.Add(gb) |> ignore
-                grid
-        let targetRBearing =
-            match target with
-            | GlyphRow gr -> gr.rightBearing
-            | Glyph gl -> gl.rightBearing 
+                grid        
         let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
         let targetWidth =
             match target with
@@ -1061,10 +1015,14 @@ module TypeSetting =
                     | _ -> false) attributes with
                 | Some (SuperScriptShift (KeyWord s)) when s.ToString() = "script" -> Inline
                 | _ -> display            
+            let mathAxisCorrectionHeight = 
+                MathPositioningConstants.axisHeight * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
             let superscriptShiftUp = 
                 match superScriptShift with
-                | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualSuperscriptShift
-                | Block -> MathPositioningConstants.superscriptShiftUp + manualSuperscriptShift
+                | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualSuperscriptShift - mathAxisCorrectionHeight
+                | Block -> MathPositioningConstants.superscriptShiftUp + manualSuperscriptShift - mathAxisCorrectionHeight
             makeSuperScriptFromTypeObjects target script superscriptShiftUp
         
         let typeset_Subscript ((target:TypeObject),(script:TypeObject), attributes) =             
@@ -1075,7 +1033,11 @@ module TypeSetting =
                         | _ -> false) attributes with
                 | Some (SubScriptShift (Numb n)) -> n
                 | _ -> 0.
-            let subscriptShiftDown = MathPositioningConstants.subscriptShiftDown + manualSubscriptShift
+            let mathAxisCorrectionHeight = 
+                MathPositioningConstants.axisHeight * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
+            let subscriptShiftDown = MathPositioningConstants.subscriptShiftDown + manualSubscriptShift + mathAxisCorrectionHeight
             makeSubScriptFromTypeObjects target script subscriptShiftDown
   
         let typeset_SuperSubscript ((target:TypeObject),(superScript:TypeObject),(subScript:TypeObject), attributes) =             
@@ -1093,6 +1055,10 @@ module TypeSetting =
                     | _ -> false) math.attributes with
                 | Some (Display n) -> n
                 | _ -> Inline
+            let mathAxisCorrectionHeight = 
+                MathPositioningConstants.axisHeight * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
             let superScriptShift = 
                 match List.tryFind (fun x -> 
                     match x with
@@ -1102,8 +1068,8 @@ module TypeSetting =
                 | _ -> display            
             let superscriptShiftUp = 
                 match superScriptShift with
-                | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualSuperscriptShift
-                | Block -> MathPositioningConstants.superscriptShiftUp + manualSuperscriptShift
+                | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualSuperscriptShift - mathAxisCorrectionHeight
+                | Block -> MathPositioningConstants.superscriptShiftUp + manualSuperscriptShift - mathAxisCorrectionHeight
             
             let manualSubscriptShift =
                 match List.tryFind (fun x -> 
@@ -1112,7 +1078,7 @@ module TypeSetting =
                         | _ -> false) attributes with
                 | Some (SubScriptShift (Numb n)) -> n
                 | _ -> 0.
-            let subscriptShiftDown = MathPositioningConstants.subscriptShiftDown + manualSubscriptShift
+            let subscriptShiftDown = MathPositioningConstants.subscriptShiftDown + manualSubscriptShift + mathAxisCorrectionHeight
             makeSuperSubScriptFromTypeObjects target superScript superscriptShiftUp subScript subscriptShiftDown
 
         let typeset_Overscript ((target:TypeObject),(script:TypeObject), attributes) =             
@@ -1137,10 +1103,14 @@ module TypeSetting =
                     | _ -> false) attributes with
                 | Some (SuperScriptShift (KeyWord s)) when s.ToString() = "script" -> Inline
                 | _ -> display            
+            let mathAxisCorrectionHeight = 
+                (MathPositioningConstants.stackTopShiftUp - MathPositioningConstants.stackGapMin) * //axisHeight * 
+                    ((MathPositioningConstants.scriptPercentScaleDown / 100.) * (1. + textSizeScaleFactor))
             let superscriptShiftUp = 
                 match overScriptShift with
                 | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualOverscriptShift
-                | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift
+                | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift - mathAxisCorrectionHeight
+
             makeOverScriptFromTypeObjects target script superscriptShiftUp
         
         let typeset_Underscript ((target:TypeObject),(script:TypeObject), attributes) =             
@@ -1151,7 +1121,11 @@ module TypeSetting =
                         | _ -> false) attributes with
                 | Some (SubScriptShift (Numb n)) -> n
                 | _ -> 0.
-            let underscriptShiftDown = MathPositioningConstants.stackBottomDisplayStyleShiftDown + manualUnderscriptShift
+            let mathAxisCorrectionHeight = 
+                (MathPositioningConstants.accentBaseHeight + MathPositioningConstants.stackGapMin) * 
+                ((MathPositioningConstants.scriptPercentScaleDown / 100.) * 
+                 (1. + textSizeScaleFactor))
+            let underscriptShiftDown = MathPositioningConstants.stackBottomDisplayStyleShiftDown + manualUnderscriptShift + mathAxisCorrectionHeight
             makeUnderScriptFromTypeObjects target script underscriptShiftDown
   
         let typeset_UnderOverscript ((target:TypeObject),(overScript:TypeObject),(underScript:TypeObject), attributes) =             
@@ -1168,7 +1142,7 @@ module TypeSetting =
                     | Display _ -> true 
                     | _ -> false) math.attributes with
                 | Some (Display n) -> n
-                | _ -> Inline
+                | _ -> Inline            
             let overScriptShift = 
                 match List.tryFind (fun x -> 
                     match x with
@@ -1179,7 +1153,7 @@ module TypeSetting =
             let overscriptShiftUp = 
                 match overScriptShift with
                 | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualOverscriptShift
-                | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift            
+                | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift 
             let manualUnderscriptShift =
                 match List.tryFind (fun x -> 
                         match x with
@@ -1187,7 +1161,7 @@ module TypeSetting =
                         | _ -> false) attributes with
                 | Some (SubScriptShift (Numb n)) -> n
                 | _ -> 0.
-            let underscriptShiftDown = MathPositioningConstants.stackBottomDisplayStyleShiftDown + manualUnderscriptShift
+            let underscriptShiftDown = MathPositioningConstants.stackBottomDisplayStyleShiftDown + manualUnderscriptShift 
             makeUnderOverScriptFromTypeObjects target  underScript underscriptShiftDown overScript overscriptShiftUp
 
         let typeset_Fraction ((numerator:TypeObject),(denominator:TypeObject), attributes) = 
@@ -1301,7 +1275,7 @@ module TypeSetting =
         let f1 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [ms0;s4] "" Option.None)
 
         let msub0 = (Element.build (Script Msub) [] [t4;s2] "" Option.None)
-        let msubmsup0 = (Element.build (Script Msup) [] [msub0;s2] "" Option.None)
+        let msubmsup0 = (Element.build (Script Msubsup) [] [msub0;s2] "" Option.None)
         let msubsup0 = (Element.build (Script Msubsup) [(*SubScriptShift(Numb 100.)*)] [t4;s2;s2] "" Option.None)
         let su = typesetElement (Element.build (Math) [Display (*Inline*)Block] [msub0] "" Option.None)
         
@@ -1318,10 +1292,10 @@ module TypeSetting =
         let uo = typesetElement (Element.build (Math) [Display (*Inline*)Block] [munderover] "" Option.None)
 
 
-        let frow = (Element.build (GeneralLayout Mrow) [] [munderover;msup0;t3;msup1;t5;msup2] "" Option.None)
+        let frow = (Element.build (GeneralLayout Mrow) [] [munderover;msubsup0;t3;msup1;t5;msup2] "" Option.None)
         let f = typesetElement (Element.build (GeneralLayout Mrow) [] [frow] "" Option.None)
 
-        let line3 = getGridFromTypeObject uo//f//
+        let line3 = getGridFromTypeObject f//uo//
        
         let textBlock =                    
             let tb = TextBlock()
