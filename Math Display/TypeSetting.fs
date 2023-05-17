@@ -661,7 +661,7 @@ module TypeSetting =
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
                 g        
         let leftBearing = targetLBearing
-        let rightBearing = MathPositioningConstants.spaceAfterScript
+        let rightBearing = MathPositioningConstants.mathLeading
         let width = (getWidthFromTypeObject target)
         let height = (getHeightFromTypeObject target) + ((-overscriptShiftUp) * textSizeScaleFactor)
         
@@ -722,7 +722,7 @@ module TypeSetting =
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
                 g    
         let leftBearing = targetLBearing
-        let rightBearing = MathPositioningConstants.spaceAfterScript  
+        let rightBearing = MathPositioningConstants.mathLeading  
         let width = (getWidthFromTypeObject target)
         let height = (getHeightFromTypeObject target) + (underscriptShiftDown * textSizeScaleFactor)
     
@@ -822,7 +822,7 @@ module TypeSetting =
                 g
     
         let leftBearing = targetLBearing
-        let rightBearing = MathPositioningConstants.spaceAfterScript  
+        let rightBearing = MathPositioningConstants.mathLeading  
         let width = (getWidthFromTypeObject target) 
         let height = (getHeightFromTypeObject target) + ((underMathAxisCorrectionHeight + underscriptShiftDown) * textSizeScaleFactor) + ((overMathAxisCorrectionHeight + overscriptShiftUp) * textSizeScaleFactor)
     
@@ -1247,18 +1247,23 @@ module TypeSetting =
 
         let s0=  (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "" (Some OperatorDictionary.cubeRootPrefix)) 
         let s1 = (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "" (Some OperatorDictionary.mathematicalLeftFlattenedParenthesisPrefix))
-        let s2 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "2" Option.None)
+        let s2 = (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "2" Option.None)
         let s3 = (Element.build (Token Mo) [MathSize (EM 0.7<em>); MathColor Brushes.BlueViolet] [] "" (Some OperatorDictionary.plusSignPrefix))
         let s4 = (Element.build (Token Mn) [MathSize (EM 0.7<em>)] [] "5" Option.None)
         let s5 = (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "" (Some OperatorDictionary.mathematicalRightFlattenedParenthesisPostfix))
+        let s6 = (Element.build (Token Mn) [MathSize (EM 0.7<em>)] [] "1" Option.None)
+        let s7 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "n" Option.None)
+        let s8 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "\u03C0" Option.None)
+        let s9 = (Element.build (Token Mn) [MathSize (EM 0.7<em>)] [] "6" Option.None)
 
         let ss0=  (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.equalsSignEqualsInfix)) 
         let ss1 = (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.mathematicalLeftFlattenedParenthesisPrefix))
         let ss2 = (Element.build (Token Mi) [MathSize (EM 0.55<em>)] [] "n" Option.None)
-        let ss3 = (Element.build (Token Mo) [MathSize (EM 0.55<em>); MathColor Brushes.BlueViolet] [] "" (Some OperatorDictionary.plusSignPrefix))
+        let ss3 = (Element.build (Token Mo) [MathSize (EM 0.55<em>); MathColor Brushes.Orchid] [] "" (Some OperatorDictionary.plusSignPrefix))
         let ss4 = (Element.build (Token Mn) [MathSize (EM 0.55<em>)] [] "1" Option.None)
         let ss5 = (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.mathematicalRightFlattenedParenthesisPostfix))
         let ss6 = (Element.build (Token Mn) [MathSize (EM 0.55<em>)] [] "\u221E" Option.None) 
+        let ss7 = (Element.build (Token Mn) [MathSize (EM 0.55<em>)] [] "2" Option.None)
 
         let r0 = (Element.build (GeneralLayout Mrow) [] [t2;t3;t4] "" Option.None)
         let r1 = (Element.build (GeneralLayout Mrow) [] [s1;s2;s3;s4;s5] "" Option.None)
@@ -1266,13 +1271,14 @@ module TypeSetting =
         let r = typesetElement (Element.build (GeneralLayout Mrow) [] [r0;r1] "" Option.None)
         let s = typesetElement (Element.build (Script Msup) [] [r0;r1] "" Option.None)
 
-        let ms0 = (Element.build (Script Msup) [SuperScriptShift (KeyWord "script")] [s2;ss2] "" Option.None)
-        let ms1 = (Element.build (Script Msup) [] [t4;ms0] "" Option.None)
-        let ms2 = (Element.build (Script Msup) [] [t4;s4] "" Option.None)
+        let ms0 = (Element.build (Script Msup) [SuperScriptShift (KeyWord "script")] [s7;ss7] "" Option.None)
+        let ms1 = (Element.build (Script Msup) [] [s8;ss7] "" Option.None)
+        let ms2 = (Element.build (Script Msup) [] [s7;ss7] "" Option.None)
+
         let m = typesetElement (Element.build (Math) [Display Inline(*Block*)] [ms0] "" Option.None)
 
-        let f0 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [s4;ms0] "" Option.None)
-        let f1 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [ms0;s4] "" Option.None)
+        let f0 = (Element.build (GeneralLayout Mfrac) [Display (*Inline*)Block (*Bevelled true; NumAlign _NumAlign.Center*)] [s6;ms0] "" Option.None)
+        let f1 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [ms1;s9] "" Option.None)
 
         let msub0 = (Element.build (Script Msub) [] [t4;s2] "" Option.None)
         let msubmsup0 = (Element.build (Script Msubsup) [] [msub0;s2] "" Option.None)
@@ -1291,9 +1297,9 @@ module TypeSetting =
         let munderover = (Element.build (Script Munderover) [] [t1;orow;urow] "" Option.None)
         let uo = typesetElement (Element.build (Math) [Display (*Inline*)Block] [munderover] "" Option.None)
 
-
+        let f2 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [ss2;ms2] "" Option.None)
         let frow = (Element.build (GeneralLayout Mrow) [] [munderover;msubsup0;t3;msup1;t5;msup2] "" Option.None)
-        let f = typesetElement (Element.build (GeneralLayout Mrow) [] [frow] "" Option.None)
+        let f = typesetElement (Element.build (GeneralLayout Mrow) [Display (*Inline*)Block] [munderover;f0;t5;f1] "" Option.None)
 
         let line3 = getGridFromTypeObject f//uo//
        
