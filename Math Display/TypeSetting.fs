@@ -618,7 +618,8 @@ module TypeSetting =
     let makeOverScriptFromTypeObjects 
         (target:TypeObject) 
         (script:TypeObject) 
-         overscriptShiftUp =        
+         overscriptShiftUp 
+         overscriptDisplay =        
         
         let g = Grid()
 
@@ -630,6 +631,10 @@ module TypeSetting =
                 let gb = makeGlyphBox gl {x=0.;y=0.}
                 do grid.Children.Add(gb) |> ignore
                 grid        
+        let targetRBearing =
+            match target with
+            | GlyphRow gr -> gr.rightBearing
+            | Glyph gl -> gl.rightBearing + gl.rSpace
         let targetLBearing = (Operator.getValueFromLength textSizeFont.emSquare (NamedLength MediumMathSpace)) * (1000./960.)
         let targetWidth =
             match target with
@@ -641,7 +646,10 @@ module TypeSetting =
             | Glyph gl -> gl.width        
         let scriptGrid =             
             let position = 
-                let x = (targetWidth * textSizeScaleFactor) - (scriptWidth * textSizeScaleFactor) 
+                let x = 
+                    match overscriptDisplay with
+                    | Block -> (targetWidth * textSizeScaleFactor) - (scriptWidth * textSizeScaleFactor) 
+                    | Inline -> (MathPositioningConstants.upperLimitGapMin + getWidthFromTypeObject target - targetRBearing) * textSizeScaleFactor
                 let y = (-overscriptShiftUp) * textSizeScaleFactor 
                 {x = x; y = y}
             
@@ -661,10 +669,18 @@ module TypeSetting =
                             fun _ _ -> g.RenderTransform <- TranslateTransform(X = position.x, Y = position.y)))
                 g        
         let leftBearing = targetLBearing
-        let rightBearing = MathPositioningConstants.mathLeading
-        let width = (getWidthFromTypeObject target)
-        let height = (getHeightFromTypeObject target) + ((-overscriptShiftUp) * textSizeScaleFactor)
-        
+        let rightBearing = 
+            match overscriptDisplay with
+            | Block -> MathPositioningConstants.mathLeading
+            | Inline -> targetRBearing
+        let width = 
+            match overscriptDisplay with
+            | Block -> (getWidthFromTypeObject target)
+            | Inline -> (getWidthFromTypeObject target) + (getWidthFromTypeObject script)
+        let height = 
+            match overscriptDisplay with
+            | Block ->(getHeightFromTypeObject target) + ((-overscriptShiftUp) * textSizeScaleFactor)
+            | Inline -> (getHeightFromTypeObject target) + ((-overscriptShiftUp) * textSizeScaleFactor)
         do  List.iter (fun x -> g.Children.Add(x) |> ignore) [targetGrid; scriptGrid]
         
         {grid = g;
@@ -1111,7 +1127,7 @@ module TypeSetting =
                 | Inline -> MathPositioningConstants.superscriptShiftUpCramped + manualOverscriptShift
                 | Block -> MathPositioningConstants.stackTopDisplayStyleShiftUp + manualOverscriptShift - mathAxisCorrectionHeight
 
-            makeOverScriptFromTypeObjects target script superscriptShiftUp
+            makeOverScriptFromTypeObjects target script superscriptShiftUp display
         
         let typeset_Underscript ((target:TypeObject),(script:TypeObject), attributes) =             
             let manualUnderscriptShift =
@@ -1218,21 +1234,12 @@ module TypeSetting =
                                typeset_Fraction el
 
     let typesetMath (el:Element) = ()
-        (*let typeset_Token (el:Element) = ()
-        let typeset_Row (el:TypeObject list) =()
-        let typeset_Superscript ((target:TypeObject),(script:TypeObject), attributes) = ()
-        let typeset_Subscript ((target:TypeObject),(script:TypeObject), attributes) =()
-        let typeset_SuperSubscript ((target:TypeObject),(superScript:TypeObject),(subScript:TypeObject), attributes) = ()
-        let typeset_Fraction ((numerator:TypeObject),(denominator:TypeObject), attributes) = ()
-
         
-        Element.foldbackMath typeset_Math el *)
-
     (*Test Area*)
     type TestCanvas() as this  =  
         inherit UserControl()
 
-        let textMath = Element.build (Math) [Display (*Inline*)Block] [] "" Option.None        
+        let textMath = Element.build (Math) [Display Inline(*Block*)] [] "" Option.None        
 
         let typesetElement el = typesetElement textMath el
 
@@ -1275,33 +1282,33 @@ module TypeSetting =
         let ms1 = (Element.build (Script Msup) [] [s8;ss7] "" Option.None)
         let ms2 = (Element.build (Script Msup) [] [s7;ss7] "" Option.None)
 
-        let m = typesetElement (Element.build (Math) [Display Inline(*Block*)] [ms0] "" Option.None)
+        let m = typesetElement (Element.build (Math) [] [ms0] "" Option.None)
 
-        let f0 = (Element.build (GeneralLayout Mfrac) [Display (*Inline*)Block (*Bevelled true; NumAlign _NumAlign.Center*)] [s6;ms0] "" Option.None)
+        let f0 = (Element.build (GeneralLayout Mfrac) [ (*Bevelled true; NumAlign _NumAlign.Center*)] [s6;ms0] "" Option.None)
         let f1 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [ms1;s9] "" Option.None)
 
         let msub0 = (Element.build (Script Msub) [] [t4;s2] "" Option.None)
         let msubmsup0 = (Element.build (Script Msubsup) [] [msub0;s2] "" Option.None)
         let msubsup0 = (Element.build (Script Msubsup) [(*SubScriptShift(Numb 100.)*)] [t4;s2;s2] "" Option.None)
-        let su = typesetElement (Element.build (Math) [Display (*Inline*)Block] [msub0] "" Option.None)
+        let su = typesetElement (Element.build (Math) [] [msub0] "" Option.None)
         
         let msup0 = (Element.build (Script Msup) [] [t4;s2] "" Option.None)        
         let msup1 = (Element.build (Script Msup) [] [t6;s2] "" Option.None)
         let msup2 = (Element.build (Script Msup) [] [t7;s2] "" Option.None)
-        let sup = typesetElement (Element.build (Math) [Display (*Inline*)Block] [msub0] "" Option.None)
+        let sup = typesetElement (Element.build (Math) [] [msub0] "" Option.None)
         
         let orow = (Element.build (GeneralLayout Mrow) [] [ss3;ss6] "" Option.None)
         let urow = (Element.build (GeneralLayout Mrow) [] [ss2;ss0;ss4] "" Option.None)
         let munder = (Element.build (Script Munde) [] [t1;urow] "" Option.None)
         let mover = (Element.build (Script Mover) [] [t1;orow] "" Option.None)
         let munderover = (Element.build (Script Munderover) [] [t1;orow;urow] "" Option.None)
-        let uo = typesetElement (Element.build (Math) [Display (*Inline*)Block] [munderover] "" Option.None)
+        let uo = typesetElement (Element.build (Math) [] [mover] "" Option.None)
 
         let f2 = (Element.build (GeneralLayout Mfrac) [(*Bevelled true; NumAlign _NumAlign.Center*)] [ss2;ms2] "" Option.None)
         let frow = (Element.build (GeneralLayout Mrow) [] [munderover;msubsup0;t3;msup1;t5;msup2] "" Option.None)
-        let f = typesetElement (Element.build (GeneralLayout Mrow) [Display (*Inline*)Block] [munderover;f0;t5;f1] "" Option.None)
+        let f = typesetElement (Element.build (GeneralLayout Mrow) [] [munderover;f0;t5;f1] "" Option.None)
 
-        let line3 = getGridFromTypeObject f//uo//
+        let line3 = getGridFromTypeObject uo//f//
        
         let textBlock =                    
             let tb = TextBlock()
