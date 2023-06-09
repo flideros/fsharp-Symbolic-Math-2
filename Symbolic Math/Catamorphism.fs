@@ -4,12 +4,11 @@
     let rec recurseExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp exp : 'r =
         let recurse = recurseExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp
         match exp with 
-        | Number n -> eNumber (Number n)
-        
+        | Number n -> eNumber (Number n)        
         | Symbol v -> eSymbol (Symbol v)
         | BinaryOp (a,op,b,s) -> eBinaryOp (recurse a,op,recurse b,s)
         | UnaryOp (op,a,s) -> eUnaryOp (op,recurse a,s)
-        | NaryOp (op,aList,s) -> eNaryOp (op,(List.map recurse aList,s))
+        | NaryOp (op,aList,s) -> eNaryOp (op,(List.map recurse aList),s)
 
     ///top-down iteration
     let rec foldExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc exp : 'r =

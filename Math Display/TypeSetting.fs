@@ -96,8 +96,7 @@ type GlyphBox (glyph) as glyphBox =
         
         g.Children.Add(glyph.path) |> ignore
         g.Children.Add(mLine) |> ignore
-        g.Children.Add(bLine) |> ignore 
-        
+        g.Children.Add(bLine) |> ignore         
            
     do  //glyph.path.
         glyphBox.SetValue(Grid.RowProperty,1)
@@ -1311,13 +1310,13 @@ module TypeSetting =
         let s4 = (Element.build (Token Mn) [MathSize (EM 0.7<em>)] [] "5" Option.None)
         let s5 = (Element.build (Token Mo) [MathSize (EM 0.7<em>)] [] "" (Some OperatorDictionary.mathematicalRightFlattenedParenthesisPostfix))
         let s6 = (Element.build (Token Mn) [MathSize (EM 0.7<em>)] [] "1" Option.None)
-        let s7 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "n" Option.None)
+        let s7 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "f" Option.None)
         let s8 = (Element.build (Token Mi) [MathSize (EM 0.7<em>)] [] "\u03C0" Option.None)
         let s9 = (Element.build (Token Mn) [MathSize (EM 0.7<em>)] [] "6" Option.None)
 
         let ss0=  (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.equalsSignEqualsInfix)) 
         let ss1 = (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.mathematicalLeftFlattenedParenthesisPrefix))
-        let ss2 = (Element.build (Token Mi) [MathSize (EM 0.55<em>)] [] "n" Option.None)
+        let ss2 = (Element.build (Token Mi) [MathSize (EM 0.55<em>)] [] "f" Option.None)
         let ss3 = (Element.build (Token Mo) [MathSize (EM 0.55<em>); MathColor Brushes.Orchid] [] "" (Some OperatorDictionary.plusSignPrefix))
         let ss4 = (Element.build (Token Mn) [MathSize (EM 0.55<em>)] [] "1" Option.None)
         let ss5 = (Element.build (Token Mo) [MathSize (EM 0.55<em>)] [] "" (Some OperatorDictionary.mathematicalRightFlattenedParenthesisPostfix))
