@@ -16,6 +16,8 @@ open Number
 let x = Variable "x" |> Symbol 
 let y = Variable "y" |> Symbol 
 
+
+
 let zero = Number (Integer 0I)
 let one = Number (Integer 1I)
 let two = Number (Integer 2I)
@@ -45,6 +47,8 @@ let getValue (x: Constant) =
 let pi = (Constant.Pi Constants.Pi.value) |> Symbol.Constant
 let e = Constant.E Constants.EulerNumber.value |> Symbol.Constant
 
+pi < x
+
 RealNumbers.compareNumbers (Symbol e) (Symbol pi)
 
 // Construct an operation.
@@ -59,6 +63,8 @@ let invA = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToT
 let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
 let multiplicativeInverse = Multiplication (Multiplication.Inverse (MultiplicativeInverse.symbol, MultiplicativeInverse.opPosition, Unary))
 let root = Root (Root.SquareRootOf (SquareRootOf.symbol, SquareRootOf.opPosition, Unary))
+
+pow > sum
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol 

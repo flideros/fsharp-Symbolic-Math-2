@@ -15,6 +15,7 @@ let invA = Exponentiation (Exponentiation.ToThePowerOf (ToThePowerOf.symbol, ToT
 let addativeInverse = Addition (Addition.Inverse (AddativeInverse.symbol, AddativeInverse.opPosition, Unary))
 let multiplicativeInverse = Multiplication (Multiplication.Inverse (MultiplicativeInverse.symbol, MultiplicativeInverse.opPosition, Unary))
 let root = Root (Root.SquareRootOf (SquareRootOf.symbol, SquareRootOf.opPosition, Unary))
+let factorial = Multiplication (Multiplication.Factorial (Factorial.symbol, Factorial.opPosition, Unary))
 
 // Get symbol string for a constant.
 let piSymbol = Constants.Pi.symbol 

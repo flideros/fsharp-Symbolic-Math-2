@@ -57,7 +57,11 @@
         let delimiter = Bars.delimiter
         let opPosition = Bracket
         let arity = Unary
-    
+    module Factorial =
+        let symbol = "!"        
+        let opPosition = Postfix
+        let arity = Unary
+
     type Addition = 
         | Plus of (string * OperatorPosition * Arity) 
         | Sum of (string * OperatorPosition * Arity) 
@@ -66,6 +70,7 @@
         | Times of (string * OperatorPosition * Arity) 
         | Product of (string * OperatorPosition * Arity)
         | Inverse of (string * OperatorPosition * Arity)
+        | Factorial of (string * OperatorPosition * Arity)
     type Subtraction = 
         | Minus of (string * OperatorPosition * Arity) 
     type Division = 
@@ -76,7 +81,7 @@
         | SquareRootOf of (string * OperatorPosition * Arity)
     type AbsoluteValue  = 
         | AbsoluteValueOf of (DelimiterType * OperatorPosition * Arity)
-
+    
 (* Trig functions *)
     module Sine =
         let symbol = "sin"

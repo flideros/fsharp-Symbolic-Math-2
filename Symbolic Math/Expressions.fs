@@ -7,7 +7,7 @@
     open Operations
     open DefaultValues
 
-    //Primitive Structure Operators
+//Primitive Structure Operators
     let kind x = 
         match x with
         | Number (Integer i) -> "Integer"
@@ -69,6 +69,47 @@
         Cata.foldExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc x
         |> Seq.distinct
         |> Seq.toList
+
+//Property-based Operators
+    let isNumber x = 
+        match x with 
+        | Number n -> true
+        | _ -> false
+
+    let isNegativeNumber x =
+        match x with 
+        | Number n when Number.isNegative n  -> true
+        | _ -> false
+
+    let Base x = 
+        match x with
+        | Number n -> Number Undefined
+        | BinaryOp (a,toThePowerOf,b,set) when toThePowerOf = DefaultValues.pow -> a
+        | _ -> x
+
+    let Exponent x =
+        match x with
+        | Number n -> Number Undefined
+        | BinaryOp (a,toThePowerOf,b,set) when toThePowerOf = DefaultValues.pow -> b
+        | _ -> Number Number.one
+
+    let Term x =
+        match x with
+        | Number n -> Number Undefined
+        | NaryOp(product,p,set) when isNumber p.[0] && product = DefaultValues.product -> 
+            match p.Length with
+            | 1 -> Number Undefined
+            | 2 -> p.[1]
+            | _ -> NaryOp(product,p.Tail,set)
+        | NaryOp(product,x,set) when isNumber x.[0] && product = DefaultValues.product = false -> NaryOp(product,x,set)
+        | a -> a
+
+    let Const x =
+        match x with
+        | Number n -> Number Undefined
+        | NaryOp(op,a,set) when isNumber a.[0] -> a.[0]
+        | NaryOp(op,a,set) when isNumber a.[0] = false -> Number Number.one
+        | _ -> Number Number.one
 
 // Structure-based Operators  
     let freeOf u t =
@@ -163,56 +204,61 @@
             | Symbol (Relation GreaterThanOrEqual) -> 1
             | Symbol (Relation LessThanOrEqual) -> -1
             | _ -> 0
-        | Symbol x, Symbol y when x > y -> 1 //O-2
-        | Symbol x, Symbol y when x < y -> -1 //O-2
-        | Symbol x, Symbol y when x = y -> 0 //O-2
-(*        | NaryOp(op1, x), NaryOp(op2, y) when //O-3.1 & O-6.2.(a)
+        | Symbol (Constant c1),Symbol (Constant c2) when c1 > c2 -> 1 //O-1
+        | Symbol (Constant c1),Symbol (Constant c2) when c1 = c2 -> 0 //O-1
+        | Symbol (Constant c1),Symbol (Constant c2) when c1 < c2 -> -1 //O-1
+        | Symbol (Variable x), Symbol (Variable y) when x > y -> 1 //O-2
+        | Symbol (Variable x), Symbol (Variable y) when x < y -> -1 //O-2
+        | Symbol (Variable x), Symbol (Variable y) when x = y -> 0 //O-2        
+        | NaryOp(op1, x,set1), NaryOp(op2, y,set2) when //O-3.1 & O-6.2.(a)
+            set1 = set2 &&
             op1 = op2 && 
             (List.rev x).Head <> (List.rev y).Head ->
             compareExpressions ((List.rev x).Head) ((List.rev y).Head) 
-        | NaryOp(op1, x), NaryOp(op2, y) when //O-3 & O-6.2
+        | NaryOp(op1, x,set1), NaryOp(op2, y,set2) when //O-3 & O-6.2
+            set1 = set2 &&
             op1 = op2 && 
             (List.rev x).Head = (List.rev y).Head ->
             match x.Tail.IsEmpty , y.Tail.IsEmpty with
-            | false, false -> compareExpressions (NaryOp(op1, (List.rev((List.rev x).Tail)))) (NaryOp(op1, (List.rev((List.rev y).Tail)))) //O-3.2 & O-6.2.(b)
+            | false, false -> compareExpressions (NaryOp(op1, (List.rev((List.rev x).Tail)),set1)) (NaryOp(op1, (List.rev((List.rev y).Tail)),set1)) //O-3.2 & O-6.2.(b)
             | true, false -> 1 //O-3.3 & O-6.2.(c)
             | false, true -> -1 //O-3.3 & O-6.2.(c)
             | true, true -> 0        
-       | BinaryOp(x1, op1, y1), BinaryOp(x2, op2, y2) when op1 = op2 && x1 <> x2 -> compareExpressions x1 x2 //O-4.1
-        | BinaryOp(x1, op1, y1), BinaryOp(x2, op2, y2) when op1 = op2 && x1 = x2 -> compareExpressions y1 y2 //O-4.2        
-        | UnaryOp(op1, x), UnaryOp(op2, y) when op1 = op2 -> compareExpressions x y //O-5
-        | BinaryOp(x1, op1, y1), BinaryOp(x2, op2, y2) when op1 < op2 -> -1 //O-6.1
-        | BinaryOp(x1, op1, y1), BinaryOp(x2, op2, y2) when op1 > op2 -> 1 //O-6.1
-        | BinaryOp(x1, op1, y1), NaryOp(op2, y) when op1 < op2 -> -1 //O-6.1
-        | BinaryOp(x1, op1, y1), NaryOp(op2, y) when op1 > op2 -> 1 //O-6.1
-        | BinaryOp(x1, op1, y1), UnaryOp(op2, y) when op1 < op2 -> -1 //O-6.1
-        | BinaryOp(x1, op1, y1), UnaryOp(op2, y) when op1 > op2 -> 1 //O-6.1
-        | NaryOp(op1, x), NaryOp(op2, y) when op1 < op2 -> -1 //O-6.1
-        | NaryOp(op1, x), NaryOp(op2, y) when op1 > op2 -> 1 //O-6.1
-        | NaryOp(op1, x), BinaryOp(x2, op2, y2) when op1 < op2 -> -1 //O-6.1
-        | NaryOp(op1, x), BinaryOp(x2, op2, y2) when op1 > op2 -> 1 //O-6.1
-        | NaryOp(op1, x), UnaryOp(op2, y) when op1 < op2 -> -1 //O-6.1
-        | NaryOp(op1, x), UnaryOp(op2, y) when op1 > op2 -> 1 //O-6.1        
-        | UnaryOp(op1, x), UnaryOp(op2, y) when op1 > op2 -> -1 //O-6.1
-        | UnaryOp(op1, x), UnaryOp(op2, y) when op1 < op2 -> 1 //O-6.1
-        | UnaryOp(op1, x), BinaryOp(x2, op2, y2) when op1 > op2 -> -1 //O-6.1
-        | UnaryOp(op1, x), BinaryOp(x2, op2, y2) when op1 < op2 -> 1 //O-6.1
-        | UnaryOp(op1, x), NaryOp(op2, y) when op1 > op2 -> -1 //O-6.1
-        | UnaryOp(op1, x), NaryOp(op2, y) when op1 < op2 -> 1 //O-6.1        
+        | BinaryOp(x1, op1, y1,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 = op2 && x1 <> x2 -> compareExpressions x1 x2 //O-4.1
+        | BinaryOp(x1, op1, y1,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 = op2 && x1 = x2 -> compareExpressions y1 y2 //O-4.2        
+        | UnaryOp(op1, x,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 = op2 -> compareExpressions x y //O-5
+        | BinaryOp(x1, op1, y1,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 < op2 -> -1 //O-6.1
+        | BinaryOp(x1, op1, y1,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 > op2 -> 1 //O-6.1
+        | BinaryOp(x1, op1, y1,set1), NaryOp(op2, y,set2) when set1 = set2 && op1 < op2 -> -1 //O-6.1
+        | BinaryOp(x1, op1, y1,set1), NaryOp(op2, y,set2) when set1 = set2 && op1 > op2 -> 1 //O-6.1
+        | BinaryOp(x1, op1, y1,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 < op2 -> -1 //O-6.1
+        | BinaryOp(x1, op1, y1,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 > op2 -> 1 //O-6.1
+        | NaryOp(op1, x,set1), NaryOp(op2, y,set2) when set1 = set2 && op1 < op2 -> -1 //O-6.1
+        | NaryOp(op1, x,set1), NaryOp(op2, y,set2) when set1 = set2 && op1 > op2 -> 1 //O-6.1
+        | NaryOp(op1, x,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 < op2 -> -1 //O-6.1
+        | NaryOp(op1, x,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 > op2 -> 1 //O-6.1
+        | NaryOp(op1, x,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 < op2 -> -1 //O-6.1
+        | NaryOp(op1, x,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 > op2 -> 1 //O-6.1        
+        | UnaryOp(op1, x,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 > op2 -> -1 //O-6.1
+        | UnaryOp(op1, x,set1), UnaryOp(op2, y,set2) when set1 = set2 && op1 < op2 -> 1 //O-6.1
+        | UnaryOp(op1, x,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 > op2 -> -1 //O-6.1
+        | UnaryOp(op1, x,set1), BinaryOp(x2, op2, y2,set2) when set1 = set2 && op1 < op2 -> 1 //O-6.1
+        | UnaryOp(op1, x,set1), NaryOp(op2, y,set2) when set1 = set2 && op1 > op2 -> -1 //O-6.1
+        | UnaryOp(op1, x,set1), NaryOp(op2, y,set2) when set1 = set2 && op1 < op2 -> 1 //O-6.1        
         | _, Number _ -> 1 //O-7
         | Number _, _ -> -1 //O-7 
-        | NaryOp(Product, x), y -> compareExpressions (NaryOp(Product, x)) (NaryOp(Product, [y])) //O-8        
-        | BinaryOp(base', ToThePowerOf, power'), b when base' <> Base b -> compareExpressions base' (Base b) //O-9
-        | BinaryOp(base', ToThePowerOf, power'), b when base' = Base b -> compareExpressions power' (Exponent b) //O-9        
-        | NaryOp(Sum, s), b -> compareExpressions (NaryOp(Sum, s)) (NaryOp(Sum, [b])) //O-10        
-        | UnaryOp(Factorial, x), b when x = b -> -1 //O-11.1
-        | UnaryOp(Factorial, x), b when x <> b -> compareExpressions (UnaryOp(Factorial, x)) (UnaryOp(Factorial, b)) //O-11.2        
-        | NaryOp(op, x), Symbol v when x = [Symbol v] -> -1 //O-12.1
-        | NaryOp(op, x), Symbol v when x <> [Symbol v] -> compareExpressions (NaryOp(op, x)) (NaryOp(op, [Symbol v])) //O-12.2
-        | BinaryOp(x,op, y), Symbol v when x = Symbol v -> -1 //O-12.1
-        | BinaryOp(x,op, y), Symbol v when x <> Symbol v -> compareExpressions (BinaryOp(x,op, y)) (BinaryOp(Symbol v,op, y)) //O-12.2
-        | UnaryOp(op, x), Symbol v when x = Symbol v -> -1 //O-12.1
-        | UnaryOp(op, x), Symbol v when x <> Symbol v -> compareExpressions (UnaryOp(op, x)) (UnaryOp(op, Symbol v)) //O-12.2        
+        | NaryOp(product, x,set), y when product = DefaultValues.product -> compareExpressions (NaryOp(product, x,set)) (NaryOp(product,[y],set)) //O-8        
+        | BinaryOp(base', toThePowerOf, power',set), b when base' <> Base b && toThePowerOf = DefaultValues.pow -> compareExpressions base' (Base b) //O-9
+        | BinaryOp(base', toThePowerOf, power',set) , b when base' = Base b && toThePowerOf = DefaultValues.pow -> compareExpressions power' (Exponent b) //O-9        
+        | NaryOp(sum,s,set), b when sum = DefaultValues.sum -> compareExpressions (NaryOp(sum,s,set)) (NaryOp(sum, [b],set)) //O-10        
+        | UnaryOp(factorial, x,set), b when x = b -> -1 //O-11.1
+        | UnaryOp(factorial, x,set), b when x <> b && factorial = DefaultValues.factorial -> compareExpressions (UnaryOp(factorial,x,set)) (UnaryOp(factorial,b,set)) //O-11.2        
+        | NaryOp(op,x,set), Symbol v when x = [Symbol v] -> -1 //O-12.1
+        | NaryOp(op,x,set), Symbol v when x <> [Symbol v] -> compareExpressions (NaryOp(op,x,set)) (NaryOp(op,[Symbol v],set)) //O-12.2
+        | BinaryOp(x,op,y,set1), Symbol v when x = Symbol v -> -1 //O-12.1
+        | BinaryOp(x,op,y,set), Symbol v when x <> Symbol v -> compareExpressions (BinaryOp(x,op,y,set)) (BinaryOp(Symbol v,op,y,set)) //O-12.2
+        | UnaryOp(op,x,set), Symbol v when x = Symbol v -> -1 //O-12.1
+        | UnaryOp(op,x,set), Symbol v when x <> Symbol v -> compareExpressions (UnaryOp(op,x,set)) (UnaryOp(op,Symbol v,set)) //O-12.2        
         | _ -> -1 * (compareExpressions v u) //O-13
  
- *)
+ 

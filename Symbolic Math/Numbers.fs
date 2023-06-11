@@ -1516,6 +1516,26 @@ module Number =
         | Infinity i, _ -> (Infinities.compare this that)
         | _, Infinity i -> (Infinities.compare this that)        
         | _ -> RelationUndefined |> Error |> Symbol
+    let compareInt this that =
+        let convertToInt a = 
+            match a with 
+            | Symbol (Relation GreaterThan) -> 1
+            | Symbol (Relation LessThan) -> -1
+            | Symbol (Relation Equal) -> 0 
+            | Symbol (Relation GreaterThanOrEqual) -> 1
+            | Symbol (Relation LessThanOrEqual) -> -1
+            | _ -> 0
+        match this, that with 
+        | Natural x, Natural y -> (NaturalNumbers.compare this that) |> convertToInt
+        | Integer x, Integer y -> (IntegerNumbers.compare this that) |> convertToInt
+        | Integer x, Rational y -> (RationalNumbers.compare this that) |> convertToInt
+        | Rational x, Integer y -> (RationalNumbers.compare this that) |> convertToInt
+        | Rational x, Rational y -> (RationalNumbers.compare this that) |> convertToInt
+        | Decimal x, Decimal y -> (DecimalNumbers.compare this that) |> convertToInt
+        | Real x, Real y -> (RealNumbers.compare this that) |> convertToInt    
+        | Infinity i, _ -> (Infinities.compare this that) |> convertToInt
+        | _, Infinity i -> (Infinities.compare this that) |> convertToInt      
+        | _ -> 0
     let abs x = 
         let absOf = AbsoluteValue (AbsoluteValueOf (Operations.AbsoluteValue.delimiter,Operations.AbsoluteValue.opPosition,Operations.AbsoluteValue.arity))
         match x with
@@ -1559,3 +1579,6 @@ module Number =
         | Real x -> RealNumbers.isNegative this        
         | Complex x -> ComplexNumbers.isNegative this
         | _ -> false
+
+    let one = Integer 1I
+    let zero = Integer 0I

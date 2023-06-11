@@ -202,7 +202,7 @@
 
 //Variables of a polynomial  
     [<RequireQualifiedAccess>]
-    module Variables =
+    module Variable =
         //open Math.Foundations.Logic
               
         let rec private _variablesOf acc u = 
@@ -218,59 +218,57 @@
             | _ -> u::acc //Var-5
             |> Seq.distinct
             |> Seq.toList
-            //|> List.sortWith (fun x -> ExpressionType.compareExpressions x)
+            |> List.sortWith (fun x -> Expressions.compareExpressions x)
 
         let ofExpression u = _variablesOf [] u
- (*       
-        let ofRationalExpression u = Set.Union.oFList (ofExpression (numerator u)) (ofExpression (denominator u))
-                                     |> List.sortWith (fun x -> ExpressionType.compareExpressions x) 
+
+        let ofRationalExpression u = List.append (ofExpression (numerator u)) (ofExpression (denominator u))
+                                     |> List.distinct 
+                                     |> List.sortWith (fun x -> Expressions.compareExpressions x) 
 
 //Degree of a polynomial
     [<RequireQualifiedAccess>]
     module Degree =
-
 
         let ofPolynomialSV x = 
             match Check.isPolynomialSV x with
             | false -> Undefined
             | true -> 
                 let powers = 
-                    let eNumber acc (n:Expression) = match n = Number Number.Zero with | false -> (Integer 0I)::acc | true -> NegativeInfinity ::acc
-                    let eComplexNumber acc x = acc//Need to look further into this
+                    let eNumber acc (n:Expression) = match n = Number Number.zero with | false -> (Integer 0I)::acc | true -> Infinity Negative ::acc
                     let eSymbol acc (v:Expression) = (Integer 1I)::acc
-                    let eBinaryOp acc x = match x with | BinaryOp (Symbol(Variable a),ToThePowerOf,Number(Integer b)) -> (Integer b) :: acc | _ -> acc
+                    let eBinaryOp acc x = match x with | BinaryOp (Symbol(Variable a),toThePowerOf,Number(Integer b),set) when toThePowerOf = DefaultValues.pow -> (Integer b) :: acc | _ -> acc
                     let eUnaryOp acc x = acc
                     let eNaryOp acc x = acc
                     let acc = []
-                    Cata.foldExpression eNumber eComplexNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc x
-                (List.rev(List.sortWith Number.compare powers)).Head
-
+                    Cata.foldExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc x
+                (List.rev(List.sortWith Number.compareInt powers)).Head
+(*
         let rec private _GPE x xList = 
             match Check.isPolynomialGPE x xList with
             | false -> Undefined
             | true ->
                 match x with
-                | Number n when n = Number.Zero -> NegativeInfinity
-                | NaryOp (Sum, aList) -> (List.rev (List.sortWith Number.compare (List.map (fun x -> _GPE x xList) aList))).Head
+                | Number n when n = Number.zero -> Infinity Negative
+                | NaryOp (sum,aList,set) when sum = DefaultValues.sum -> (List.rev (List.sortWith Number.compareInt (List.map (fun x -> _GPE x xList) aList))).Head
                 | _ -> 
                     let powers = 
-                        let eNumber acc (n:Expression) = match n = Number Number.Zero with | false -> (Integer 0I,Base n)::acc | true -> (NegativeInfinity,Base n)::acc
-                        let eComplexNumber acc x = acc//Need to look further into this
+                        let eNumber acc (n:Expression) = match n = Number Number.zero with | false -> (Integer 0I,Base n)::acc | true -> (Infinity Negative,Base n)::acc                        
                         let eSymbol acc (v:Expression) = (Integer 1I,Base v)::acc
-                        let eBinaryOp acc x = match x with | BinaryOp (a,ToThePowerOf,Number(Integer b)) -> (Integer b,Base x) :: acc | _ -> acc
+                        let eBinaryOp acc x = match x with | BinaryOp (a,toThePowerOf,Number(Integer b),set) when toThePowerOf = DefaultValues.pow -> (Integer b,Base x) :: acc | _ -> acc
                         let eUnaryOp acc x = acc
                         let eNaryOp acc x = acc
                         let acc = []                
-                        Cata.foldExpression eNumber eComplexNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc x
-                    let compare x' y' = Number.compare (fst x') (fst y')
+                        Cata.foldExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc x
+                    let compare x' y' = Number.compareInt (fst x') (fst y')
                     let out = List.rev(List.sortWith compare powers)                           
                     List.collect (fun x ->  
                         let x' = 
                             match List.exists (fun (a,b) -> x = b) out with
                             | true -> List.filter (fun (a,b) -> b = x) out
-                            | false -> [Number.Zero,x]
+                            | false -> [Number.zero,x]
                         [(List.rev(List.sortWith compare x')).Head]) xList
-                    |> List.fold (fun acc (a,b) -> acc + a) Number.Zero
+                    |> List.fold (fun acc (a,b) -> acc + a) Number.zero
 
         let ofGPE x xList = _GPE x xList            
 
