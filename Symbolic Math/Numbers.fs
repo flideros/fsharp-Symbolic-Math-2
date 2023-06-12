@@ -1580,5 +1580,31 @@ module Number =
         | Complex x -> ComplexNumbers.isNegative this
         | _ -> false
 
+    let addNumbers e1 op e2 =
+        match op with
+        | Addition (Plus _) -> 
+            match e1, e2 with
+            | Natural a, Natural b -> Natural (a + b) 
+            | Real a, Real b -> Real (a + b) 
+            | Decimal a, Decimal b -> Decimal (a + b)           
+            | Rational r1, Rational r2 -> 
+                let nTemp = r1.numerator * r2.denominator + r2.numerator * r1.denominator 
+                let dTemp = r1.denominator * r2.denominator 
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp }
+            | Rational r, Integer i 
+            | Integer i, Rational r -> 
+                let nTemp = r.numerator + i * r.denominator
+                let dTemp = r.denominator
+                let hcfTemp = match IntegerNumbers.highestCommonFactor (Integer nTemp) (Integer dTemp) with | Integer i -> i | _ -> 1I
+                match dTemp / hcfTemp = 1I with
+                | true -> Integer (nTemp / hcfTemp)
+                | false -> Rational { numerator = nTemp / hcfTemp; denominator = dTemp / hcfTemp } 
+            | Integer a, Integer b -> Integer (a + b) 
+            | _ -> Undefined 
+        | _ -> Undefined
+
     let one = Integer 1I
     let zero = Integer 0I

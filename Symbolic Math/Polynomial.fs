@@ -243,7 +243,7 @@
                     let acc = []
                     Cata.foldExpression eNumber eSymbol eBinaryOp eUnaryOp eNaryOp acc x
                 (List.rev(List.sortWith Number.compareInt powers)).Head
-(*
+
         let rec private _GPE x xList = 
             match Check.isPolynomialGPE x xList with
             | false -> Undefined
@@ -268,8 +268,8 @@
                             | true -> List.filter (fun (a,b) -> b = x) out
                             | false -> [Number.zero,x]
                         [(List.rev(List.sortWith compare x')).Head]) xList
-                    |> List.fold (fun acc (a,b) -> acc + a) Number.zero
-
+                    |> List.fold (fun acc (a,b) -> Number.addNumbers acc DefaultValues.plus a) Number.zero
+(*
         let ofGPE x xList = _GPE x xList            
 
         let ofTotalGPE u = 
