@@ -202,7 +202,7 @@
 
 //Variables of a polynomial  
     [<RequireQualifiedAccess>]
-    module Variable =
+    module Variables =
         //open Math.Foundations.Logic
               
         let rec private _variablesOf acc u = 
@@ -269,36 +269,37 @@
                             | false -> [Number.zero,x]
                         [(List.rev(List.sortWith compare x')).Head]) xList
                     |> List.fold (fun acc (a,b) -> Number.addNumbers acc DefaultValues.plus a) Number.zero
-(*
+
         let ofGPE x xList = _GPE x xList            
 
         let ofTotalGPE u = 
             let var = Variables.ofExpression u
             ofGPE u var
-            
+           
         let rec ofAltGME u x = 
             match Check.isAltMonomialGPE u x with
             | false -> Undefined
             | true -> 
                 match u with
                 | a when a = x -> Integer 1I
-                | a when a.Base = x -> match a.Exponent with | Number (Integer n ) -> Integer n | _ -> Undefined
-                | NaryOp(Product, xList) -> 
+                | a when Base a = x -> match Exponent a with | Number (Integer n ) -> Integer n | _ -> Undefined
+                | NaryOp(product, xList,set) when product = DefaultValues.product -> 
                     let x'List = List.map(fun a -> ofAltGME a x) xList 
-                                 |> List.sortWith Number.compare
+                                 |> List.sortWith Number.compareInt
                                  |> List.rev
                     x'List.Head
                 | _ -> Integer 0I
-
+ 
         let ofAltGPE u x = 
             match Check.isAltPolynomialGPE u x with
             | false -> Undefined
             | true -> 
                 match u with
-                | NaryOp(Sum,xList) when 
+                | NaryOp(sum,xList,set) when 
+                    sum = DefaultValues.sum  &&
                     (List.exists (fun a -> Check.isAltPolynomialGPE a x = false) xList) = false -> 
                         let x'List = List.map(fun a -> ofAltGME a x) xList 
-                                     |> List.sortWith Number.compare
+                                     |> List.sortWith Number.compareInt
                                      |> List.rev
                         x'List.Head
                 | _ -> ofAltGME u x
@@ -306,9 +307,8 @@
         let sort x u v  =
             let u' = (Number (ofGPE u [x]))
             let v' = (Number (ofGPE v [x]))
-            Expression.compareExpressions u' v'
+            Expressions.compareExpressions u' v'
 
-//
     [<RequireQualifiedAccess>]
     module Order =
 
@@ -316,7 +316,7 @@
             match (Check.isMonomialGPE u L && Check.isMonomialGPE v L) || u = v with
             | false -> false
             | true -> 
-                let compare x = ExpressionType.compareExpressions (Number(Degree.ofGPE u [x])) (Number(Degree.ofGPE v [x])) 
+                let compare x = Expressions.compareExpressions (Number(Degree.ofGPE u [x])) (Number(Degree.ofGPE v [x])) 
                 let check = List.tryPick (fun x -> 
                     match compare x with
                     | 1 -> Some false
@@ -333,7 +333,7 @@
                 | true -> -1
                 | false -> 1
             match u with
-            | NaryOp(Sum,xList) -> List.sortWith compare xList |> List.rev
+            | NaryOp(sum,xList,set) when sum = DefaultValues.sum -> List.sortWith compare xList |> List.rev
             | x -> [x]
     
 //Coefficients of a polynomial
@@ -347,8 +347,8 @@
                 match m with
                 | Number n -> n
                 | Symbol v -> (Integer 1I)
-                | BinaryOp (a,ToThePowerOf,b) -> (Integer 1I)
-                | NaryOp (Product, [Number a;b]) -> a
+                | BinaryOp (a,toThePowerOf,b,set) when toThePowerOf = DefaultValues.pow -> (Integer 1I)
+                | NaryOp (product,[Number a;b],set) when product = DefaultValues.product -> a
                 | _-> Undefined
 
         let ofPolynomialSV u j = 
@@ -356,13 +356,13 @@
             | false -> Undefined
             | true ->
                 match Check.isMonomialSV u with
-                | true -> match Degree.ofPolynomialSV u = j with | true ->  ofMonomialSV u | false -> Number.Zero
+                | true -> match Degree.ofPolynomialSV u = j with | true ->  ofMonomialSV u | false -> Number.zero
                 | false -> 
                     match u with
-                    | NaryOp(Sum, a) -> 
+                    | NaryOp(sum, a,set) when sum = DefaultValues.sum-> 
                         match List.tryPick (fun x -> match (Degree.ofPolynomialSV x) = j with | true -> Some x | false -> None) a with
                         | Some m -> ofMonomialSV m
-                        | None -> Number.Zero
+                        | None -> Number.zero
                     | _ -> Undefined
 
         let leadingSV x = ofPolynomialSV x (Degree.ofPolynomialSV x)
@@ -370,31 +370,32 @@
         let rec private _monomialGPE u x = 
             match u with
             | a when a = x -> (Number (Integer 1I), Integer 1I)
-            | BinaryOp (a,ToThePowerOf,Number (Integer b)) when a = x && b > 1I -> (Number (Integer 1I), Integer b)        
-            | NaryOp (Product, aList) -> 
+            | BinaryOp (a,toThePowerOf,Number (Integer b),set) when toThePowerOf = DefaultValues.pow && a = x && b > 1I -> (Number (Integer 1I), Integer b)        
+            | NaryOp (product, aList,set) when product = DefaultValues.product -> 
                 let f = List.map (fun a -> _monomialGPE a x ) aList
                 let fTest = List.exists (fun (a,b) -> a = Number (Integer 1I)) f
                 match fTest with             
                 | true -> 
                     let x' = List.find (fun a -> fst (_monomialGPE a x) = Number (Integer 1I)) aList
-                    (u/x',Degree.ofPolynomialSV x')
-                | false -> (u,Number.Zero)
+                    let ux = BinaryOp(u,DefaultValues.divideBy,x',set)
+                    (ux,Degree.ofPolynomialSV x')
+                | false -> (u,Number.zero)
             | _ -> match freeOf u x with
-                   | true -> (u,Number.Zero)
+                   | true -> (u,Number.zero)
                    | false -> (Number Undefined,Undefined)
 
         let private _GPE u x j = 
             match u with 
-            | NaryOp(Sum,aList) as u' when u' = x -> 
+            | NaryOp(sum,aList,set) as u' when sum = DefaultValues.sum && u' = x -> 
                 match j = Integer 1I with 
                 | true -> Number (Integer 1I)
                 | false -> Number (Integer 0I)
-            | NaryOp (Sum, aList) -> 
+            | NaryOp (sum, aList, set) when sum = DefaultValues.sum -> 
                 List.fold (fun c a -> 
                     let f = _monomialGPE a x 
                     match f with 
                     | (Number Undefined,Undefined) -> Number Undefined
-                    | (y,z) when z = j -> c + y
+                    | (y,z) when z = j -> BinaryOp(c,DefaultValues.plus,y,set)
                     | _ -> c
                     ) (Number (Integer 0I)) aList
             | _ -> 
@@ -442,20 +443,20 @@
         ///Let L be a list of symbols and let u be a multivariate polynomial the symbols of L with rational number coefficients
         let signOfGPE u L =
             let s = leadingNumerical u L
-            match s = Number Number.Zero with
+            match s = Number Number.zero with
             | true -> 0I
             | false -> match s with 
                        | Number (Integer i) when i > 0I ->  1I
                        | Number (Integer i) when i < 0I ->  -1I
-                       | Number (Rational r) when r > Fraction.Zero ->  1I
-                       | Number (Rational r) when r < Fraction.Zero ->  -1I
+                       | Number (Rational r) when r > Number.rationalZero ->  1I
+                       | Number (Rational r) when r < Number.rationalZero ->  -1I
                        | _  -> 0I
         
         ///Let u be a multivariate polynomial
         let signVarOfGPE u =
             let T = Variables.ofExpression u
             let sub1 = List.mapi (fun i x -> (x,Symbol(Variable ("Temp" + i.ToString())))) T
-            let tempExp = List.fold (fun acc (y,t) -> ExpressionStructure.substitute (y,t) acc) u sub1
+            let tempExp = List.fold (fun acc (y,t) -> Expressions.substitute (y,t) acc) u sub1
             let T' = Variables.ofExpression tempExp
             signOfGPE tempExp T'
 
@@ -470,7 +471,7 @@
                     coeffList deg' list'
                 | _ -> list
             coeffList deg []
-
+(*
         let rec leadingMonomial u L =
             match L with
             | [] -> u

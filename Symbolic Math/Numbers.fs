@@ -1608,3 +1608,4 @@ module Number =
 
     let one = Integer 1I
     let zero = Integer 0I
+    let rationalZero = {numerator = 0I;denominator = 1I}
